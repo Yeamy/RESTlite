@@ -59,7 +59,7 @@ publishing {
             version '1.0'
             pom {
                 name = 'restlite-permission'
-                description = 'Deserialize data from JDBC ResultSet as java bean.'
+                description = 'Permission management framework for RESTlite.'
                 url = 'https://github.com/Yeamy/RESTlite'
                 inceptionYear = '2022'
                 scm {

@@ -60,7 +60,7 @@ publishing {
             version '1.0'
             pom {
                 name = 'restlite-core'
-                description = 'Deserialize data from JDBC ResultSet as java bean.'
+                description = 'Helps you with RESTful style servlet developments.'
                 url = 'https://github.com/Yeamy/RESTlite'
                 inceptionYear = '2022'
                 scm {

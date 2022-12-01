@@ -59,7 +59,7 @@ publishing {
             version '1.0'
             pom {
                 name = 'restlite-gson'
-                description = 'Deserialize data from JDBC ResultSet as java bean.'
+                description = 'Gson plugin supported.'
                 url = 'https://github.com/Yeamy/RESTlite'
                 inceptionYear = '2022'
                 scm {

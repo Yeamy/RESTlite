@@ -58,7 +58,7 @@ publishing {
             version '1.0'
             pom {
                 name = 'restlite-apt'
-                description = 'Deserialize data from JDBC ResultSet as java bean.'
+                description = 'An apt framework for RESTlite, make it easy to create services.'
                 url = 'https://github.com/Yeamy/RESTlite'
                 inceptionYear = '2022'
                 scm {
