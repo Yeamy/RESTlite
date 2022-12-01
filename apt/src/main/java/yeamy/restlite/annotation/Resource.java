@@ -6,8 +6,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * @see javax.servlet.annotation.WebServlet
- * @see javax.servlet.annotation.MultipartConfig
+ * @see jakarta.servlet.annotation.WebServlet
+ * @see jakarta.servlet.annotation.MultipartConfig
  *
  */
 @Target(ElementType.TYPE)

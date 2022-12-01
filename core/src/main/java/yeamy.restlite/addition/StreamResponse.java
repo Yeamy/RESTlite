@@ -6,8 +6,8 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.Random;
 
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletResponse;
 
 import yeamy.utils.StreamUtils;
 import yeamy.utils.TextUtils;

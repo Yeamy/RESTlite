@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 /**
  * support type : {@linkplain String String},
- * {@linkplain javax.servlet.http.Cookie Cookie[]}
+ * {@linkplain jakarta.servlet.http.Cookie Cookie[]}
  * 
  * @author Yeamy
  * @see Extra

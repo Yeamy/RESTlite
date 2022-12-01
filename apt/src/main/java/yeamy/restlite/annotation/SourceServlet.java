@@ -57,8 +57,8 @@ class SourceServlet extends SourceClass {
 
     @Override
     public void create() throws IOException {
-        imports("javax.servlet.annotation.MultipartConfig");
-        imports("javax.servlet.annotation.WebServlet");
+        imports("jakarta.servlet.annotation.MultipartConfig");
+        imports("jakarta.servlet.annotation.WebServlet");
         imports("yeamy.restlite.RESTfulServlet");
         String impl = getImplName();
         String name = env.getFileName(pkg, impl + "Servlet");

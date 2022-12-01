@@ -4,13 +4,13 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Enumeration;
 
-import javax.servlet.GenericServlet;
-import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.GenericServlet;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 public abstract class RESTfulServlet extends GenericServlet {
     public static final String REQUEST = "RESTlite:Request";
@@ -98,7 +98,7 @@ public abstract class RESTfulServlet extends GenericServlet {
     }
 
     /**
-     * @see javax.servlet.http.HttpServlet#doTrace(HttpServletRequest, HttpServletResponse)
+     * @see jakarta.servlet.http.HttpServlet#doTrace(HttpServletRequest, HttpServletResponse)
      */
     void doTrace(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String CRLF = "\r\n";

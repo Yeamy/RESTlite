@@ -15,7 +15,7 @@ import java.lang.annotation.Target;
  * {@link Param},
  * {@link Extra},
  * {@link Body},
- * {@linkplain javax.servlet.http.HttpServletRequest HttpServletRequest},
+ * {@linkplain jakarta.servlet.http.HttpServletRequest HttpServletRequest},
  * {@linkplain RESTfulRequest RESTfulRequest},
  * if no annotation defend it will be treated as {@link Param}
  *

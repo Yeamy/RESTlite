@@ -52,7 +52,7 @@ class SourceDispatchService extends SourceClause {
                 asyncTimeout = 0L;
         }
         if (async) {
-            servlet.imports("javax.servlet.AsyncContext");
+            servlet.imports("jakarta.servlet.AsyncContext");
             servlet.append("AsyncContext _asyncContext = _req.startAsync();");
             if (asyncTimeout > 0) {
                 servlet.append("_asyncContext.setTimeout(").append(asyncTimeout).append("\");\"");

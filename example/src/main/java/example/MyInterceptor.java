@@ -1,8 +1,8 @@
 package example;
 
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletResponse;
 import yeamy.restlite.RESTfulRequest;
 import yeamy.restlite.RESTliteFilter;
 import yeamy.restlite.annotation.Interceptor;

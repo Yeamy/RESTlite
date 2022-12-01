@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
 /**
  * call while other HTTP method throws Exception.<br>
  * support parameter type : {@linkplain RESTfulRequest RESTfulRequest},
- * {@linkplain javax.servlet.http.HttpServletRequest HttpServletRequest},
+ * {@linkplain jakarta.servlet.http.HttpServletRequest HttpServletRequest},
  * {@linkplain Exception Exception}<br>
  * return type : {@linkplain yeamy.restlite.HttpResponse HttpResponse}
  * 

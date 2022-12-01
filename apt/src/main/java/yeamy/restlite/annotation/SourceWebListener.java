@@ -22,7 +22,7 @@ class SourceWebListener extends SourceClass {
                 parentName = "RESTfulListener";
         }
         imports.put(parentName, parent);
-        imports("javax.servlet.annotation.WebListener");
+        imports("jakarta.servlet.annotation.WebListener");
     }
 
     @Override

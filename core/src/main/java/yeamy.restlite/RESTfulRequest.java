@@ -6,9 +6,9 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.Map.Entry;
 
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.ServletInputStream;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 
 import yeamy.utils.StreamUtils;
 import yeamy.utils.TextUtils;

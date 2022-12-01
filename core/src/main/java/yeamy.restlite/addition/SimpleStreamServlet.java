@@ -2,7 +2,7 @@ package yeamy.restlite.addition;
 
 import java.io.IOException;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 import yeamy.restlite.RESTfulRequest;
 import yeamy.restlite.HttpResponse;

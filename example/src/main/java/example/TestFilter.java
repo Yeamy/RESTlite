@@ -1,6 +1,6 @@
 package example;
 
-import javax.servlet.annotation.WebFilter;
+import jakarta.servlet.annotation.WebFilter;
 import yeamy.restlite.DispatchFilter;
 import yeamy.restlite.RESTliteFilter;
 

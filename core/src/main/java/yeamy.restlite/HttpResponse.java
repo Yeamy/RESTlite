@@ -3,7 +3,7 @@ package yeamy.restlite;
 import yeamy.restlite.addition.*;
 import java.io.IOException;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * @see Forward

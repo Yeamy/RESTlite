@@ -11,7 +11,7 @@ class SourceServletOnError extends SourceServletMethod<SourceDispatchOnError> {
     @Override
     protected void create(ArrayList<SourceDispatchOnError> methods) throws ClassNotFoundException {
         if (methods.size() == 0) {
-            servlet.imports("javax.servlet.http.HttpServletResponse");
+            servlet.imports("jakarta.servlet.http.HttpServletResponse");
             servlet.imports("java.io.IOException");
             servlet.imports("yeamy.restlite.addition.ExceptionResponse");
             servlet.append("public void onError(HttpServletResponse _resp, Exception e) throws IOException")//

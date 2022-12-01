@@ -3,9 +3,9 @@ package yeamy.restlite.permission;
 import yeamy.restlite.RESTfulRequest;
 import yeamy.restlite.addition.TextPlainResponse;
 
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public class SimplePermissionFilter extends PermissionFilter {

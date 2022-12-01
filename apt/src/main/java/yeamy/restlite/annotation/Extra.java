@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 
 /**
  * Support Constructor Parameter: {@linkplain RESTfulRequest
- * RESTfulRequest}, {@linkplain javax.servlet.http.HttpServletRequest
+ * RESTfulRequest}, {@linkplain jakarta.servlet.http.HttpServletRequest
  * HttpServletRequest};<br>
  * Support declared type with annotation {@link Creator}
  * 

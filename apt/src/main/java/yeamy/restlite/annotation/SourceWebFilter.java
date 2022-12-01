@@ -27,7 +27,7 @@ class SourceWebFilter extends SourceClass {
         super(env);
         this.pkg = env.getPackage();
         this.className = env.getFileName(pkg, "RESTliteWebFilter");
-        imports("javax.servlet.annotation.WebFilter");
+        imports("jakarta.servlet.annotation.WebFilter");
         imports("yeamy.restlite.DispatchFilter");
         imports("yeamy.restlite.RESTliteFilter");
         for (Element element : roundEnv.getElementsAnnotatedWith(Interceptor.class)) {
@@ -39,7 +39,7 @@ class SourceWebFilter extends SourceClass {
     @Override
     public void create() throws IOException {
         StringBuilder sb = new StringBuilder("package ").append(pkg).append(";");
-        sb.append("import static javax.servlet.DispatcherType.*;");
+        sb.append("import static jakarta.servlet.DispatcherType.*;");
         for (String clz : imports.values()) {
             sb.append("import ").append(clz).append(";");
         }

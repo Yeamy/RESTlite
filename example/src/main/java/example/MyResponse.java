@@ -1,6 +1,6 @@
 package example;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import yeamy.restlite.addition.AbstractHttpResponse;
 
 import java.io.IOException;

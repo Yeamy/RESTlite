@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 /**
  * support type : {@linkplain java.io.InputStream InputStream},
- * {@linkplain javax.servlet.ServletInputStream ServletInputStream}, byte[],
+ * {@linkplain jakarta.servlet.ServletInputStream ServletInputStream}, byte[],
  * {@linkplain String String} or any declared type with annotation
  * {@link Creator}
  * <br>

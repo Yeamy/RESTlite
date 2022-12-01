@@ -22,7 +22,7 @@ import java.lang.annotation.Target;
  * If annotate for {@link Extra}, support parameter type: {@link Header},
  * {@link Cookies}, {@link Param}, any other {@link Extra},
  * {@linkplain RESTfulRequest RESTfulRequest},
- * {@linkplain javax.servlet.http.HttpServletRequest HttpServletRequest},
+ * {@linkplain jakarta.servlet.http.HttpServletRequest HttpServletRequest},
  * Class&lt;T&gt;
  * <pre>
  *
@@ -36,9 +36,9 @@ import java.lang.annotation.Target;
  * If annotate for {@link Body}, support parameter type: {@link Header},
  * {@link Cookies}, {@link Param}, {@link Extra},
  * {@linkplain java.io.InputStream InputStream},
- * {@linkplain javax.servlet.ServletInputStream ServletInputStream},
+ * {@linkplain jakarta.servlet.ServletInputStream ServletInputStream},
  * {@linkplain RESTfulRequest RESTfulRequest},
- * {@linkplain javax.servlet.http.HttpServletRequest HttpServletRequest},
+ * {@linkplain jakarta.servlet.http.HttpServletRequest HttpServletRequest},
  * Class&lt;T&gt;
  *
  * <pre>

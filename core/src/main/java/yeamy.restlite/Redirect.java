@@ -2,7 +2,7 @@ package yeamy.restlite;
 
 import java.io.IOException;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 public class Redirect implements HttpResponse {
 	private String url;

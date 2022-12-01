@@ -4,9 +4,9 @@ import yeamy.restlite.RESTfulRequest;
 import yeamy.restlite.RESTliteFilter;
 import yeamy.utils.TextUtils;
 
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public abstract class CorsFilter implements RESTliteFilter {

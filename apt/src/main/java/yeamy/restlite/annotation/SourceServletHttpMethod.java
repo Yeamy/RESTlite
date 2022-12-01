@@ -14,8 +14,8 @@ class SourceServletHttpMethod extends SourceServletMethod<SourceDispatchService>
 
 	protected void create(ArrayList<SourceDispatchService> methods) throws ClassNotFoundException {
 		servlet.imports(T_HttpRequest);
-		servlet.imports("javax.servlet.http.HttpServletResponse");
-		servlet.imports("javax.servlet.ServletException");
+		servlet.imports("jakarta.servlet.http.HttpServletResponse");
+		servlet.imports("jakarta.servlet.ServletException");
 		servlet.imports("java.io.IOException");
 		servlet.append("@Override public void do").append(httpMethod.charAt(0))
 				.append(httpMethod.toLowerCase(), 1, httpMethod.length())

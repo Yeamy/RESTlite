@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
  * int, int[], boolean, boolean[], {@linkplain java.math.BigDecimal BigDecimal},
  * BigDecimal[], {@linkplain yeamy.restlite.HttpRequestFile HttpRequestFile},
  * HttpRequestFile[], {@linkplain RESTfulRequest RESTfulRequest},
- * {@linkplain javax.servlet.http.HttpServletRequest HttpServletRequest},
+ * {@linkplain jakarta.servlet.http.HttpServletRequest HttpServletRequest},
  * 
  * @author Yeamy
  * @see Extra
