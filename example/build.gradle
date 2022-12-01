@@ -1,0 +1,32 @@
+plugins {
+    id 'war'
+//    id 'name.remal.apt' version '1.5.0'
+}
+
+group 'io.github.yeamy'
+version '1.0-SNAPSHOT'
+sourceCompatibility = JavaVersion.VERSION_1_8
+
+compileJava {
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'com.google.code.gson:gson:2.10'
+    implementation 'io.github.open-feign:parent:12.1'
+    implementation 'io.github.open-feign:feign-jakarta:12.1'
+    implementation 'io.github.open-feign:feign-gson:12.1'
+    implementation project(':permission')
+    implementation project(':gson')
+    compileOnly project(':apt')
+    annotationProcessor project(':apt')
+//    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
+//    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
+}
+
+//test {
+//    useJUnitPlatform()
+//}
