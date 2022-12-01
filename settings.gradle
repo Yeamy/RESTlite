@@ -1,3 +1,4 @@
 rootProject.name = 'RESTlite'
 include 'core'
 include 'permission'
+include 'gson'

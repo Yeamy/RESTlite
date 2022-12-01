@@ -2,3 +2,4 @@
 .gradle
 core/build/
 permission/build/
+gson/build/
