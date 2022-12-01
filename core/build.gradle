@@ -3,7 +3,7 @@ plugins {
 }
 
 group 'io.github.yeamy'
-version '1.0'
+var $version = '1.0-SNAPSHOT'
 sourceCompatibility = JavaVersion.VERSION_11
 
 repositories {
@@ -57,7 +57,7 @@ publishing {
         maven(MavenPublication) {
             groupId 'io.github.yeamy'
             artifactId 'restlite-core'
-            version '1.0'
+            version $version
             pom {
                 name = 'restlite-core'
                 description = 'Helps you with RESTful style servlet developments.'

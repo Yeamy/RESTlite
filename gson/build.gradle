@@ -3,7 +3,7 @@ plugins {
 }
 
 group 'io.github.yeamy'
-version '1.0-SNAPSHOT'
+var $version = '1.0-SNAPSHOT'
 sourceCompatibility = JavaVersion.VERSION_11
 
 repositories {
@@ -56,7 +56,7 @@ publishing {
         maven(MavenPublication) {
             groupId 'io.github.yeamy'
             artifactId 'restlite-gson'
-            version '1.0'
+            version $version
             pom {
                 name = 'restlite-gson'
                 description = 'Gson plugin supported.'
