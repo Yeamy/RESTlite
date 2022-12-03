@@ -19,7 +19,7 @@ public class StreamResponse extends AbstractHttpResponse<InputStream> {
     protected int totalLength;
     protected long lastModified;
     private String boundary;
-    private String etag;
+    private String eTag;
 
     public StreamResponse(InputStream is) throws IOException {
         super(is);
@@ -30,7 +30,7 @@ public class StreamResponse extends AbstractHttpResponse<InputStream> {
         super(Files.newInputStream(file.toPath()));
         this.totalLength = getData().available();
         this.lastModified = file.lastModified();
-        this.etag = ETag.fileETag(file);
+        this.eTag = ETag.fileETag(file);
         this.download = ContentDisposition.attachment;
         setFilename(file.getName());
     }
@@ -44,8 +44,8 @@ public class StreamResponse extends AbstractHttpResponse<InputStream> {
         this.lastModified = lastModified;
     }
 
-    public void setETag(String etag) {
-        this.etag = etag;
+    public void setETag(String eTag) {
+        this.eTag = eTag;
     }
 
     public void setRequestRange(String range) {
@@ -91,8 +91,8 @@ public class StreamResponse extends AbstractHttpResponse<InputStream> {
 
     @Override
     public void writeContent(HttpServletResponse resp) throws IOException {
-        if (etag != null) {
-            resp.setHeader("ETag", etag);
+        if (eTag != null) {
+            resp.setHeader("ETag", eTag);
         }
         if (lastModified > 0) {
             resp.setDateHeader("Last-Modified", lastModified);

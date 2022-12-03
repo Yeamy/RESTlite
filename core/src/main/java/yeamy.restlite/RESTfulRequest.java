@@ -149,8 +149,14 @@ public class RESTfulRequest implements Serializable {
         }
     }
 
+    public String getCharset() {
+        return req.getCharacterEncoding();
+    }
+
     public String getBodyAsText() {
-        return getBodyAsText("utf-8");
+        String cs = getCharset();
+        if (cs == null) cs = "UTF-8";
+        return getBodyAsText(cs);
     }
 
     public String getBodyAsText(String charset) {

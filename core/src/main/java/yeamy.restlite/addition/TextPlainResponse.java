@@ -1,6 +1,7 @@
 package yeamy.restlite.addition;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -19,9 +20,9 @@ public class TextPlainResponse extends AbstractHttpResponse<String> {
 
 	@Override
 	protected void writeContent(HttpServletResponse resp) throws IOException {
-		PrintWriter w = resp.getWriter();
-		w.write(getData());
-		w.close();
+		try(OutputStream os = resp.getOutputStream()) {
+			os.write(getData().getBytes(getCharset()));
+		}
 	}
 
 }

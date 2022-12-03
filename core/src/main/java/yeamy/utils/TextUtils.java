@@ -76,4 +76,8 @@ public class TextUtils {
 			from = start + replacement.length();
 		}
 	}
+
+	public static boolean contains(CharSequence c1, CharSequence c2) {
+		return c1 != null && c1.toString().contains(c2);
+	}
 }

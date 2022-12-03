@@ -16,9 +16,9 @@ repositories {
 
 dependencies {
     implementation 'com.google.code.gson:gson:2.10'
-    implementation 'io.github.open-feign:parent:12.1'
-    implementation 'io.github.open-feign:feign-jakarta:12.1'
-    implementation 'io.github.open-feign:feign-gson:12.1'
+    implementation 'io.github.openfeign:parent:12.1'
+    implementation 'io.github.openfeign:feign-jakarta:12.1'
+    implementation 'io.github.openfeign:feign-gson:12.1'
     implementation project(':permission')
     implementation project(':gson')
     compileOnly project(':apt')
