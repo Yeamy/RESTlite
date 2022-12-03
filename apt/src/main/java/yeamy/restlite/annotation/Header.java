@@ -8,7 +8,6 @@ import java.lang.annotation.Target;
 /**
  * support type : {@linkplain String String}
  * @author Yeamy
- * @see Extra
  * @see Cookies
  * @see Param
  * @see Body

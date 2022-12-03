@@ -10,7 +10,7 @@ import java.util.List;
 
 import static yeamy.restlite.annotation.SupportType.*;
 
-class SourceDispatchService extends SourceClause {
+class SourceDispatchService extends SourceDispatch {
 
     private final SourceArguments args = new SourceArguments();
 
@@ -64,7 +64,6 @@ class SourceDispatchService extends SourceClause {
                     || doHeader(a)
                     || doCookie(a)
                     || doParam(a)
-                    || doExtra(a)
                     || doBody(a)) {
                 continue;
             }
@@ -183,7 +182,7 @@ class SourceDispatchService extends SourceClause {
         TypeMirror t = p.asType();
         String type = t.toString();
         Body body = p.getAnnotation(Body.class);
-        if (body == null && TextUtils.notIn(type, T_File, T_Files, T_InputStream, T_ServletInputStream)) {
+        if ((body == null) && TextUtils.notIn(type, T_File, T_Files, T_InputStream, T_ServletInputStream)) {
             return false;
         }
         if (args.containsBody()) {
@@ -225,31 +224,6 @@ class SourceDispatchService extends SourceClause {
         return true;
     }
 
-    private boolean doExtra(VariableElement p) {
-        Extra extra = p.getAnnotation(Extra.class);
-        if (extra == null) {
-            return false;
-        }
-        TypeMirror t = p.asType();
-        SourceParamCreator creator = env.getExtraCreator(servlet, t, extra);
-        if (creator instanceof SourceParamFail) {
-            args.addFallback("null/* not support type */");
-            env.error("Not support type " + t.toString());
-            return true;
-        }
-        String exist = args.getExtraAlias(creator.getID());
-        if (exist != null) {
-            args.addExist(exist);
-        } else {
-            String name = p.getSimpleName().toString();
-            SourceParamChain chain = new SourceParamChain(env, servlet, args);
-            args.addExtra(creator.getID(), name, creator.isThrowable(), creator.isCloseable(), creator.isCloseThrow(),
-                            extra.autoClose())
-                    .write(creator.toCharSequence(chain, name));
-        }
-        return true;
-    }
-
     private void addNoType(TypeKind k) {
         switch (k) {
             case BOOLEAN:
@@ -270,7 +244,7 @@ class SourceDispatchService extends SourceClause {
     }
 
     private boolean doParam(VariableElement p) {
-        if (p.getAnnotation(Extra.class) != null || p.getAnnotation(Body.class) != null) {
+        if (p.getAnnotation(Body.class) != null) {
             return false;
         }
         TypeMirror t = p.asType();

@@ -12,29 +12,15 @@ import java.lang.annotation.Target;
  *
  * <pre>
  * &#64;GET
- * public String method(&#64;Extra A a){...}
+ * public String method(A a){...}
  *
  * &#64;Creator(className = "demo.GsonParser", tag = "json")
  * public class A {
  * 	...
  * }
  * </pre>
- * If annotate for {@link Extra}, support parameter type: {@link Header},
- * {@link Cookies}, {@link Param}, any other {@link Extra},
- * {@linkplain RESTfulRequest RESTfulRequest},
- * {@linkplain jakarta.servlet.http.HttpServletRequest HttpServletRequest},
- * Class&lt;T&gt;
- * <pre>
- *
- * public class JsonParser {
- *   public static A parse(HttpServletRequest _req) {
- *     ...
- *     return new A();
- *   }
- * }
- * </pre>
- * If annotate for {@link Body}, support parameter type: {@link Header},
- * {@link Cookies}, {@link Param}, {@link Extra},
+ * Support parameter type: {@link Header},
+ * {@link Cookies}, {@link Param},
  * {@linkplain java.io.InputStream InputStream},
  * {@linkplain jakarta.servlet.ServletInputStream ServletInputStream},
  * {@linkplain RESTfulRequest RESTfulRequest},
@@ -55,7 +41,6 @@ import java.lang.annotation.Target;
  *
  * @author Yeamy
  * @see Body
- * @see Extra
  * @see LinkTag
  */
 @Target({ElementType.TYPE, ElementType.FIELD, ElementType.PARAMETER})

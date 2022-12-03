@@ -10,7 +10,7 @@ import static yeamy.restlite.annotation.SupportType.T_HttpServletRequest;
 /**
  * @see ERROR
  */
-class SourceDispatchOnError extends SourceClause {
+class SourceDispatchOnError extends SourceDispatch {
     private static final String T_Exception = "java.lang.Exception";
 
     public SourceDispatchOnError(ProcessEnvironment env, SourceServlet servlet, ExecutableElement method) {

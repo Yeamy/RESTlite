@@ -7,20 +7,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 class SourceParamConstructor extends SourceParamCreator {
-    private final boolean supportBody;
     private final TypeElement type;
     private final List<? extends VariableElement> parameters;
 
     public static SourceParamCreator body(ProcessEnvironment env, boolean samePackage, TypeElement type, String tag) {
-        return get(env, samePackage, type, tag, true);
-    }
-
-    public static SourceParamCreator extra(ProcessEnvironment env, boolean samePackage, TypeElement type, String tag) {
-        return get(env, samePackage, type, tag, false);
-    }
-
-    private static SourceParamCreator get(ProcessEnvironment env, boolean samePackage, TypeElement type, String tag,
-                                          boolean supportBody) {
         List<? extends Element> elements = type.getEnclosedElements();
         ExecutableElement constructor;
         List<? extends VariableElement> parameters;
@@ -36,21 +26,20 @@ class SourceParamConstructor extends SourceParamCreator {
                 constructor = null;
                 parameters = Collections.emptyList();
             } else {
-                constructor = findConstructor(constructors, samePackage, supportBody);
+                constructor = findConstructor(constructors, samePackage);
                 parameters = constructor == null
                         ? Collections.emptyList()
                         : constructor.getParameters();
             }
         }
-        SourceParamConstructor creator = new SourceParamConstructor(type, parameters, supportBody);
+        SourceParamConstructor creator = new SourceParamConstructor(type, parameters);
         creator.init(env, type.asType(), constructor, samePackage, elements);
         return creator;
     }
 
-    private SourceParamConstructor(TypeElement type, List<? extends VariableElement> parameters, boolean supportBody) {
+    private SourceParamConstructor(TypeElement type, List<? extends VariableElement> parameters) {
         this.type = type;
         this.parameters = parameters;
-        this.supportBody = supportBody;
     }
 
     private static ExecutableElement findConstructor(List<? extends Element> list, String tag) {
@@ -80,14 +69,13 @@ class SourceParamConstructor extends SourceParamCreator {
         return methods;
     }
 
-    private static ExecutableElement findConstructor(LinkedList<ExecutableElement> methods, boolean samePackage,
-                                                     boolean supportBody) {
+    private static ExecutableElement findConstructor(LinkedList<ExecutableElement> methods, boolean samePackage) {
         Iterator<ExecutableElement> itr = methods.iterator();
         while (itr.hasNext()) {// find public
             ExecutableElement element = itr.next();
             if (!samePackage && !element.getModifiers().contains(Modifier.PUBLIC)) {
                 itr.remove();
-            } else if (!checkParam(element, supportBody)) {
+            } else if (!checkParam(element)) {
                 itr.remove();
             }
         }
@@ -116,11 +104,6 @@ class SourceParamConstructor extends SourceParamCreator {
         appendParam(parameters, chain, b);
         b.append(")");
         return b;
-    }
-
-    @Override
-    protected boolean supportBody() {
-        return supportBody;
     }
 
 }

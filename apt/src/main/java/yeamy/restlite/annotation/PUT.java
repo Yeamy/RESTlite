@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 /**
  * HTTP PUT<br>
- * support parameter : {@linkplain Extra Extra},
+ * support parameter :
  * {@linkplain Param Param},
  * {@linkplain Header Header},
  * {@linkplain Cookies Cookies},

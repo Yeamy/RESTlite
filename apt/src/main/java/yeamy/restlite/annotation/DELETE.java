@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 /**
  * HTTP DELETE<br>
- * support parameter : {@linkplain Extra Extra},
+ * support parameter :
  * {@linkplain Param Param},
  * {@linkplain Header Header},
  * {@linkplain Cookies Cookies}, if no annotation

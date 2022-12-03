@@ -1,6 +1,5 @@
 package yeamy.restlite.annotation;
 
-import yeamy.restlite.annotation.SourceArguments.Impl;
 import yeamy.utils.TextUtils;
 
 import javax.lang.model.element.*;
@@ -86,16 +85,18 @@ abstract class SourceParamCreator {
         }
     }
 
-    protected abstract boolean supportBody();
-
     private void appendArgument(SourceParamChain chain, VariableElement param, StringBuilder b) {
         if (doRequest(param, b)
                 || doHeader(chain, param, b)
                 || doCookie(chain, param, b)
                 || doParam(chain.getArguments(), param, b)
-                || doExtra(chain, param, b)
-                || (supportBody() && doBody(chain, param, b))) {
+                || doBody(chain, param, b)) {
             return;
+        }
+        if (param.asType().getKind().equals(TypeKind.DECLARED)) {//TODO
+            ProcessEnvironment env = chain.getEnvironment();
+//            chain.
+//            env.getTypeUtils().asElement(param.asType()).
         }
         doNoType(param.asType().getKind(), b);
     }
@@ -206,10 +207,11 @@ abstract class SourceParamCreator {
         Body body = p.getAnnotation(Body.class);
         TypeMirror t = p.asType();
         String type = t.toString();
-        if (body != null && TextUtils.notIn(type, T_ServletInputStream, T_File, T_Files)) {
+        ProcessEnvironment env = chain.getEnvironment();
+        if ((body == null) && TextUtils.notIn(type, T_File, T_Files, T_InputStream, T_ServletInputStream)) {
             return false;
         }
-        ProcessEnvironment env = chain.getEnvironment();
+//        ProcessEnvironment env = chain.getEnvironment();
         SourceArguments args = chain.getArguments();
         if (args.containsBody()) {
             args.addFallback("null");
@@ -244,34 +246,6 @@ abstract class SourceParamCreator {
                 } else {
                     b.append(creator.toCharSequence(chain));
                 }
-        }
-        return true;
-    }
-
-    private boolean doExtra(SourceParamChain chain, VariableElement p, StringBuilder b) {
-        Extra extra = p.getAnnotation(Extra.class);
-        if (extra == null) {
-            return false;
-        }
-        TypeMirror t = p.asType();
-        ProcessEnvironment env = chain.getEnvironment();
-        SourceServlet servlet = chain.getServlet();
-        SourceArguments args = chain.getArguments();
-        SourceParamCreator creator = env.getExtraCreator(servlet, t, extra);
-        if (creator instanceof SourceParamFail) {
-            b.append("null/*not support type*/");
-        } else if (chain.add(this)) {
-            if (creator.throwable || creator.closeable) {
-                Impl impl = args.addSubExtra(creator.id, creator.throwable, creator.closeable, creator.closeThrow,
-                        extra.autoClose());
-                impl.write(creator.toCharSequence(chain, impl.name()));
-                b.append(impl.name());
-            } else {
-                b.append(creator.toCharSequence(chain));
-            }
-        } else {
-            b.append("null/*cycle reference*/");
-            env.error("cycle reference");
         }
         return true;
     }
@@ -362,20 +336,18 @@ abstract class SourceParamCreator {
     private static final String[] BODY_SUPPORT_TYPE = {T_HttpRequest, T_HttpServletRequest, T_Cookie, T_Cookies,
             T_InputStream, T_ServletInputStream, T_File, T_Files};
 
-    private static final String[] EXTRA_SUPPORT_TYPE = {T_HttpRequest, T_HttpServletRequest, T_Cookie, T_Cookies};
-
-    protected static boolean checkParam(ExecutableElement method, boolean supportBody) {
-        return checkParam(method, supportBody, null);
+    protected static boolean checkParam(ExecutableElement method) {
+        return checkParam(method, null);
     }
 
-    protected static boolean checkParam(ExecutableElement method, boolean supportBody, String typeVar) {
+    protected static boolean checkParam(ExecutableElement method, String typeVar) {
         for (VariableElement param : method.getParameters()) {
             if (param.getAnnotation(Header.class) != null || param.getAnnotation(Cookies.class) != null
-                    || param.getAnnotation(Param.class) != null || param.getAnnotation(Extra.class) != null) {
+                    || param.getAnnotation(Param.class) != null) {
                 continue;
             }
             String type = param.asType().toString();
-            if (TextUtils.in(type, supportBody ? BODY_SUPPORT_TYPE : EXTRA_SUPPORT_TYPE)) {
+            if (TextUtils.in(type, BODY_SUPPORT_TYPE)) {
                 continue;
             } else if (typeVar != null && param.asType().toString().equals(typeVar)) {
                 continue;

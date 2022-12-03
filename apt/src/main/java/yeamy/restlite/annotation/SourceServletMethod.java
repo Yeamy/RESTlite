@@ -8,7 +8,7 @@ import java.util.ArrayList;
  * @author Yeamy
  *
  */
-abstract class SourceServletMethod<T extends SourceClause> {
+abstract class SourceServletMethod<T extends SourceDispatch> {
 	protected final ProcessEnvironment env;
 	protected final SourceServlet servlet;
 	private final ArrayList<T> methods = new ArrayList<>();
@@ -49,7 +49,7 @@ abstract class SourceServletMethod<T extends SourceClause> {
 	protected abstract void create(ArrayList<T> methods) throws ClassNotFoundException;
 
 	public boolean hasNoArgs() {
-		for (SourceClause method : methods) {
+		for (SourceDispatch method : methods) {
 			if (method.orderKey().length() == 0) {
 				return true;
 			}

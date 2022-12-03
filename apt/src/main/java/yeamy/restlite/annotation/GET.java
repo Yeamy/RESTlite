@@ -13,7 +13,6 @@ import java.lang.annotation.Target;
  * {@link Header},
  * {@link Cookies},
  * {@link Param},
- * {@link Extra},
  * {@link Body},
  * {@linkplain jakarta.servlet.http.HttpServletRequest HttpServletRequest},
  * {@linkplain RESTfulRequest RESTfulRequest},

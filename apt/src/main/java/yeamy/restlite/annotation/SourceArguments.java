@@ -1,7 +1,6 @@
 package yeamy.restlite.annotation;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 
 class SourceArguments implements Iterable<CharSequence> {
@@ -25,11 +24,6 @@ class SourceArguments implements Iterable<CharSequence> {
             this.close = close;
             this.closeThrow = closeThrow;
             this.autoClose = autoClose;
-        }
-
-        public static Impl extra(String id, String name, boolean throwable, boolean close, boolean closeThrow,
-                                 boolean autoClose) {
-            return new Impl(Kind.extra, id, name, name, throwable, close, closeThrow, autoClose);
         }
 
         private Impl(Kind kind, String type, String hName, String jName) {
@@ -67,7 +61,7 @@ class SourceArguments implements Iterable<CharSequence> {
     }
 
     private enum Kind {
-        header, cookie, param, body, extra, subExtra, none
+        header, cookie, param, body, none
     }
 
     public Impl addHeader(String name, String alias) {
@@ -93,33 +87,6 @@ class SourceArguments implements Iterable<CharSequence> {
         Impl impl = new Impl(Kind.body, "", name, name);
         list.add(impl);
         return impl;
-    }
-
-    public Impl addExtra(String id, String name, boolean throwable, boolean closeable, boolean closeThrow, boolean autoClose) {
-        Impl impl = Impl.extra(id, name, throwable, closeable, closeThrow, autoClose);
-        list.add(impl);
-        return impl;
-    }
-
-    public Impl addSubExtra(String id, boolean throwable, boolean closeable, boolean closeThrow, boolean autoClose) {
-        Impl impl = Impl.extra(id, subExtraName(), throwable, closeable, closeThrow, autoClose);
-        list.add(impl);
-        return impl;
-    }
-
-    private String subExtraName() {
-        HashSet<String> names = new HashSet<>();
-        for (Impl impl : list) {
-            if (impl.kind != Kind.none) {
-                names.add(impl.hName);
-            }
-        }
-        for (int i = 1; true; i++) {
-            String name = "_extra" + i;
-            if (!names.contains(name)) {
-                return name;
-            }
-        }
     }
 
     public void addFallback(String vs) {
@@ -156,15 +123,6 @@ class SourceArguments implements Iterable<CharSequence> {
         return cell == null ? null : cell.type.equals(type) ? cell.jName : null;
     }
 
-    public String getExtraAlias(String id) {
-        for (Impl a : list) {
-            if (a.kind == Kind.extra && a.type.equals(id)) {
-                return a.jName;
-            }
-        }
-        return null;
-    }
-
     public boolean containsBody() {
         for (Impl a : list) {
             if (a.kind == Kind.body) {
@@ -188,14 +146,10 @@ class SourceArguments implements Iterable<CharSequence> {
     public ArrayList<String> names() {
         ArrayList<String> out = new ArrayList<>(list.size());
         for (Impl impl : list) {
-            switch (impl.kind) {
-                case none:
-                    out.add(impl.vs.toString());
-                    break;
-                case subExtra:
-                    break;
-                default:
-                    out.add(impl.hName);
+            if (impl.kind == Kind.none) {
+                out.add(impl.vs.toString());
+            } else {
+                out.add(impl.hName);
             }
         }
         return out;

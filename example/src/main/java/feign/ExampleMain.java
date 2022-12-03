@@ -1,6 +1,7 @@
 package feign;
 
 import yeamy.restlite.addition.GsonBody;
+import yeamy.restlite.annotation.Body;
 import yeamy.restlite.annotation.GET;
 import yeamy.restlite.annotation.Resource;
 
@@ -8,16 +9,16 @@ import yeamy.restlite.annotation.Resource;
 public class ExampleMain {
 
 	@GET
-	public String get(@GsonBody ExampleBean bean) {
+	public String get(@Body ExampleBean bean) {
 		return null;
 	}
 
 //	@GET
-//	public String get(@Extra FeignImpl client) {
+//	public String get(FeignImpl client) {
 //		return null;
 //	}
 
-//	public String get(@Extra ExampleClient client) {
+//	public String get(ExampleClient client) {
 //		return client.get().value;
 //	}
 

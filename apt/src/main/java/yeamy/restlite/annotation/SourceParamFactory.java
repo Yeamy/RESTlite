@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Set;
 
 class SourceParamFactory extends SourceParamCreator {
-    private final boolean supportBody;
     private final TypeMirror childType;
     private final TypeElement factoryType;
     private final ExecutableElement method;
@@ -21,7 +20,7 @@ class SourceParamFactory extends SourceParamCreator {
         }
         List<? extends Element> elements = factoryType.getEnclosedElements();
         ExecutableElement method = findMethodByTag(elements, tag);
-        SourceParamFactory f = new SourceParamFactory(factoryType, child, method, true);
+        SourceParamFactory f = new SourceParamFactory(factoryType, child, method);
         f.init(env, factoryType.asType(), method, samePackage, elements);
         return f;
     }
@@ -33,41 +32,13 @@ class SourceParamFactory extends SourceParamCreator {
             return new SourceParamFail();
         }
         List<? extends Element> elements = factoryType.getEnclosedElements();
-        ExecutableElement method = findMethod(env, samePackage, child, true, elements);
-        SourceParamFactory f = new SourceParamFactory(factoryType, child, method, true);
+        ExecutableElement method = findMethod(env, samePackage, child, elements);
+        SourceParamFactory f = new SourceParamFactory(factoryType, child, method);
         f.init(env, factoryType.asType(), method, samePackage, elements);
         return f;
     }
 
-    public static SourceParamCreator extra(ProcessEnvironment env, boolean samePackage, String factoryClass,
-                                           TypeMirror child, String tag) {
-        TypeElement factoryType = env.getTypeElement(factoryClass);
-        if (factoryType == null) {
-            return new SourceParamFail();
-        }
-        List<? extends Element> elements = factoryType.getEnclosedElements();
-        ExecutableElement method = findMethodByTag(elements, tag);
-        SourceParamFactory f = new SourceParamFactory(factoryType, child, method, false);
-        f.init(env, factoryType.asType(), method, samePackage, elements);
-        return f;
-    }
-
-    public static SourceParamCreator extra(ProcessEnvironment env, boolean samePackage, String factoryClass,
-                                           TypeMirror child) {
-        TypeElement factoryType = env.getTypeElement(factoryClass);
-        if (factoryType == null) {
-            return new SourceParamFail();
-        }
-        List<? extends Element> elements = factoryType.getEnclosedElements();
-        ExecutableElement method = findMethod(env, samePackage, child, false, elements);
-        SourceParamFactory f = new SourceParamFactory(factoryType, child, method, false);
-        f.init(env, factoryType.asType(), method, samePackage, elements);
-        return f;
-    }
-
-    private SourceParamFactory(TypeElement factoryType, TypeMirror childType, ExecutableElement method,
-                               boolean supportBody) {
-        this.supportBody = supportBody;
+    private SourceParamFactory(TypeElement factoryType, TypeMirror childType, ExecutableElement method) {
         this.childType = childType;
         this.factoryType = factoryType;
         this.method = method;
@@ -91,7 +62,7 @@ class SourceParamFactory extends SourceParamCreator {
     }
 
     private static ExecutableElement findMethod(ProcessEnvironment env, boolean samePackage, TypeMirror child,
-                                                boolean supportBody, List<? extends Element> elements) {
+                                                List<? extends Element> elements) {
         LinkedList<ExecutableElement> methods = new LinkedList<>();
         for (Element element : elements) {
             if (element.getKind() == ElementKind.METHOD) {
@@ -103,17 +74,17 @@ class SourceParamFactory extends SourceParamCreator {
                     if (rtk == TypeKind.TYPEVAR) {
                         Element e = env.asElement(rt);
                         if (e instanceof TypeParameterElement) {
-                            String typeVar = "java.lang.Class<" + e + ">";
+                            String typeVar = "java.lang.Class<" + e + ">";//TODO
                             List<? extends TypeMirror> bounds = ((TypeParameterElement) e).getBounds();
                             for (TypeMirror bound : bounds) {
-                                if (env.isAssignable(child, bound) && checkParam(method, supportBody, typeVar)) {
+                                if (env.isAssignable(child, bound) && checkParam(method, typeVar)) {
                                     methods.add(method);
                                     break;
                                 }
                             }
                         }
                     } else if (rtk != TypeKind.VOID && env.isAssignable(child, rt)
-                            && checkParam(method, supportBody)) {
+                            && checkParam(method)) {
                         methods.add(method);
                     }
                 }
@@ -144,11 +115,6 @@ class SourceParamFactory extends SourceParamCreator {
         appendParam(method.getParameters(), chain, b);
         b.append(")");
         return b;
-    }
-
-    @Override
-    protected boolean supportBody() {
-        return supportBody;
     }
 
 }

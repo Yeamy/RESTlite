@@ -10,7 +10,7 @@ import java.util.TreeSet;
  * @see SourceDispatchService
  * @see SourceDispatchOnError
  */
-abstract class SourceClause {
+abstract class SourceDispatch {
     protected final ProcessEnvironment env;
     protected final SourceServlet servlet;
     protected final ExecutableElement method;
@@ -18,7 +18,7 @@ abstract class SourceClause {
     protected final List<? extends VariableElement> arguments;
     private String orderKey;
 
-    public SourceClause(ProcessEnvironment env, SourceServlet servlet, ExecutableElement method) {
+    public SourceDispatch(ProcessEnvironment env, SourceServlet servlet, ExecutableElement method) {
         this.env = env;
         this.servlet = servlet;
         this.method = method;
@@ -37,7 +37,6 @@ abstract class SourceClause {
                 set.add(a.getSimpleName().toString());
             } else if (a.getAnnotation(Header.class) == null//
                     && a.getAnnotation(Cookies.class) == null//
-                    && a.getAnnotation(Extra.class) == null//
                     && a.getAnnotation(Body.class) == null) {
                 set.add(a.getSimpleName().toString());
             } else {
