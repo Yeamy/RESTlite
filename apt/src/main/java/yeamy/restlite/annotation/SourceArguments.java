@@ -136,7 +136,12 @@ class SourceArguments implements Iterable<CharSequence> {
     public Iterator<CharSequence> iterator() {
         ArrayList<CharSequence> out = new ArrayList<>(list.size());
         for (Impl impl : list) {
-            if (impl.kind != Kind.none) {
+            if (impl.kind != Kind.none && impl.kind != Kind.body) {
+                out.add(impl.vs);
+            }
+        }
+        for (Impl impl : list) {
+            if (impl.kind == Kind.body) {
                 out.add(impl.vs);
             }
         }

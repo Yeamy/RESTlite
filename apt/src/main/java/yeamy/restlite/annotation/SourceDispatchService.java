@@ -63,8 +63,8 @@ class SourceDispatchService extends SourceDispatch {
             if (doRequest(a)
                     || doHeader(a)
                     || doCookie(a)
-                    || doParam(a)
-                    || doBody(a)) {
+                    || doBody(a)
+                    || doParam(a)) {
                 continue;
             }
         }
@@ -183,6 +183,21 @@ class SourceDispatchService extends SourceDispatch {
         String type = t.toString();
         Body body = p.getAnnotation(Body.class);
         if ((body == null) && TextUtils.notIn(type, T_File, T_Files, T_InputStream, T_ServletInputStream)) {
+            List<? extends AnnotationMirror> as = p.getAnnotationMirrors();
+            for (AnnotationMirror a : as) {
+                Creator ann = a.getAnnotationType().asElement().getAnnotation(Creator.class);
+                if (ann != null) {
+                    SourceParamCreator creator = env.getBodyCreator(servlet, t, ann);
+                    if (creator instanceof SourceParamFail) {
+                        addNoType(t.getKind());
+                        env.warning("not support body type " + type + " without annotation Creator");
+                    } else {
+                        String name = p.getSimpleName().toString();
+                        args.addBody(name).write(creator.toCharSequence(servlet, args, name));
+                    }
+                    return true;
+                }
+            }
             return false;
         }
         if (args.containsBody()) {
@@ -243,14 +258,8 @@ class SourceDispatchService extends SourceDispatch {
     }
 
     private boolean doParam(VariableElement p) {
-        if (p.getAnnotation(Body.class) != null) {
-            return false;
-        }
         TypeMirror t = p.asType();
         String type = t.toString();
-        if (TextUtils.in(type, T_File, T_Files, T_InputStream, T_ServletInputStream)) {
-            return false;
-        }
         Param param = p.getAnnotation(Param.class);
         String alias = p.getSimpleName().toString();
         boolean required;

@@ -74,6 +74,31 @@ class ProcessEnvironment {
         return elementUtils.getTypeElement(clz);
     }
 
+    public SourceParamCreator getBodyCreator(SourceServlet servlet, TypeMirror t, Creator ann) {
+        String className = ann.className();
+        String tag = ann.tag();
+        TypeElement te = getTypeElement(t.toString());
+        String fpk = ((PackageElement) te.getEnclosingElement()).getQualifiedName().toString();
+        boolean samePackage = fpk.equals(servlet.getPackage());
+        if (tag.length() > 0) {// by tag
+            String id = "t:" + className + ":" + tag;
+            SourceParamCreator creator = paramCreator.get(id);
+            if (creator == null) {
+                creator = SourceParamFactory.body(this, samePackage, className, t, tag);
+                paramCreator.put(id, creator);
+            }
+            return creator;
+        } else {// by type
+            String id = "f:" + className + ":" + t + ":" + (samePackage ? "" : servlet.getPackage());
+            SourceParamCreator creator = paramCreator.get(id);
+            if (creator == null) {
+                creator = SourceParamFactory.body(this, samePackage, className, t);
+                paramCreator.put(id, creator);
+            }
+            return creator;
+        }
+    }
+
     public SourceParamCreator getBodyCreator(SourceServlet servlet, TypeMirror t, Body body) {
         String className = body.creator();
         String tag = body.tag();
