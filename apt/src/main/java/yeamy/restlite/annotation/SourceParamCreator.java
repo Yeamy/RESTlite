@@ -3,7 +3,6 @@ package yeamy.restlite.annotation;
 import yeamy.utils.TextUtils;
 
 import javax.lang.model.element.*;
-import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import java.util.List;
 import java.util.Set;
@@ -16,17 +15,22 @@ import static yeamy.restlite.annotation.SupportType.*;
  * @see SourceParamFail
  */
 abstract class SourceParamCreator {
-    private String id;
+    protected final ProcessEnvironment env;
+    protected final TypeElement type;
     private boolean throwable = false;
     private boolean closeable = false;
     private boolean closeThrow = false;
 
-    protected void init(ProcessEnvironment env, TypeMirror t, ExecutableElement method, boolean samePackage,
-                        List<? extends Element> elements) {
+    public SourceParamCreator(ProcessEnvironment env, TypeElement type) {
+        this.env = env;
+        this.type = type;
+    }
+
+    protected void init(ExecutableElement method, boolean samePackage, List<? extends Element> elements) {
         if (method != null) {
             this.throwable = method.getThrownTypes().size() > 0;
         }
-        this.closeable = env.isCloseable(t);
+        this.closeable = env.isCloseable(type.asType());
         if (closeable) {
             for (Element element : elements) { // find close method
                 if (element.getKind() == ElementKind.METHOD//
@@ -47,14 +51,6 @@ abstract class SourceParamCreator {
         }
     }
 
-    public void setID(String id) {
-        this.id = id;
-    }
-
-    public String getID() {
-        return id;
-    }
-
     public boolean isCloseable() {
         return closeable;
     }
@@ -67,11 +63,12 @@ abstract class SourceParamCreator {
         return throwable;
     }
 
-    public abstract CharSequence toCharSequence(SourceParamChain chain, String name);
+    public abstract CharSequence toCharSequence(SourceServlet servlet, SourceArguments args, String name);
 
-    public abstract CharSequence toCharSequence(SourceParamChain chain);
-
-    public final void appendParam(List<? extends VariableElement> arguments, SourceParamChain chain, StringBuilder b) {
+    public final void appendParam(List<? extends VariableElement> arguments,
+                                  SourceServlet servlet,
+                                  SourceArguments args,
+                                  StringBuilder b) {
         boolean first = true;
         if (arguments != null) {
             for (VariableElement p : arguments) {
@@ -80,29 +77,20 @@ abstract class SourceParamCreator {
                 } else {
                     b.append(",");
                 }
-                appendArgument(chain, p, b);
+                appendArgument(servlet, args, p, b);
             }
         }
     }
 
-    private void appendArgument(SourceParamChain chain, VariableElement param, StringBuilder b) {
+    private void appendArgument(SourceServlet servlet, SourceArguments args, VariableElement param, StringBuilder b) {
         if (doRequest(param, b)
-                || doHeader(chain, param, b)
-                || doCookie(chain, param, b)
-                || doParam(chain.getArguments(), param, b)
-                || doBody(chain, param, b)) {
+                || doHeader(args, param, b)
+                || doCookie(args, param, b)
+                || doParam(args, param, b)
+                || doBody(args, param, b)) {
             return;
         }
-        if (param.asType().getKind().equals(TypeKind.DECLARED)) {//TODO
-            ProcessEnvironment env = chain.getEnvironment();
-//            chain.
-//            env.getTypeUtils().asElement(param.asType()).
-        }
-        doNoType(param.asType().getKind(), b);
-    }
-
-    private void doNoType(TypeKind kind, StringBuilder b) {
-        switch (kind) {
+        switch (param.asType().getKind()) {
             case BYTE:
             case CHAR:
             case SHORT:
@@ -116,11 +104,15 @@ abstract class SourceParamCreator {
                 b.append("false");
                 break;
             case DECLARED:
+                b.append(declaredArgument(servlet, param));
+                break;
             case ARRAY:
             default:
                 b.append("null");
         }
     }
+
+    protected abstract String declaredArgument(SourceServlet servlet, VariableElement param);
 
     private boolean doRequest(VariableElement p, StringBuilder b) {
         TypeMirror t = p.asType();
@@ -135,7 +127,7 @@ abstract class SourceParamCreator {
         return false;
     }
 
-    private boolean doHeader(SourceParamChain chain, VariableElement p, StringBuilder b) {
+    private boolean doHeader(SourceArguments args, VariableElement p, StringBuilder b) {
         Header header = p.getAnnotation(Header.class);
         if (header == null) {
             return false;
@@ -144,7 +136,6 @@ abstract class SourceParamCreator {
         if ("".equals(name)) {
             name = p.getSimpleName().toString();
         }
-        SourceArguments args = chain.getArguments();
         String alias = args.getHeaderAlias(name);
         if (alias != null) {
             b.append(alias);
@@ -160,12 +151,12 @@ abstract class SourceParamCreator {
             b.append("_req.getHeader(\"").append(name).append("\")");
         } else {
             b.append("null/* not support type */");
-            chain.getEnvironment().error("Not support header type " + type);
+            env.error("Not support header type " + type);
         }
         return true;
     }
 
-    private boolean doCookie(SourceParamChain chain, VariableElement p, StringBuilder b) {
+    private boolean doCookie(SourceArguments args, VariableElement p, StringBuilder b) {
         String type = p.asType().toString();
         if (T_Cookies.equals(type)) {
             b.append("_req.getCookies()");
@@ -185,7 +176,7 @@ abstract class SourceParamCreator {
                 name = p.getSimpleName().toString();
             }
         }
-        String alias = chain.getArguments().getCookieAlias(type, name);
+        String alias = args.getCookieAlias(type, name);
         if (alias != null) {
             b.append(alias);
             return true;
@@ -197,22 +188,19 @@ abstract class SourceParamCreator {
                 b.append("_req.getCookieValue(\"").append(name).append("\")");
             } else {
                 b.append("null/* not support type */");
-                chain.getEnvironment().error("Not support cookies type " + type);
+                env.error("Not support cookies type " + type);
             }
             return true;
         }
     }
 
-    private boolean doBody(SourceParamChain chain, VariableElement p, StringBuilder b) {
+    private boolean doBody(SourceArguments args, VariableElement p, StringBuilder b) {
         Body body = p.getAnnotation(Body.class);
         TypeMirror t = p.asType();
         String type = t.toString();
-        ProcessEnvironment env = chain.getEnvironment();
         if ((body == null) && TextUtils.notIn(type, T_File, T_Files, T_InputStream, T_ServletInputStream)) {
             return false;
         }
-//        ProcessEnvironment env = chain.getEnvironment();
-        SourceArguments args = chain.getArguments();
         if (args.containsBody()) {
             args.addFallback("null");
             env.error("cannot read body twice");
@@ -238,14 +226,7 @@ abstract class SourceParamCreator {
                 b.append("_req.getBodyAsText(\"").append(charset).append("\")");
                 break;
             default:
-                assert body != null;
-                SourceParamCreator creator = env.getBodyCreator(chain.getServlet(), t, body);
-                if (creator instanceof SourceParamFail) {
-                    b.append("null/*not support body type*/");
-                    env.warning("not support body type " + type + " without annotation Creator");
-                } else {
-                    b.append(creator.toCharSequence(chain));
-                }
+                b.append("null");
         }
         return true;
     }
@@ -342,16 +323,12 @@ abstract class SourceParamCreator {
 
     protected static boolean checkParam(ExecutableElement method, String typeVar) {
         for (VariableElement param : method.getParameters()) {
-            if (param.getAnnotation(Header.class) != null || param.getAnnotation(Cookies.class) != null
-                    || param.getAnnotation(Param.class) != null) {
-                continue;
-            }
             String type = param.asType().toString();
-            if (TextUtils.in(type, BODY_SUPPORT_TYPE)) {
-                continue;
-            } else if (typeVar != null && param.asType().toString().equals(typeVar)) {
-                continue;
-            } else {
+            if (!type.equals(typeVar)
+                    && TextUtils.notIn(type, BODY_SUPPORT_TYPE)
+                    && param.getAnnotation(Header.class) == null
+                    && param.getAnnotation(Cookies.class) == null
+                    && param.getAnnotation(Param.class) == null) {
                 return false;
             }
         }

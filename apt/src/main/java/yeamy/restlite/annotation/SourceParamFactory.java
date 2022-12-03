@@ -9,39 +9,22 @@ import java.util.Set;
 
 class SourceParamFactory extends SourceParamCreator {
     private final TypeMirror childType;
-    private final TypeElement factoryType;
     private final ExecutableElement method;
 
     public static SourceParamCreator body(ProcessEnvironment env, boolean samePackage, String factoryClass,
                                           TypeMirror child, String tag) {
         TypeElement factoryType = env.getTypeElement(factoryClass);
         if (factoryType == null) {
-            return new SourceParamFail();
+            env.warning("No factory defend for " + child);
+            return SourceParamFail.INSTANCE;
         }
         List<? extends Element> elements = factoryType.getEnclosedElements();
         ExecutableElement method = findMethodByTag(elements, tag);
-        SourceParamFactory f = new SourceParamFactory(factoryType, child, method);
-        f.init(env, factoryType.asType(), method, samePackage, elements);
-        return f;
-    }
-
-    public static SourceParamCreator body(ProcessEnvironment env, boolean samePackage, String factoryClass,
-                                          TypeMirror child) {
-        TypeElement factoryType = env.getTypeElement(factoryClass);
-        if (factoryType == null) {
-            return new SourceParamFail();
+        if (method == null) {
+            env.warning("Cannot find class factoryClass " + factoryClass);
+            return SourceParamFail.INSTANCE;
         }
-        List<? extends Element> elements = factoryType.getEnclosedElements();
-        ExecutableElement method = findMethod(env, samePackage, child, elements);
-        SourceParamFactory f = new SourceParamFactory(factoryType, child, method);
-        f.init(env, factoryType.asType(), method, samePackage, elements);
-        return f;
-    }
-
-    private SourceParamFactory(TypeElement factoryType, TypeMirror childType, ExecutableElement method) {
-        this.childType = childType;
-        this.factoryType = factoryType;
-        this.method = method;
+        return new SourceParamFactory(env, factoryType, child, method, samePackage, elements);
     }
 
     private static ExecutableElement findMethodByTag(List<? extends Element> elements, String tag) {
@@ -61,6 +44,18 @@ class SourceParamFactory extends SourceParamCreator {
         return null;
     }
 
+    public static SourceParamCreator body(ProcessEnvironment env, boolean samePackage, String factoryClass,
+                                          TypeMirror child) {
+        TypeElement factoryType = env.getTypeElement(factoryClass);
+        if (factoryType == null) {
+            env.warning("No factory defend for " + child);
+            return SourceParamFail.INSTANCE;
+        }
+        List<? extends Element> elements = factoryType.getEnclosedElements();
+        ExecutableElement method = findMethod(env, samePackage, child, elements);
+        return new SourceParamFactory(env, factoryType, child, method, samePackage, elements);
+    }
+
     private static ExecutableElement findMethod(ProcessEnvironment env, boolean samePackage, TypeMirror child,
                                                 List<? extends Element> elements) {
         LinkedList<ExecutableElement> methods = new LinkedList<>();
@@ -74,7 +69,7 @@ class SourceParamFactory extends SourceParamCreator {
                     if (rtk == TypeKind.TYPEVAR) {
                         Element e = env.asElement(rt);
                         if (e instanceof TypeParameterElement) {
-                            String typeVar = "java.lang.Class<" + e + ">";//TODO
+                            String typeVar = "java.lang.Class<" + e + ">";
                             List<? extends TypeMirror> bounds = ((TypeParameterElement) e).getBounds();
                             for (TypeMirror bound : bounds) {
                                 if (env.isAssignable(child, bound) && checkParam(method, typeVar)) {
@@ -98,22 +93,39 @@ class SourceParamFactory extends SourceParamCreator {
         return methods.size() == 0 ? null : methods.getFirst();
     }
 
-    @Override
-    public CharSequence toCharSequence(SourceParamChain chain, String name) {
-        SourceServlet servlet = chain.getServlet();
-        StringBuilder b = new StringBuilder(servlet.imports(childType.toString())).append(" ").append(name);
-        b.append(" = ").append(servlet.imports(factoryType)).append('.').append(method.getSimpleName()).append("(");
-        appendParam(method.getParameters(), chain, b);
-        b.append(");");
-        return b;
+    private SourceParamFactory(ProcessEnvironment env,
+                               TypeElement type,
+                               TypeMirror childType,
+                               ExecutableElement method,
+                               boolean samePackage,
+                               List<? extends Element> elements) {
+        super(env, type);
+        this.childType = childType;
+        this.method = method;
+        init(method, samePackage, elements);
     }
 
     @Override
-    public CharSequence toCharSequence(SourceParamChain chain) {
-        StringBuilder b = new StringBuilder(chain.getServlet().imports(factoryType)).append('.')
-                .append(method.getSimpleName()).append("(");
-        appendParam(method.getParameters(), chain, b);
-        b.append(")");
+    protected String declaredArgument(SourceServlet servlet, VariableElement param) {
+        TypeMirror rt = method.getReturnType();
+        if (rt.getKind() == TypeKind.TYPEVAR) {
+            Element e = env.asElement(rt);
+            if (e instanceof TypeParameterElement) {
+                String typeVar = "java.lang.Class<" + e + ">";
+                if (param.asType().toString().equals(typeVar)) {
+                    return servlet.imports(childType.toString()) + ".class";
+                }
+            }
+        }
+        return "null";
+    }
+
+    @Override
+    public CharSequence toCharSequence(SourceServlet servlet, SourceArguments args, String name) {
+        StringBuilder b = new StringBuilder(servlet.imports(childType.toString())).append(" ").append(name);
+        b.append(" = ").append(servlet.imports(type)).append('.').append(method.getSimpleName()).append("(");
+        appendParam(method.getParameters(), servlet, args, b);
+        b.append(");");
         return b;
     }
 

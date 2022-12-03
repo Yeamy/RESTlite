@@ -1,14 +1,22 @@
 package yeamy.restlite.annotation;
 
+import javax.lang.model.element.VariableElement;
+
 class SourceParamFail extends SourceParamCreator {
 
-    @Override
-    public CharSequence toCharSequence(SourceParamChain chain, String name) {
-        return "";
+    final static SourceParamFail INSTANCE = new SourceParamFail();
+
+    private SourceParamFail() {
+        super(null, null);
     }
 
     @Override
-    public CharSequence toCharSequence(SourceParamChain chain) {
+    protected String declaredArgument(SourceServlet servlet, VariableElement param) {
+        return null;
+    }
+
+    @Override
+    public CharSequence toCharSequence(SourceServlet servlet, SourceArguments args, String name) {
         return "";
     }
 

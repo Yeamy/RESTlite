@@ -12,6 +12,9 @@ public class ExampleMain {
 	public String get(@Body ExampleBean bean) {
 		return null;
 	}
+	public String get2(@GsonBody ExampleBean bean) {
+		return null;
+	}
 
 //	@GET
 //	public String get(FeignImpl client) {

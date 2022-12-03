@@ -217,8 +217,7 @@ class SourceDispatchService extends SourceDispatch {
                     addNoType(t.getKind());
                     env.warning("not support body type " + type + " without annotation Creator");
                 } else {
-                    SourceParamChain chain = new SourceParamChain(env, servlet, args);
-                    args.addBody(name).write(creator.toCharSequence(chain, name));
+                    args.addBody(name).write(creator.toCharSequence(servlet, args, name));
                 }
         }
         return true;

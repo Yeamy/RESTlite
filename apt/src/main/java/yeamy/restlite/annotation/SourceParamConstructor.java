@@ -7,7 +7,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 class SourceParamConstructor extends SourceParamCreator {
-    private final TypeElement type;
     private final List<? extends VariableElement> parameters;
 
     public static SourceParamCreator body(ProcessEnvironment env, boolean samePackage, TypeElement type, String tag) {
@@ -17,7 +16,8 @@ class SourceParamConstructor extends SourceParamCreator {
         if (tag.length() > 0) {
             constructor = findConstructor(elements, tag);
             if (constructor == null) {
-                return new SourceParamFail();
+                env.warning("not support body type " + type + " without annotation Creator");
+                return SourceParamFail.INSTANCE;
             }
             parameters = constructor.getParameters();
         } else {
@@ -32,14 +32,7 @@ class SourceParamConstructor extends SourceParamCreator {
                         : constructor.getParameters();
             }
         }
-        SourceParamConstructor creator = new SourceParamConstructor(type, parameters);
-        creator.init(env, type.asType(), constructor, samePackage, elements);
-        return creator;
-    }
-
-    private SourceParamConstructor(TypeElement type, List<? extends VariableElement> parameters) {
-        this.type = type;
-        this.parameters = parameters;
+        return new SourceParamConstructor(env, type, parameters, constructor, samePackage, elements);
     }
 
     private static ExecutableElement findConstructor(List<? extends Element> list, String tag) {
@@ -87,22 +80,29 @@ class SourceParamConstructor extends SourceParamCreator {
         return methods.size() == 0 ? null : methods.getFirst();
     }
 
-    @Override
-    public CharSequence toCharSequence(SourceParamChain chain, String name) {
-        String typeName = chain.getServlet().imports(type);
-        StringBuilder b = new StringBuilder(typeName).append(" ").append(name);
-        b.append(" = new ").append(typeName).append("(");
-        appendParam(parameters, chain, b);
-        b.append(");");
-        return b;
+    private SourceParamConstructor(ProcessEnvironment env,
+                                   TypeElement type,
+                                   List<? extends VariableElement> parameters,
+                                   ExecutableElement constructor,
+                                   boolean samePackage,
+                                   List<? extends Element> elements) {
+        super(env, type);
+        this.parameters = parameters;
+        init(constructor, samePackage, elements);
     }
 
     @Override
-    public CharSequence toCharSequence(SourceParamChain chain) {
-        String typeName = chain.getServlet().imports(type);
-        StringBuilder b = new StringBuilder("new ").append(typeName).append("(");
-        appendParam(parameters, chain, b);
-        b.append(")");
+    protected String declaredArgument(SourceServlet servlet, VariableElement param) {
+        return "null";
+    }
+
+    @Override
+    public CharSequence toCharSequence(SourceServlet servlet, SourceArguments args, String name) {
+        String typeName = servlet.imports(type);
+        StringBuilder b = new StringBuilder(typeName).append(" ").append(name);
+        b.append(" = new ").append(typeName).append("(");
+        appendParam(parameters, servlet, args, b);
+        b.append(");");
         return b;
     }
 

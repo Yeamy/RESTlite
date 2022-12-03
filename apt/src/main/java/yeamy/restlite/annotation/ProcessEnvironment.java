@@ -87,7 +87,6 @@ class ProcessEnvironment {
                 SourceParamCreator arg = paramCreator.get(id);
                 if (arg == null) {
                     arg = SourceParamConstructor.body(this, samePackage, te, tag);
-                    arg.setID(id);
                     paramCreator.put(id, arg);
                 }
                 return arg;
@@ -99,7 +98,6 @@ class ProcessEnvironment {
             SourceParamCreator creator = paramCreator.get(id);
             if (creator == null) {
                 creator = SourceParamFactory.body(this, samePackage, className, t, tag);
-                creator.setID(id);
                 paramCreator.put(id, creator);
             }
             return creator;
@@ -108,7 +106,6 @@ class ProcessEnvironment {
             SourceParamCreator creator = paramCreator.get(id);
             if (creator == null) {
                 creator = SourceParamFactory.body(this, samePackage, className, t);
-                creator.setID(id);
                 paramCreator.put(id, creator);
             }
             return creator;
