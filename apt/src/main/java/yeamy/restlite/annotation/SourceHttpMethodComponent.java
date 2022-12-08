@@ -131,7 +131,7 @@ class SourceHttpMethodComponent {
         doReturn(env, servlet);
         servlet.append('}');
         if (async) {
-            servlet.append("}catch(Exception e){onError(_resp,e);}finally{_asyncContext.complete();}});");
+            servlet.append("}catch(Exception e){onError(_req,_resp,e);}finally{_asyncContext.complete();}});");
         }
     }
 
