@@ -1,10 +1,11 @@
 plugins {
     id 'java-library'
 }
+sourceCompatibility = JavaVersion.VERSION_11
+var $version = '1.0-SNAPSHOT'
 
 group 'io.github.yeamy'
-var $version = '1.0-SNAPSHOT'
-sourceCompatibility = JavaVersion.VERSION_11
+version $version
 
 repositories {
     mavenCentral()
@@ -24,7 +25,7 @@ dependencies {
 apply plugin: 'maven-publish'
 
 jar {// package code
-    archiveFileName = 'lib.jar'
+    archiveFileName = 'restlite-permission.jar'
 //    archiveFileName = 'permission-' + version +'.jar'
 }
 task generateSourceJar(type: Jar) {

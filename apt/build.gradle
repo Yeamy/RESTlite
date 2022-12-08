@@ -1,10 +1,10 @@
 plugins {
     id 'java-library'
 }
+sourceCompatibility = JavaVersion.VERSION_11
 
 group 'io.github.yeamy'
 var $version = '1.0-SNAPSHOT'
-sourceCompatibility = JavaVersion.VERSION_11
 
 repositories {
     mavenCentral()
@@ -23,14 +23,12 @@ dependencies {
 apply plugin: 'maven-publish'
 
 jar {// package code
-    archiveFileName = 'lib.jar'
-//    archiveFileName = 'apt-' + version +'.jar'
+    archiveFileName = 'restlite-apt.jar'
 }
 task generateSourceJar(type: Jar) {
     archiveClassifier.set('sources')
     from sourceSets.main.java.srcDirs
-    archiveFileName = 'lib-sources.jar'
-//    archiveFileName = 'apt-' + version + '-sources.jar'
+    archiveFileName = 'apt-sources.jar'
 }
 javadoc {// create document
     source = sourceSets.main.java.srcDirs
@@ -44,8 +42,7 @@ javadoc {// create document
 }
 task generateJavadoc(type: Jar) { // package document as jar
     group = 'jar'
-    archiveFileName = 'lib-javadoc.jar'
-//    archiveFileName = 'apt-' + version + '-javadoc.jar'
+    archiveFileName = 'apt-javadoc.jar'
     archiveClassifier.set('javadoc')
     from "$rootDir/javadoc"
 }
