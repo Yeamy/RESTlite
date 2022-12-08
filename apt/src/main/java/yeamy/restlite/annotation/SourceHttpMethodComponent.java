@@ -7,15 +7,50 @@ import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeSet;
 
 import static yeamy.restlite.annotation.SupportType.*;
 
-class SourceDispatchService extends SourceDispatch {
+class SourceHttpMethodComponent {
+    private final ProcessEnvironment env;
+    private final SourceServlet servlet;
+    private final ExecutableElement method;
+    private final List<? extends VariableElement> arguments;
+    private String orderKey;
 
     private final SourceArguments args = new SourceArguments();
 
-    public SourceDispatchService(ProcessEnvironment env, SourceServlet servlet, ExecutableElement method) {
-        super(env, servlet, method);
+    public SourceHttpMethodComponent(ProcessEnvironment env, SourceServlet servlet, ExecutableElement method) {
+        this.env = env;
+        this.servlet = servlet;
+        this.method = method;
+        this.arguments = method.getParameters();
+    }
+
+    final String orderKey() {
+        if (orderKey != null) {
+            return orderKey;
+        }
+        TreeSet<String> set = new TreeSet<>();
+        for (VariableElement a : arguments) {
+            Param pa = a.getAnnotation(Param.class);
+            if (pa != null && pa.required()) {
+                set.add(a.getSimpleName().toString());
+            } else if (a.getAnnotation(Header.class) == null//
+                    && a.getAnnotation(Cookies.class) == null//
+                    && a.getAnnotation(Body.class) == null) {
+                set.add(a.getSimpleName().toString());
+            } else {
+                continue;
+            }
+        }
+        StringBuilder sb = new StringBuilder();
+        for (String s : set) {
+            sb.append(s).append(',');
+        }
+        int l = sb.length();
+        orderKey = (l == 0) ? sb.toString() : sb.substring(0, l - 1);
+        return orderKey;
     }
 
     public void create(String httpMethod) {
