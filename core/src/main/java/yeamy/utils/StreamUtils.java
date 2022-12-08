@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 
 public class StreamUtils {
 
@@ -141,6 +142,10 @@ public class StreamUtils {
     }
 
     public static String readString(InputStream is, String charset) {
+        return readString(is, Charset.forName(charset));
+    }
+
+    public static String readString(InputStream is, Charset charset) {
         try {
             return read(is).toString(charset);
         } catch (Exception e) {
