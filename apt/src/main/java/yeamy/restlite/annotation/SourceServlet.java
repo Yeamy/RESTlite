@@ -21,9 +21,11 @@ class SourceServlet extends SourceClass {
         this.error = new SourceServletOnError(env, this);
         for (Element li : element.getEnclosedElements()) {
             if (li.getKind() == ElementKind.METHOD) {
-                addMethod((ExecutableElement) li);
-                if (element.getAnnotation(ERROR.class) != null) {
-                    error.addMethod(new SourceDispatchOnError(env, this, (ExecutableElement) li));
+                ExecutableElement eli = (ExecutableElement) li;
+                addMethod(eli);
+                ERROR ann = element.getAnnotation(ERROR.class);
+                if (ann != null) {
+                    error.setMethod(eli, ann.intercept());
                 }
             }
         }
@@ -44,7 +46,7 @@ class SourceServlet extends SourceClass {
         if (methods.size() == 0) {
             return;
         }
-        SourceDispatchService method = new SourceDispatchService(env, this, element);
+        SourceHttpMethodComponent method = new SourceHttpMethodComponent(env, this, element);
         for (Class<?> clz : methods) {
             SourceServletHttpMethod httpMethod = httpMethods.get(clz);
             if (httpMethod == null) {
@@ -60,6 +62,7 @@ class SourceServlet extends SourceClass {
         imports("jakarta.servlet.annotation.MultipartConfig");
         imports("jakarta.servlet.annotation.WebServlet");
         imports("yeamy.restlite.RESTfulServlet");
+        imports("jakarta.servlet.http.HttpServletResponse");
         String impl = getImplName();
         String name = env.getFileName(pkg, impl + "Servlet");
         createBody(impl, name);

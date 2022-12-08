@@ -1,26 +1,93 @@
 package yeamy.restlite.annotation;
 
-import java.util.ArrayList;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeKind;
+import javax.lang.model.type.TypeMirror;
 
-class SourceServletOnError extends SourceServletMethod<SourceDispatchOnError> {
+import static yeamy.restlite.annotation.SupportType.T_HttpRequest;
+import static yeamy.restlite.annotation.SupportType.T_HttpServletRequest;
+
+class SourceServletOnError {
+    private static final String T_Exception = "java.lang.Exception";
+    private static final String T_HttpResponse = "yeamy.restlite.HttpResponse";
+
+    protected final ProcessEnvironment env;
+    protected final SourceServlet servlet;
+    private ExecutableElement method;
+    private boolean intercept;
 
     SourceServletOnError(ProcessEnvironment env, SourceServlet servlet) {
-        super(env, servlet);
+        this.env = env;
+        this.servlet = servlet;
     }
 
-    @Override
-    protected void create(ArrayList<SourceDispatchOnError> methods) throws ClassNotFoundException {
-        if (methods.size() == 0) {
-            servlet.imports("jakarta.servlet.http.HttpServletResponse");
-            servlet.imports("java.io.IOException");
-            servlet.imports("yeamy.restlite.addition.ExceptionResponse");
-            servlet.append("public void onError(HttpServletResponse _resp, Exception e) throws IOException")//
-                    .append("{new ExceptionResponse(e).write(_resp);}");
+    public void setMethod(ExecutableElement method, boolean intercept) {
+        this.method = method;
+        this.intercept = intercept;
+    }
+
+    public final void create() throws ClassNotFoundException {
+        servlet.imports("java.io.Exception");
+        if (method == null) {
+            servlet.append("public void onError(RESTfulRequest _req, HttpServletResponse _resp, Exception e) throws Exception {throw e;}");
         } else {
-            servlet.imports("java.lang.Exception");
-            servlet.append("public void onError(HttpServletResponse _resp, Exception e) {");
-            for (SourceDispatchOnError method : methods) {
-                method.create();
+            servlet.append("public void onError(RESTfulRequest _req, HttpServletResponse _resp, Exception e) throws Exception {");
+            servlet.append("impl.").append(method.getSimpleName()).append('(');
+            int l = servlet.length();
+            for (VariableElement e : method.getParameters()) {
+                TypeMirror t = e.asType();
+                String clz = t.toString();
+                a:
+                switch (t.getKind()) {
+                    case BOOLEAN:
+                        servlet.append("false");
+                        break;
+                    case INT:
+                    case LONG:
+                    case FLOAT:
+                    case DOUBLE:
+                        servlet.append("0");
+                        break;
+                    case CHAR:
+                        servlet.append("(char)0");
+                        break;
+                    case BYTE:
+                        servlet.append("(byte)0");
+                        break;
+                    case DECLARED:
+                        switch (clz) {
+                            case T_Exception:
+                                servlet.append(e.getSimpleName());
+                                break a;
+                            case T_HttpRequest:
+                                servlet.append("_req");
+                                break a;
+                            case T_HttpServletRequest:
+                                servlet.append("_req.getRequest()");
+                                break a;
+                        }
+                    case ARRAY:
+                    default:
+                        servlet.append("null/* not support type ").append(clz).append(" */");
+                        break;
+                }
+                servlet.append(',');
+            }
+            if (servlet.length() > l) {
+                servlet.deleteLast(1);
+            }
+            servlet.append(")");
+            if (intercept) {
+                TypeMirror rt = method.getReturnType();
+                if (!(rt.getKind() == TypeKind.DECLARED
+                        && env.isAssignable(rt, env.getTypeElement(T_HttpResponse).asType()))) {
+                    servlet.imports("yeamy.restlite.addition.ExceptionResponse");
+                    servlet.append(";new ExceptionResponse(e)");
+                }
+                servlet.append(".write(_resp);");
+            } else {
+                servlet.append(";throw e;");
             }
             servlet.append('}');
         }
