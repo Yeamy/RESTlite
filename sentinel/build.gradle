@@ -1,0 +1,22 @@
+plugins {
+    id 'java-library'
+}
+
+group 'io.github.yeamy'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    api 'com.alibaba.csp:sentinel-core:1.8.6'
+    api project(':core')
+    api project(':apt')
+//    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
+//    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
+}
+
+test {
+    useJUnitPlatform()
+}
