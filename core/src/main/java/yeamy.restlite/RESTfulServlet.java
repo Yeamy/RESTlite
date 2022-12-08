@@ -1,161 +1,119 @@
 package yeamy.restlite;
 
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.util.Enumeration;
-
-import jakarta.servlet.GenericServlet;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletOutputStream;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-public abstract class RESTfulServlet extends GenericServlet {
-    public static final String REQUEST = "RESTlite:Request";
+import java.io.IOException;
+import java.lang.reflect.Method;
 
+public abstract class RESTfulServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
-    private static final String METHOD_DELETE = "DELETE";
-    private static final String METHOD_HEAD = "HEAD";
-    private static final String METHOD_GET = "GET";
-    private static final String METHOD_OPTIONS = "OPTIONS";
-    private static final String METHOD_POST = "POST";
-    private static final String METHOD_PATCH = "PATCH";
-    private static final String METHOD_PUT = "PUT";
-    private static final String METHOD_TRACE = "TRACE";
-
     @Override
-    public void service(ServletRequest req, ServletResponse resp) throws ServletException, IOException {
-        HttpServletRequest httpReq = (HttpServletRequest) req;
-        HttpServletResponse httpResp = (HttpServletResponse) resp;
-        RESTfulRequest request = (RESTfulRequest) req.getAttribute(REQUEST);
-        service(httpReq, httpResp, request);
-    }
-
-    public void service(HttpServletRequest req, HttpServletResponse resp, RESTfulRequest request)
-            throws ServletException, IOException {
-        switch (request.getMethod()) {
-            // --------- REST API ----------------
-            case METHOD_GET:
-                doGet(request, resp);
-                break;
-            case METHOD_POST:
-                doPost(request, resp);
-                break;
-            case METHOD_PATCH:
-                doPatch(request, resp);
-                break;
-            case METHOD_PUT:
-                doPut(request, resp);
-                break;
-            case METHOD_DELETE:
-                doDelete(request, resp);
-                break;
-            // --------- Others ----------------
-            case METHOD_OPTIONS:
-                doOptions(resp);
-                break;
-            case METHOD_TRACE:
-                doTrace(req, resp);
-                break;
-            case METHOD_HEAD:
-                doGet(request, resp);
+    protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        switch (req.getMethod()) {
+            case "GET":
+            case "POST":
+            case "DELETE":
+            case "PUT":
+            case "HEAD":
+            case "OPTIONS":
+                super.service(req, resp);
+            case "PATCH":
+                doPatch(RESTfulRequest.get(req), resp);
                 break;
             default:
-                do_(request, resp);
-                break;
+                do_(RESTfulRequest.get(req), resp);
         }
     }
 
-    private void notAllow(HttpServletResponse resp) {
-        resp.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+    @Override
+    protected final void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        doPost(RESTfulRequest.get(req), resp);
     }
 
     public void doPost(RESTfulRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        notAllow(resp);
+        super.doPost(req.getRequest(), resp);
     }
 
     public void doPatch(RESTfulRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        notAllow(resp);
+        resp.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+    }
+
+    @Override
+    protected final void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        doGet(RESTfulRequest.get(req), resp);
     }
 
     public void doGet(RESTfulRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        notAllow(resp);
+        super.doGet(req.getRequest(), resp);
+    }
+
+    @Override
+    protected final void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        doDelete(RESTfulRequest.get(req), resp);
     }
 
     public void doDelete(RESTfulRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        notAllow(resp);
+        super.doDelete(req.getRequest(), resp);
+    }
+
+    @Override
+    protected final void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        doPut(RESTfulRequest.get(req), resp);
     }
 
     public void doPut(RESTfulRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        notAllow(resp);
+        super.doPut(req.getRequest(), resp);
     }
 
     public void do_(RESTfulRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        notAllow(resp);
+        resp.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
     }
 
-    /**
-     * @see jakarta.servlet.http.HttpServlet#doTrace(HttpServletRequest, HttpServletResponse)
-     */
-    void doTrace(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String CRLF = "\r\n";
-        StringBuilder buffer = new StringBuilder("TRACE ").append(req.getRequestURI()).append(" ")
-                .append(req.getProtocol());
+    private String cacheOptions;
 
-        Enumeration<String> reqHeaderEnum = req.getHeaderNames();
-
-        while (reqHeaderEnum.hasMoreElements()) {
-            String headerName = reqHeaderEnum.nextElement();
-            buffer.append(CRLF).append(headerName).append(": ").append(req.getHeader(headerName));
-        }
-
-        buffer.append(CRLF);
-        String data = buffer.toString();
-        resp.setContentType("message/http");
-        resp.setContentLength(data.length());
-        ServletOutputStream out = resp.getOutputStream();
-        out.print(data);
-        out.close();
-    }
-
-    void doOptions(HttpServletResponse resp) throws ServletException, IOException {
-        Method[] methods = getAllDeclaredMethods(this.getClass());
-        Object[][] kvs = { //
-                {"doHead", null}, //
-                {"doGet", null}, //
-                {"doPost", null}, //
-                {"doPatch", null}, //
-                {"doPut", null}, //
-                {"doDelete", null}, //
-                {"doOptions", ""}};
-        int num = kvs.length;
-        for (Method method : methods) {
-            if (num == 0) {
-                break;
+    @Override
+    protected void doOptions(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        if (cacheOptions == null) {
+            Method[] methods = getAllDeclaredMethods(this.getClass());
+            Object[][] kvs = { //
+                    {"doHead", null}, //
+                    {"doGet", null}, //
+                    {"doPost", null}, //
+                    {"doPatch", null}, //
+                    {"doPut", null}, //
+                    {"doDelete", null}, //
+                    {"doOptions", ""}};
+            int num = kvs.length;
+            for (Method method : methods) {
+                if (num == 0) {
+                    break;
+                }
+                for (Object[] kv : kvs) {
+                    if (kv[1] == null && kv[0].equals(method.getName())) {
+                        kv[1] = "";
+                        --num;
+                    }
+                }
             }
+            if (kvs[1][1] != null) {// get->head
+                kvs[0][1] = "";
+            }
+            StringBuilder sb = new StringBuilder();
             for (Object[] kv : kvs) {
-                if (kv[1] == null && kv[0].equals(method.getName())) {
-                    kv[1] = "";
-                    --num;
+                if (kv[1] != null) {
+                    if (sb.length() > 0) {
+                        sb.append(", ");
+                    }
+                    sb.append(kv[0]);
                 }
             }
+            cacheOptions = sb.toString();
         }
-        if (kvs[1][1] != null) {// get->head
-            kvs[0][1] = "";
-        }
-        StringBuilder sb = new StringBuilder();
-        for (Object[] kv : kvs) {
-            if (kv[1] != null) {
-                if (sb.length() > 0) {
-                    sb.append(", ");
-                }
-                sb.append(kv[0]);
-            }
-        }
-        resp.setHeader("Allow", sb.toString());
+        resp.setHeader("Allow", cacheOptions);
     }
 
     private static Method[] getAllDeclaredMethods(Class<?> c) {
