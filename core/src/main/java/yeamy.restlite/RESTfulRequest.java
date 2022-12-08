@@ -1,19 +1,23 @@
 package yeamy.restlite;
 
+import jakarta.servlet.ServletInputStream;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import yeamy.utils.StreamUtils;
+import yeamy.utils.TextUtils;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.Map.Entry;
 
-import jakarta.servlet.ServletInputStream;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-
-import yeamy.utils.StreamUtils;
-import yeamy.utils.TextUtils;
-
 public class RESTfulRequest implements Serializable {
+    public static final String REQUEST = "RESTlite:Request";
+    public static RESTfulRequest get(ServletRequest r) {
+        return (RESTfulRequest) r.getAttribute(REQUEST);
+    }
     private static final long serialVersionUID = -7894023380274904092L;
     private HttpServletRequest req;
     private String resource = "";

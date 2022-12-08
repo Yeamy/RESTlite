@@ -5,7 +5,7 @@ import jakarta.servlet.ServletRequestEvent;
 import jakarta.servlet.ServletRequestListener;
 import jakarta.servlet.http.HttpServletRequest;
 
-import static yeamy.restlite.RESTfulServlet.REQUEST;
+import static yeamy.restlite.RESTfulRequest.REQUEST;
 
 public class RESTfulListener implements ServletRequestListener {
 

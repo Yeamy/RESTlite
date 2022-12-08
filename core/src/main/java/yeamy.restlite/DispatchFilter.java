@@ -7,8 +7,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import static yeamy.restlite.RESTfulServlet.REQUEST;
-
 public class DispatchFilter implements Filter {
 
     private final ArrayList<RESTliteFilter> filters = new ArrayList<>();
@@ -32,17 +30,14 @@ public class DispatchFilter implements Filter {
             throws IOException, ServletException {
         if (req instanceof HttpServletRequest) {
             try {
+                RESTfulRequest request = RESTfulRequest.get(req);
                 HttpServletResponse httResp = (HttpServletResponse) resp;
-                Object obj = req.getAttribute(REQUEST);
-                if (obj instanceof RESTfulRequest) {
-                    RESTfulRequest request = (RESTfulRequest) obj;
-                    for (RESTliteFilter f : filters) {
-                        if (f.intercept(request, httResp)) {
-                            return;
-                        }
+                for (RESTliteFilter f : filters) {
+                    if (f.intercept(request, httResp)) {
+                        return;
                     }
-                    dispatch(request, httResp);
                 }
+                dispatch(request, httResp);
             } catch (ClassCastException e) {
                 e.printStackTrace();
                 chain.doFilter(req, resp);
