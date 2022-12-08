@@ -4,13 +4,13 @@ import java.util.ArrayList;
 
 import static yeamy.restlite.annotation.SupportType.T_HttpRequest;
 
-class SourceServletHttpMethod {
+class SourceMethodHttpMethod {
 	protected final ProcessEnvironment env;
 	protected final SourceServlet servlet;
 	private final ArrayList<SourceHttpMethodComponent> methods = new ArrayList<>();
 	protected final String httpMethod;
 
-	public SourceServletHttpMethod(ProcessEnvironment env, SourceServlet servlet, String httpMethod) {
+	public SourceMethodHttpMethod(ProcessEnvironment env, SourceServlet servlet, String httpMethod) {
 		this.env = env;
 		this.servlet = servlet;
 		this.httpMethod = httpMethod;

@@ -8,7 +8,7 @@ import javax.lang.model.type.TypeMirror;
 import static yeamy.restlite.annotation.SupportType.T_HttpRequest;
 import static yeamy.restlite.annotation.SupportType.T_HttpServletRequest;
 
-class SourceServletOnError {
+class SourceMethodOnError {
     private static final String T_Exception = "java.lang.Exception";
     private static final String T_HttpResponse = "yeamy.restlite.HttpResponse";
 
@@ -17,7 +17,7 @@ class SourceServletOnError {
     private ExecutableElement method;
     private boolean intercept;
 
-    SourceServletOnError(ProcessEnvironment env, SourceServlet servlet) {
+    SourceMethodOnError(ProcessEnvironment env, SourceServlet servlet) {
         this.env = env;
         this.servlet = servlet;
     }

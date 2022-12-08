@@ -10,15 +10,15 @@ import java.util.TreeSet;
 class SourceServlet extends SourceClass {
     private static final Class<?>[] METHODS = {GET.class, POST.class, PUT.class, PATCH.class, DELETE.class};
     private final TypeElement element;
-    private final HashMap<Class<?>, SourceServletHttpMethod> httpMethods = new HashMap<>();
-    private final SourceServletOnError error;
+    private final HashMap<Class<?>, SourceMethodHttpMethod> httpMethods = new HashMap<>();
+    private final SourceMethodOnError error;
     private final StringBuilder b = new StringBuilder();
 
     public SourceServlet(ProcessEnvironment env, TypeElement element) {
         super(env);
         this.element = element;
         this.pkg = ((PackageElement) element.getEnclosingElement()).getQualifiedName().toString();
-        this.error = new SourceServletOnError(env, this);
+        this.error = new SourceMethodOnError(env, this);
         for (Element li : element.getEnclosedElements()) {
             if (li.getKind() == ElementKind.METHOD) {
                 ExecutableElement eli = (ExecutableElement) li;
@@ -48,9 +48,9 @@ class SourceServlet extends SourceClass {
         }
         SourceHttpMethodComponent method = new SourceHttpMethodComponent(env, this, element);
         for (Class<?> clz : methods) {
-            SourceServletHttpMethod httpMethod = httpMethods.get(clz);
+            SourceMethodHttpMethod httpMethod = httpMethods.get(clz);
             if (httpMethod == null) {
-                httpMethod = new SourceServletHttpMethod(env, this, clz.getSimpleName());
+                httpMethod = new SourceMethodHttpMethod(env, this, clz.getSimpleName());
                 httpMethods.put(clz, httpMethod);
             }
             httpMethod.addMethod(method);
@@ -115,7 +115,7 @@ class SourceServlet extends SourceClass {
         // impl
         b.append("private ").append(impl).append(" impl = new ").append(impl).append("();");
         // method
-        for (SourceServletHttpMethod method : httpMethods.values()) {
+        for (SourceMethodHttpMethod method : httpMethods.values()) {
             try {
                 method.create();
             } catch (Exception e) {
