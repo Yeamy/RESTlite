@@ -3,5 +3,6 @@
 core/build/
 permission/build/
 gson/build/
+jackson/build/
 apt/build/
 example/build/
