@@ -33,7 +33,7 @@ class SourceMethodOnError {
             servlet.append("public void onError(RESTfulRequest _req, HttpServletResponse _resp, Exception e) throws Exception {throw e;}");
         } else {
             servlet.append("public void onError(RESTfulRequest _req, HttpServletResponse _resp, Exception e) throws Exception {");
-            servlet.append("impl.").append(method.getSimpleName()).append('(');
+            servlet.append("this._impl.").append(method.getSimpleName()).append('(');
             int l = servlet.length();
             for (VariableElement e : method.getParameters()) {
                 TypeMirror t = e.asType();

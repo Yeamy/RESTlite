@@ -393,19 +393,19 @@ class SourceHttpMethodComponent {
                 break;
             case DECLARED:
                 if (env.isHttpResponse(t)) {
-                    servlet.append("impl.").append(method.getSimpleName()).append('(');
+                    servlet.append("this._impl.").append(method.getSimpleName()).append('(');
                     doReturnArguments(servlet);
                     servlet.append(").write(_resp);");
                 } else if (env.isStream(t)) {
                     doReturnStream(servlet);
                 } else if (T_String.equals(t.toString())) {
                     servlet.append("new ").append(servlet.imports("yeamy.restlite.addition.TextPlainResponse"))
-                            .append("(impl.").append(method.getSimpleName()).append('(');
+                            .append("(this._impl.").append(method.getSimpleName()).append('(');
                     doReturnArguments(servlet);
                     servlet.append(")).write(_resp);");
                 } else if (T_Decimal.equals(t.toString())) {
                     servlet.append("new ").append(servlet.imports("yeamy.restlite.addition.TextPlainResponse"))
-                            .append("(impl.").append(method.getSimpleName()).append('(');
+                            .append("(this._impl.").append(method.getSimpleName()).append('(');
                     doReturnArguments(servlet);
                     servlet.append(").toPlainString()).write(_resp);");
                 } else {
@@ -418,7 +418,7 @@ class SourceHttpMethodComponent {
                 break;
             default:
                 servlet.append("new ").append(servlet.imports("yeamy.restlite.addition.TextPlainResponse"))
-                        .append("(String.valueOf(impl.").append(method.getSimpleName()).append('(');
+                        .append("(String.valueOf(this._impl.").append(method.getSimpleName()).append('(');
                 doReturnArguments(servlet);
                 servlet.append("))).write(_resp);");
         }
@@ -443,7 +443,7 @@ class SourceHttpMethodComponent {
         ExecutableElement constructor;
         constructor = getConstructor(env, servlet, type, rt);
         if (constructor != null) {
-            servlet.append("new ").append(servlet.imports(resp)).append("(impl.").append(method.getSimpleName())
+            servlet.append("new ").append(servlet.imports(resp)).append("(this._impl.").append(method.getSimpleName())
                     .append('(');
             doReturnArguments(servlet);
             servlet.append(")).write(_resp);");
@@ -473,7 +473,7 @@ class SourceHttpMethodComponent {
 
     private void doReturnStream(SourceServlet servlet) {
         servlet.imports("yeamy.restlite.addition.StreamResponse");
-        servlet.append("new StreamResponse(impl.").append(method.getSimpleName()).append('(');
+        servlet.append("new StreamResponse(this._impl.").append(method.getSimpleName()).append('(');
         doReturnArguments(servlet);
         servlet.append(")).write(_resp);");
     }

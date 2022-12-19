@@ -113,7 +113,7 @@ class SourceServlet extends SourceClass {
         // serialVersionUID
         b.append("private static final long serialVersionUID = ").append(-1).append("L;");
         // impl
-        b.append("private ").append(impl).append(" impl = new ").append(impl).append("();");
+        b.append("private ").append(impl).append(" _impl = new ").append(impl).append("();");
         // method
         for (SourceMethodHttpMethod method : httpMethods.values()) {
             try {
