@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
  * support type : {@linkplain java.io.InputStream InputStream},
  * {@linkplain jakarta.servlet.ServletInputStream ServletInputStream}, byte[],
  * {@linkplain String String} or any declared type with annotation
- * {@link Creator}
+ * {@link Body}
  * <br>
  * body can read only once per request
  * 
@@ -17,15 +17,14 @@ import java.lang.annotation.Target;
  * @see Header
  * @see Cookies
  * @see Param
- * @see Creator
  */
-@Target(ElementType.PARAMETER)
-@Retention(RetentionPolicy.SOURCE)
+@Target({ElementType.PARAMETER, ElementType.TYPE})
+@Retention(RetentionPolicy.CLASS) // ANNOTATION_TYPE need CLASS
 public @interface Body {
 
 	/**
-	 * class name of static factory class, if empty using type's {@link Creator},
-	 * if no Creator using constructor
+	 * class name of static factory class. If empty, using type's Body annotation,
+	 * if still empty, using type's constructor.
 	 */
 	String creator() default "";
 

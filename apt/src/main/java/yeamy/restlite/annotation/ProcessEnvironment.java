@@ -74,42 +74,17 @@ class ProcessEnvironment {
         return elementUtils.getTypeElement(clz);
     }
 
-    public SourceParamCreator getBodyCreator(SourceServlet servlet, TypeMirror t, Creator ann) {
-        String className = ann.className();
-        String tag = ann.tag();
-        boolean samePackage = false;
-        if (!t.getKind().isPrimitive()) {
-            TypeElement te = getTypeElement(t.toString());
-            String fpk = ((PackageElement) te.getEnclosingElement()).getQualifiedName().toString();
-            samePackage = fpk.equals(servlet.getPackage());
-        }
-        if (tag.length() > 0) {// by tag
-            String id = "t:" + className + ":" + tag;
-            SourceParamCreator creator = paramCreator.get(id);
-            if (creator == null) {
-                creator = SourceParamFactory.body(this, samePackage, className, t, tag);
-                paramCreator.put(id, creator);
-            }
-            return creator;
-        } else {// by type
-            String id = "f:" + className + ":" + t + ":" + (samePackage ? "" : servlet.getPackage());
-            SourceParamCreator creator = paramCreator.get(id);
-            if (creator == null) {
-                creator = SourceParamFactory.body(this, samePackage, className, t);
-                paramCreator.put(id, creator);
-            }
-            return creator;
-        }
-    }
-
     public SourceParamCreator getBodyCreator(SourceServlet servlet, TypeMirror t, Body body) {
         String className = body.creator();
         String tag = body.tag();
         TypeElement te = getTypeElement(t.toString());
-        String fpk = ((PackageElement) te.getEnclosingElement()).getQualifiedName().toString();
-        boolean samePackage = fpk.equals(servlet.getPackage());
+        boolean samePackage = false;
+        if (!t.getKind().isPrimitive()) {
+            String fpk = ((PackageElement) te.getEnclosingElement()).getQualifiedName().toString();
+            samePackage = fpk.equals(servlet.getPackage());
+        }
         if (className.length() == 0) {
-            Creator a = te.getAnnotation(Creator.class);
+            Body a = te.getAnnotation(Body.class);
             if (a == null) {
                 String id = "c:" + te.getQualifiedName() + ":" + tag;
                 SourceParamCreator arg = paramCreator.get(id);
@@ -119,7 +94,7 @@ class ProcessEnvironment {
                 }
                 return arg;
             }
-            className = a.className().length() > 0 ? a.className() : t.toString();
+            className = a.creator().length() > 0 ? a.creator() : t.toString();
         }
         if (tag.length() > 0) {// by tag
             String id = "t:" + className + ":" + tag;

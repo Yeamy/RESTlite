@@ -7,6 +7,6 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.PARAMETER)
-@Creator(className = "yeamy.restlite.addition.GsonParser")
+@Body(creator = "yeamy.restlite.addition.GsonParser")
 public @interface GsonBody {
 }

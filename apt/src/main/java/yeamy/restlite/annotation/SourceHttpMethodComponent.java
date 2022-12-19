@@ -29,6 +29,16 @@ class SourceHttpMethodComponent {
         this.arguments = method.getParameters();
     }
 
+    Body getBody(VariableElement e) {
+        for (AnnotationMirror am : e.getAnnotationMirrors()) {
+            Body body = am.getAnnotationType().asElement().getAnnotation(Body.class);
+            if (body != null) {
+                return body;
+            }
+        }
+        return null;
+    }
+
     final String orderKey() {
         if (orderKey != null) {
             return orderKey;
@@ -40,7 +50,8 @@ class SourceHttpMethodComponent {
                 set.add(a.getSimpleName().toString());
             } else if (a.getAnnotation(Header.class) == null//
                     && a.getAnnotation(Cookies.class) == null//
-                    && a.getAnnotation(Body.class) == null) {
+                    && a.getAnnotation(Body.class) == null//
+                    && getBody(a) == null) {
                 set.add(a.getSimpleName().toString());
             } else {
                 continue;
@@ -242,20 +253,17 @@ class SourceHttpMethodComponent {
         String type = t.toString();
         Body body = p.getAnnotation(Body.class);
         if ((body == null) && TextUtils.notIn(type, T_File, T_Files, T_InputStream, T_ServletInputStream)) {
-            List<? extends AnnotationMirror> as = p.getAnnotationMirrors();
-            for (AnnotationMirror a : as) {
-                Creator ann = a.getAnnotationType().asElement().getAnnotation(Creator.class);
-                if (ann != null) {
-                    SourceParamCreator creator = env.getBodyCreator(servlet, t, ann);
-                    if (creator instanceof SourceParamFail) {
-                        addNoType(t.getKind());
-                        env.error("Not support body type " + type + " without annotation Creator");
-                    } else {
-                        String name = p.getSimpleName().toString();
-                        args.addBody(name).write(creator.toCharSequence(servlet, args, name));
-                    }
-                    return true;
+            body = getBody(p);
+            if (body != null) {
+                SourceParamCreator creator = env.getBodyCreator(servlet, t, body);
+                if (creator instanceof SourceParamFail) {
+                    addNoType(t.getKind());
+                    env.error("Not support body type " + type + " without annotation Creator");
+                } else {
+                    String name = p.getSimpleName().toString();
+                    args.addBody(name).write(creator.toCharSequence(servlet, args, name));
                 }
+                return true;
             }
             return false;
         }
