@@ -10,6 +10,8 @@ import yeamy.utils.TextUtils;
 import java.io.IOException;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -159,11 +161,17 @@ public class RESTfulRequest implements Serializable {
 
     public String getBodyAsText() {
         String cs = getCharset();
-        if (cs == null) cs = "UTF-8";
+        if (cs == null){
+            return getBodyAsText(StandardCharsets.UTF_8);
+        }
         return getBodyAsText(cs);
     }
 
     public String getBodyAsText(String charset) {
+        return getBodyAsText(Charset.forName(charset));
+    }
+
+    public String getBodyAsText(Charset charset) {
         try {
             return StreamUtils.readString(req.getInputStream(), charset);
         } catch (Exception e) {
