@@ -17,13 +17,13 @@ class SourceParamFactory extends SourceParamCreator {
                                           TypeMirror child, String tag) {
         TypeElement factoryType = env.getTypeElement(factoryClass);
         if (factoryType == null) {
-            env.warning("No factory defend for " + child);
+            env.error("No factory defend for type:" + child + " factory type:" + factoryClass);
             return SourceParamFail.INSTANCE;
         }
         List<? extends Element> elements = factoryType.getEnclosedElements();
         ExecutableElement method = findMethodByTag(elements, tag);
         if (method == null) {
-            env.warning("Cannot find class factoryClass " + factoryClass);
+            env.error("Cannot find method for type:" + child + " factory type:" + factoryClass);
             return SourceParamFail.INSTANCE;
         }
         return new SourceParamFactory(env, factoryType, child, method, samePackage, elements);
@@ -50,7 +50,7 @@ class SourceParamFactory extends SourceParamCreator {
                                           TypeMirror child) {
         TypeElement factoryType = env.getTypeElement(factoryClass);
         if (factoryType == null) {
-            env.warning("No factory defend for " + child);
+            env.error("No factory defend for type:" + child + " factory type:" + factoryClass);
             return SourceParamFail.INSTANCE;
         }
         List<? extends Element> elements = factoryType.getEnclosedElements();

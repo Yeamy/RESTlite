@@ -18,7 +18,7 @@ class SourceParamConstructor extends SourceParamCreator {
         if (tag.length() > 0) {
             constructor = findConstructor(elements, tag);
             if (constructor == null) {
-                env.warning("not support body type " + type + " without annotation Creator");
+                env.error("Not support body type " + type + " without annotation Creator");
                 return SourceParamFail.INSTANCE;
             }
             parameters = constructor.getParameters();

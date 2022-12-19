@@ -247,7 +247,7 @@ class SourceHttpMethodComponent {
                     SourceParamCreator creator = env.getBodyCreator(servlet, t, ann);
                     if (creator instanceof SourceParamFail) {
                         addNoType(t.getKind());
-                        env.warning("not support body type " + type + " without annotation Creator");
+                        env.error("Not support body type " + type + " without annotation Creator");
                     } else {
                         String name = p.getSimpleName().toString();
                         args.addBody(name).write(creator.toCharSequence(servlet, args, name));
@@ -287,7 +287,7 @@ class SourceHttpMethodComponent {
                 SourceParamCreator creator = env.getBodyCreator(servlet, t, body);
                 if (creator instanceof SourceParamFail) {
                     addNoType(t.getKind());
-                    env.warning("not support body type " + type + " without annotation Creator");
+                    env.error("Not support body type " + type + " without annotation Creator");
                 } else {
                     args.addBody(name).write(creator.toCharSequence(servlet, args, name));
                 }
