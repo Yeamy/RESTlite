@@ -10,7 +10,7 @@ class SourceArguments implements Iterable<CharSequence> {
     public static class Impl {
         private final Kind kind;
         private final String type, hName, jName;
-        private CharSequence vs;
+        private CharSequence vs;// out string e.g. String a = _req.getParam("a");
         private boolean required;// param
         private final boolean throwable, close, closeThrow, autoClose;// db
 
@@ -18,8 +18,8 @@ class SourceArguments implements Iterable<CharSequence> {
                      boolean closeThrow, boolean autoClose) {
             this.kind = kind;
             this.type = type;
-            this.hName = hName;
-            this.jName = jName;
+            this.hName = hName;// http name
+            this.jName = jName;// java name
             this.throwable = throwable;
             this.close = close;
             this.closeThrow = closeThrow;
@@ -56,7 +56,7 @@ class SourceArguments implements Iterable<CharSequence> {
         }
 
         public String name() {
-            return hName;
+            return jName.length() > 0 ? jName : hName;
         }
     }
 
@@ -152,14 +152,10 @@ class SourceArguments implements Iterable<CharSequence> {
         return out.iterator();
     }
 
-    public ArrayList<String> getReturns() {
+    public ArrayList<String> getAlias() {
         ArrayList<String> out = new ArrayList<>(list.size());
         for (Impl impl : list) {
-            if (impl.kind == Kind.none) {
-                out.add(impl.vs.toString());
-            } else {
-                out.add(impl.hName);
-            }
+            out.add(impl.name());
         }
         return out;
     }

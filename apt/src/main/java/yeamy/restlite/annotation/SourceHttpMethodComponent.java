@@ -326,7 +326,7 @@ class SourceHttpMethodComponent {
         if (param != null) {
             required = param.required();
             fallback = param.fallback();
-            name = param.value();
+            name = param.value().length() > 0 ? param.value() : alias;
         } else {
             required = true;
             fallback = "";
@@ -504,7 +504,7 @@ class SourceHttpMethodComponent {
 
     private void doReturnArguments(SourceServlet servlet) {
         int l = servlet.length();
-        for (String name : args.getReturns()) {
+        for (String name : args.getAlias()) {
             if (servlet.length() > l) {
                 servlet.append(',');
             }
