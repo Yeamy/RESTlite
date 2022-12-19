@@ -137,15 +137,23 @@ class SourceHttpMethodComponent {
                     .append("\", \"")
                     .append(handlerName).append("\");");
         }
-        // get arguments
-        for (CharSequence g : args) {
-            servlet.append(g);
-        }
-        // return
-        doReturn(env, servlet);
-        servlet.append('}');
-        if (async) {
-            servlet.append("}catch(Exception e){onError(_req,_resp,e);}finally{_asyncContext.complete();}});");
+        int begin = servlet.length();
+        try {
+            // get arguments
+            for (CharSequence g : args) {
+                servlet.append(g);
+            }
+            // return
+            doReturn(env, servlet);
+            servlet.append('}');
+            if (async) {
+                servlet.append("}catch(Exception e){onError(_req,_resp,e);}finally{_asyncContext.complete();}});");
+            }
+        } catch (Exception e) {
+            env.error(e);
+            servlet.deleteLast(servlet.length() - begin);
+            servlet.append("return new ").append(servlet.imports(T_TextPlainResponse))
+                    .append("(500, \"Server error!\");");
         }
     }
 
