@@ -1,5 +1,7 @@
 package yeamy.restlite.annotation;
 
+import yeamy.utils.TextUtils;
+
 import javax.lang.model.element.*;
 import java.util.Collections;
 import java.util.Iterator;
@@ -42,7 +44,7 @@ class SourceParamConstructor extends SourceParamCreator {
                 LinkTag[] tags = method.getAnnotationsByType(LinkTag.class);
                 if (tags != null) {
                     for (LinkTag li : tags) {
-                        if (li.value().equals(tag)) {
+                        if (TextUtils.in(tag, li.value())) {
                             return method;
                         }
                     }

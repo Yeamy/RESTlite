@@ -5,4 +5,5 @@ permission/build/
 gson/build/
 jackson/build/
 apt/build/
+sentinel/build/
 example/build/
