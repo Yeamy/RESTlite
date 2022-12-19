@@ -12,6 +12,7 @@ import java.util.TreeSet;
 import static yeamy.restlite.annotation.SupportType.*;
 
 class SourceHttpMethodComponent {
+    private static final String T_TextPlainResponse = "yeamy.restlite.addition.TextPlainResponse";
     static final String HANDLER = "RESTlite:Handler";
     private final ProcessEnvironment env;
     private final SourceServlet servlet;
@@ -412,12 +413,12 @@ class SourceHttpMethodComponent {
                 } else if (env.isStream(t)) {
                     doReturnStream(servlet);
                 } else if (T_String.equals(t.toString())) {
-                    servlet.append("new ").append(servlet.imports("yeamy.restlite.addition.TextPlainResponse"))
+                    servlet.append("new ").append(servlet.imports(T_TextPlainResponse))
                             .append("(this._impl.").append(method.getSimpleName()).append('(');
                     doReturnArguments(servlet);
                     servlet.append(")).write(_resp);");
                 } else if (T_Decimal.equals(t.toString())) {
-                    servlet.append("new ").append(servlet.imports("yeamy.restlite.addition.TextPlainResponse"))
+                    servlet.append("new ").append(servlet.imports(T_TextPlainResponse))
                             .append("(this._impl.").append(method.getSimpleName()).append('(');
                     doReturnArguments(servlet);
                     servlet.append(").toPlainString()).write(_resp);");
@@ -430,7 +431,7 @@ class SourceHttpMethodComponent {
                 servlet.append("new VoidResponse();}");
                 break;
             default:
-                servlet.append("new ").append(servlet.imports("yeamy.restlite.addition.TextPlainResponse"))
+                servlet.append("new ").append(servlet.imports(T_TextPlainResponse))
                         .append("(String.valueOf(this._impl.").append(method.getSimpleName()).append('(');
                 doReturnArguments(servlet);
                 servlet.append("))).write(_resp);");
@@ -461,7 +462,7 @@ class SourceHttpMethodComponent {
             doReturnArguments(servlet);
             servlet.append(")).write(_resp);");
         } else {
-            servlet.append("new ").append(servlet.imports("yeamy.restlite.addition.TextPlainResponse"))
+            servlet.append("new ").append(servlet.imports(T_TextPlainResponse))
                     .append("(500,\"Cannot find target constructor\").write(_resp);");
         }
     }
