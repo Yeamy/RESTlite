@@ -70,7 +70,7 @@ class SourceServlet extends SourceClass {
         StringBuilder sb = new StringBuilder();
         sb.append("package ").append(pkg).append(";");
         for (String p : new TreeSet<>(imports.values())) {
-            if (!p.substring(0, p.lastIndexOf('.')).equals(pkg)) {
+            if (env.needImport(p)) {
                 sb.append("import ").append(p).append(";");
             }
         }

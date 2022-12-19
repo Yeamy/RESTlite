@@ -169,6 +169,20 @@ class ProcessEnvironment {
         return pkg;
     }
 
+    private static final String[] JAVA_LANG_TYPE = {"byte", "char", "short", "int", "long", "float", "double"};
+
+    public boolean needImport(String clz) {
+        int e = clz.lastIndexOf('.');
+        if (e == -1) {
+            return TextUtils.notIn(clz, JAVA_LANG_TYPE);
+        }
+        String srcPkg = clz.substring(0, e);
+        if (srcPkg.equals("java.lang")) {
+            return false;
+        }
+        return !srcPkg.equals(pkg);
+    }
+
     public String getResponse() {
         return response;
     }
