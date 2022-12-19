@@ -5,8 +5,8 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 
-import static yeamy.restlite.annotation.SupportType.T_HttpRequest;
-import static yeamy.restlite.annotation.SupportType.T_HttpServletRequest;
+import static yeamy.restlite.annotation.SourceHttpMethodComponent.HANDLER;
+import static yeamy.restlite.annotation.SupportType.*;
 
 class SourceMethodOnError {
     private static final String T_Exception = "java.lang.Exception";
@@ -28,12 +28,13 @@ class SourceMethodOnError {
     }
 
     public final void create() throws ClassNotFoundException {
-        servlet.imports("java.io.Exception");
+        servlet.append("public void onError(RESTfulRequest _req, HttpServletResponse _resp, Exception e) throws ServletException, IOException");
         if (method == null) {
-            servlet.append("public void onError(RESTfulRequest _req, HttpServletResponse _resp, Exception e) throws Exception {throw e;}");
+            servlet.append("{new ")
+                    .append(servlet.imports("yeamy.restlite.addition.ExceptionResponse"))
+                    .append("(e).write(_resp);}");
         } else {
-            servlet.append("public void onError(RESTfulRequest _req, HttpServletResponse _resp, Exception e) throws Exception {");
-            servlet.append("this._impl.").append(method.getSimpleName()).append('(');
+            servlet.append("{this._impl.").append(method.getSimpleName()).append('(');
             int l = servlet.length();
             for (VariableElement e : method.getParameters()) {
                 TypeMirror t = e.asType();
@@ -57,6 +58,10 @@ class SourceMethodOnError {
                         break;
                     case DECLARED:
                         switch (clz) {
+                            case T_String:
+                                servlet.append("(String)_req.getRequest().getAttribute(\"")
+                                        .append(HANDLER).append("\");");
+                                break a;
                             case T_Exception:
                                 servlet.append(e.getSimpleName());
                                 break a;
