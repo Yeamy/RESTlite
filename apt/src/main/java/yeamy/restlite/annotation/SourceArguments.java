@@ -61,7 +61,7 @@ class SourceArguments implements Iterable<CharSequence> {
     }
 
     private enum Kind {
-        header, cookie, param, body, none
+        header, cookie, param, body, exist, fallback
     }
 
     public Impl addHeader(String name, String alias) {
@@ -70,7 +70,7 @@ class SourceArguments implements Iterable<CharSequence> {
         return impl;
     }
 
-    public Impl addCookie(String name, String type, String alias) {
+    public Impl addCookie(String type, String name, String alias) {
         Impl impl = new Impl(Kind.cookie, type, name, alias);
         list.add(impl);
         return impl;
@@ -89,16 +89,19 @@ class SourceArguments implements Iterable<CharSequence> {
         return impl;
     }
 
-    public void addFallback(String vs) {
-        Impl impl = new Impl(Kind.none, "", vs, vs);
+    public void addFallback(String name) {
+        Impl impl = new Impl(Kind.fallback, "", name, name);
         list.add(impl);
     }
 
-    public void addExist(String vs) {
-        Impl impl = new Impl(Kind.none, "", vs, vs);
+    public void addExist(String name) {
+        Impl impl = new Impl(Kind.exist, "", name, name);
         list.add(impl);
     }
 
+    /**
+     * @param kind only: header cookie, param
+     */
     private Impl get(Kind kind, String name) {
         for (Impl a : list) {
             if (a.kind == kind && a.hName.equals(name)) {
@@ -136,7 +139,8 @@ class SourceArguments implements Iterable<CharSequence> {
     public Iterator<CharSequence> iterator() {
         ArrayList<CharSequence> out = new ArrayList<>(list.size());
         for (Impl impl : list) {
-            if (impl.kind != Kind.none && impl.kind != Kind.body) {
+            if (impl.kind != Kind.fallback // without fallback
+                    && impl.kind != Kind.body) { // body at the end
                 out.add(impl.vs);
             }
         }
@@ -148,7 +152,7 @@ class SourceArguments implements Iterable<CharSequence> {
         return out.iterator();
     }
 
-    public ArrayList<String> names() {
+    public ArrayList<String> getReturns() {
         ArrayList<String> out = new ArrayList<>(list.size());
         for (Impl impl : list) {
             if (impl.kind == Kind.none) {

@@ -504,7 +504,7 @@ class SourceHttpMethodComponent {
 
     private void doReturnArguments(SourceServlet servlet) {
         int l = servlet.length();
-        for (String name : args.names()) {
+        for (String name : args.getReturns()) {
             if (servlet.length() > l) {
                 servlet.append(',');
             }
