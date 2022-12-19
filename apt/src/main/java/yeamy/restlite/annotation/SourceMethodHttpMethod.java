@@ -3,6 +3,7 @@ package yeamy.restlite.annotation;
 import java.util.ArrayList;
 
 import static yeamy.restlite.annotation.SupportType.T_HttpRequest;
+import static yeamy.restlite.annotation.SupportType.T_TextPlainResponse;
 
 class SourceMethodHttpMethod {
 	protected final ProcessEnvironment env;

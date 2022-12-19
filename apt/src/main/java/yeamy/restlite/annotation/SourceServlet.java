@@ -31,8 +31,6 @@ class SourceServlet extends SourceClass {
         }
     }
 
-    public String getImplName() {
-        return element.getSimpleName().toString();
     }
 
     @SuppressWarnings("unchecked")
@@ -63,7 +61,7 @@ class SourceServlet extends SourceClass {
         imports("jakarta.servlet.annotation.WebServlet");
         imports("yeamy.restlite.RESTfulServlet");
         imports("jakarta.servlet.http.HttpServletResponse");
-        String impl = getImplName();
+        String impl = element.getSimpleName().toString();
         String name = env.getFileName(pkg, impl + "Servlet");
         createBody(impl, name);
 

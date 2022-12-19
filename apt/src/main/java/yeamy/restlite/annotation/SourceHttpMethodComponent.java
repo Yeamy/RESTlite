@@ -12,7 +12,6 @@ import java.util.TreeSet;
 import static yeamy.restlite.annotation.SupportType.*;
 
 class SourceHttpMethodComponent {
-    private static final String T_TextPlainResponse = "yeamy.restlite.addition.TextPlainResponse";
     static final String HANDLER = "RESTlite:Handler";
     private final ProcessEnvironment env;
     private final SourceServlet servlet;
@@ -62,7 +61,7 @@ class SourceHttpMethodComponent {
             sb.append(s).append(',');
         }
         int l = sb.length();
-        orderKey = (l == 0) ? sb.toString() : sb.substring(0, l - 1);
+        orderKey = (l == 0) ? "" : sb.substring(0, l - 1);
         return orderKey;
     }
 

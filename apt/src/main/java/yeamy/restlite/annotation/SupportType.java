@@ -17,4 +17,5 @@ class SupportType {
     public static final String T_Ints = "int[]";
     public static final String T_Longs = "long[]";
     public static final String T_Strings = T_String + "[]";
+    public static final String T_TextPlainResponse = "yeamy.restlite.addition.TextPlainResponse";
 }
