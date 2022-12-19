@@ -87,10 +87,10 @@ class SourceServlet extends SourceClass {
             } else {
                 b.append('"');
             }
-            b.append('/').append(r.value()).append("\")\n");
+            b.append('/').append(r.value()).append("\")");
         }
         // MultipartConfig
-        b.append("@MultipartConfig");
+        b.append("@MultipartConfig ");
         StringBuilder b2 = new StringBuilder("(");
         long maxFileSize = r.maxFileSize();
         if (maxFileSize > -1) {
@@ -107,7 +107,6 @@ class SourceServlet extends SourceClass {
         if (b2.length() > 3) {
             b.append(b2);
         }
-        b.append('\n');
         // class
         b.append("public class ").append(name).append(" extends RESTfulServlet {");
         // serialVersionUID
@@ -116,19 +115,10 @@ class SourceServlet extends SourceClass {
         b.append("private ").append(impl).append(" _impl = new ").append(impl).append("();");
         // method
         for (SourceMethodHttpMethod method : httpMethods.values()) {
-            try {
-                method.create();
-            } catch (Exception e) {
-                b.append("/**").append(e).append("*/");
-                break;
-            }
+            method.create();
         }
         // error
-        try {
-            error.create();
-        } catch (Exception e) {
-            b.append("/**").append(e).append("*/");
-        }
+        error.create();
         b.append("}");
     }
 

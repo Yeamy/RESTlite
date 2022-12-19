@@ -27,7 +27,7 @@ class SourceMethodOnError {
         this.intercept = intercept;
     }
 
-    public final void create() throws ClassNotFoundException {
+    public final void create() {
         servlet.append("public void onError(RESTfulRequest _req, HttpServletResponse _resp, Exception e) throws ServletException, IOException");
         if (method == null) {
             servlet.append("{new ")

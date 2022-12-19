@@ -42,7 +42,7 @@ class SourceMethodHttpMethod {
 		servlet.append("}catch(Exception ex){onError(_req,_resp,ex);}}");
 	}
 
-	public void create() throws ClassNotFoundException {
+	public void create() {
 		methods.sort((m1, m2) -> {
 			String k1 = m1.orderKey();
 			String k2 = m2.orderKey();
