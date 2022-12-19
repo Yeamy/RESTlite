@@ -31,6 +31,8 @@ class SourceServlet extends SourceClass {
         }
     }
 
+    public CharSequence getImplClass() {
+        return element.getQualifiedName();
     }
 
     @SuppressWarnings("unchecked")

@@ -518,4 +518,20 @@ class SourceHttpMethodComponent {
             servlet.append(name);
         }
     }
+
+    public String name() {
+        StringBuilder name = new StringBuilder(servlet.getImplClass()).append('.')
+                .append(method.getSimpleName()).append('(');
+        for (VariableElement a: arguments) {
+            TypeMirror t = a.asType();
+            if (t.getKind().isPrimitive()) {
+                name.append(t).append(',');
+            } else {
+                name.append(env.getTypeElement(a.asType().toString()).getSimpleName()).append(',');
+            }
+        }
+        name.deleteCharAt(name.length() - 1);
+        name.append(')');
+        return name.toString();
+    }
 }
