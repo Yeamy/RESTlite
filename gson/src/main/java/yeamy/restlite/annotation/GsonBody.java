@@ -1,6 +1,4 @@
-package yeamy.restlite.addition;
-
-import yeamy.restlite.annotation.Creator;
+package yeamy.restlite.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
