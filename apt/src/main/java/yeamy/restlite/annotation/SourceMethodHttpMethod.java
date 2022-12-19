@@ -7,7 +7,7 @@ import static yeamy.restlite.annotation.SupportType.T_HttpRequest;
 class SourceMethodHttpMethod {
 	protected final ProcessEnvironment env;
 	protected final SourceServlet servlet;
-	private final ArrayList<SourceHttpMethodComponent> methods = new ArrayList<>();
+	private final ArrayList<SourceHttpMethodComponent> components = new ArrayList<>();
 	protected final String httpMethod;
 
 	public SourceMethodHttpMethod(ProcessEnvironment env, SourceServlet servlet, String httpMethod) {
@@ -17,10 +17,10 @@ class SourceMethodHttpMethod {
 	}
 
 	public final void addMethod(SourceHttpMethodComponent method) {
-		methods.add(method);
+		components.add(method);
 	}
 
-	protected void create(ArrayList<SourceHttpMethodComponent> methods) throws ClassNotFoundException {
+	protected void create(ArrayList<SourceHttpMethodComponent> methods) {
 		servlet.imports(T_HttpRequest);
 		servlet.imports("jakarta.servlet.http.HttpServletResponse");
 		servlet.imports("jakarta.servlet.ServletException");
@@ -43,7 +43,7 @@ class SourceMethodHttpMethod {
 	}
 
 	public void create() {
-		methods.sort((m1, m2) -> {
+		components.sort((m1, m2) -> {
 			String k1 = m1.orderKey();
 			String k2 = m2.orderKey();
 			if (k1.length() < k2.length()) {
@@ -63,12 +63,12 @@ class SourceMethodHttpMethod {
 				return 0;
 			}
 		});
-		create(methods);
+		create(components);
 	}
 
 	public boolean hasNoArgs() {
-		for (SourceHttpMethodComponent method : methods) {
-			if (method.orderKey().length() == 0) {
+		for (SourceHttpMethodComponent component : components) {
+			if (component.orderKey().length() == 0) {
 				return true;
 			}
 		}
