@@ -33,7 +33,7 @@ class SourceMethodHttpMethod {
 			method.create(httpMethod);
 			servlet.append(" else ");
 		}
-		if (methods.size() > 1 && !hasNoArgs()) {
+		if (methods.size() >= 1 && !hasNoArgMethod()) {
 			servlet.imports("yeamy.restlite.addition.NoMatchMethodException");
 			servlet.append("{ onError(_req, _resp, new NoMatchMethodException(_req));}");
 		} else {
@@ -66,7 +66,7 @@ class SourceMethodHttpMethod {
 		create(components);
 	}
 
-	public boolean hasNoArgs() {
+	public boolean hasNoArgMethod() {
 		for (SourceHttpMethodComponent component : components) {
 			if (component.orderKey().length() == 0) {
 				return true;
