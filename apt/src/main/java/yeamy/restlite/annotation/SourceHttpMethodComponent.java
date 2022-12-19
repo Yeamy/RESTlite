@@ -108,10 +108,12 @@ class SourceHttpMethodComponent {
         // check arguments
         ArrayList<String> rParams = args.getRequiredParams();
         if (rParams.size() == 0) {
+            servlet.append('{');
             for (CharSequence g : args) {
                 servlet.append(g);
             }
             doReturn(env, servlet);
+            servlet.append('}');
             return;
         }
         StringBuilder handlerName = new StringBuilder(httpMethod).append(':');
