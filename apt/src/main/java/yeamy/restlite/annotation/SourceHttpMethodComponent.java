@@ -76,7 +76,7 @@ class SourceHttpMethodComponent {
         }
         serverName.addHttpMethod(httpMethod);
         // check arguments
-        ArrayList<String> rParams = args.getRequiredParams();
+        TreeSet<String> rParams = serverName.getParams();
         if (rParams.size() == 0) {
             servlet.append('{');
             for (CharSequence g : args) {
@@ -300,21 +300,21 @@ class SourceHttpMethodComponent {
                 String[] vs = "".equals(fallback.trim())
                         ? new String[]{"int ", alias, " = _req.getIntParam(\"", name, "\");"}
                         : new String[]{"int ", alias, " = _req.getIntParam(\"", name, "\", ", fallback, ");"};
-                args.addParam(type, name, alias, required).write(vs);
+                args.addParam(type, name, alias).write(vs);
                 break;
             }
             case LONG: {
                 String[] vs = "".equals(fallback.trim())
                         ? new String[]{"long ", alias, " = _req.getLongParam(\"", name, "\");"}
                         : new String[]{"long ", alias, " = _req.getLongParam(\"", name, "\", ", fallback, ");"};
-                args.addParam(type, name, alias, required).write(vs);
+                args.addParam(type, name, alias).write(vs);
                 break;
             }
             case BOOLEAN: {
                 String[] vs = "".equals(fallback.trim())
                         ? new String[]{"boolean ", alias, " = _req.getBoolParam(\"", name, "\");"}
                         : new String[]{"boolean ", alias, " = _req.getBoolParam(\"", name, "\", ", fallback, ");"};
-                args.addParam(type, name, alias, required).write(vs);
+                args.addParam(type, name, alias).write(vs);
                 break;
             }
             case DECLARED: {
@@ -322,16 +322,16 @@ class SourceHttpMethodComponent {
                     String[] vs = "".equals(fallback.trim())
                             ? new String[]{"String ", alias, " = _req.getParameter(\"", name, "\");"}
                             : new String[]{"String ", alias, " = _req.getParameter(\"", name, "\", \"", fallback, "\");"};
-                    args.addParam(type, name, alias, required).write(vs);
+                    args.addParam(type, name, alias).write(vs);
                 } else if (T_Decimal.equals(type)) {
                     String clz = servlet.imports(T_Decimal);
                     String[] vs = "".equals(fallback.trim())
                             ? new String[]{clz, " ", alias, " = _req.getDecimalParam(\"", name, "\");"}
                             : new String[]{clz, " ", alias, " = _req.getDecimalParam(\"", name, "\", new " + clz
                             + "(\"" + fallback, "\");"};
-                    args.addParam(type, name, alias, required).write(vs);
+                    args.addParam(type, name, alias).write(vs);
                 } else {
-                    args.addParam(type, name, alias, required).write(type, " ", alias, " = null;/* not support type */");
+                    args.addParam(type, name, alias).write(type, " ", alias, " = null;/* not support type */");
                     env.warning("not support param type " + type + " without annotation Creator");
                 }
                 break;
@@ -339,23 +339,23 @@ class SourceHttpMethodComponent {
             case ARRAY:
                 switch (type) {
                     case T_Bools:
-                        args.addParam(type, name, alias, required)
+                        args.addParam(type, name, alias)
                                 .write("boolean[] ", alias, " = _req.getBoolParams(\"", name, "\");");
                         break;
                     case T_Ints:
-                        args.addParam(type, name, alias, required)
+                        args.addParam(type, name, alias)
                                 .write("int[] ", alias, " = _req.getIntParams(\"", name, "\");");
                         break;
                     case T_Longs:
-                        args.addParam(type, name, alias, required)
+                        args.addParam(type, name, alias)
                                 .write("long[] ", alias, " = _req.getLongParams(\"", name, "\");");
                         break;
                     case T_Decimals:
-                        args.addParam(type, name, alias, required)
+                        args.addParam(type, name, alias)
                                 .write(servlet.imports(T_Decimal), "[] ", alias, " = _req.getDecimalParams(\"", name, "\");");
                         break;
                     case T_Strings:
-                        args.addParam(type, name, alias, required)
+                        args.addParam(type, name, alias)
                                 .write("String[] ", alias, " = _req.getParams(\"", name, "\");");
                         break;
                     default:

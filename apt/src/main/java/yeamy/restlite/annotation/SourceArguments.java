@@ -11,7 +11,6 @@ class SourceArguments implements Iterable<CharSequence> {
         private final Kind kind;
         private final String type, hName, jName;
         private CharSequence vs;// out string e.g. String a = _req.getParam("a");
-        private boolean required;// param
         private final boolean throwable, close, closeThrow, autoClose;// db
 
         private Impl(Kind kind, String type, String hName, String jName, boolean throwable, boolean close,
@@ -40,10 +39,6 @@ class SourceArguments implements Iterable<CharSequence> {
                 }
                 this.vs = b;
             }
-        }
-
-        void setRequired(boolean required) {
-            this.required = required;
         }
 
         @Override
@@ -76,9 +71,8 @@ class SourceArguments implements Iterable<CharSequence> {
         return impl;
     }
 
-    public Impl addParam(String type, String name, String alias, boolean required) {
+    public Impl addParam(String type, String name, String alias) {
         Impl impl = new Impl(Kind.param, type, name, alias);
-        impl.setRequired(required);
         list.add(impl);
         return impl;
     }
@@ -156,16 +150,6 @@ class SourceArguments implements Iterable<CharSequence> {
         ArrayList<String> out = new ArrayList<>(list.size());
         for (Impl impl : list) {
             out.add(impl.name());
-        }
-        return out;
-    }
-
-    public ArrayList<String> getRequiredParams() {
-        ArrayList<String> out = new ArrayList<>(list.size());
-        for (Impl a : list) {
-            if (a.required) {
-                out.add(a.hName);
-            }
         }
         return out;
     }
