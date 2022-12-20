@@ -5,7 +5,7 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 
-import static yeamy.restlite.annotation.SourceHttpMethodComponent.HANDLER;
+import static yeamy.restlite.RESTfulRequest.SERVER_NAME;
 import static yeamy.restlite.annotation.SupportType.*;
 
 class SourceMethodOnError {
@@ -60,7 +60,7 @@ class SourceMethodOnError {
                         switch (clz) {
                             case T_String:
                                 servlet.append("(String)_req.getRequest().getAttribute(\"")
-                                        .append(HANDLER).append("\");");
+                                        .append(SERVER_NAME).append("\");");
                                 break a;
                             case T_Exception:
                                 servlet.append(e.getSimpleName());
