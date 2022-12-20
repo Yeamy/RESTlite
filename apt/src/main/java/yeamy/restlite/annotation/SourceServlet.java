@@ -10,6 +10,7 @@ import java.util.TreeSet;
 class SourceServlet extends SourceClass {
     private static final Class<?>[] METHODS = {GET.class, POST.class, PUT.class, PATCH.class, DELETE.class};
     private final TypeElement element;
+    private final Resource resource;
     private final HashMap<Class<?>, SourceMethodHttpMethod> httpMethods = new HashMap<>();
     private final SourceMethodOnError error;
     private final StringBuilder b = new StringBuilder();
@@ -17,6 +18,10 @@ class SourceServlet extends SourceClass {
     public SourceServlet(ProcessEnvironment env, TypeElement element) {
         super(env);
         this.element = element;
+        this.resource = element.getAnnotation(Resource.class);
+        if (getResource().contains("/")) {
+            throw new RuntimeException("Cannot create servlet with illegal resource in class:" + element.asType());
+        }
         this.pkg = ((PackageElement) element.getEnclosingElement()).getQualifiedName().toString();
         this.error = new SourceMethodOnError(env, this);
         for (Element li : element.getEnclosedElements()) {
@@ -33,6 +38,10 @@ class SourceServlet extends SourceClass {
 
     public CharSequence getImplClass() {
         return element.getQualifiedName();
+    }
+
+    public String getResource() {
+        return resource.value();
     }
 
     @SuppressWarnings("unchecked")
@@ -79,24 +88,23 @@ class SourceServlet extends SourceClass {
     }
 
     private void createBody(String impl, String name) {
-        Resource r = element.getAnnotation(Resource.class);
         {// WebServlet
             b.append("@WebServlet(");
-            if (r.asyncSupported()) {
+            if (resource.asyncSupported()) {
                 b.append("asyncSupported = true, value = \"");
             } else {
                 b.append('"');
             }
-            b.append('/').append(r.value()).append("\")");
+            b.append('/').append(getResource()).append("\")");
         }
         // MultipartConfig
         b.append("@MultipartConfig ");
         StringBuilder b2 = new StringBuilder("(");
-        long maxFileSize = r.maxFileSize();
+        long maxFileSize = resource.maxFileSize();
         if (maxFileSize > -1) {
             b2.append("maxFileSize = ").append(maxFileSize).append('L');
         }
-        long maxRequestSize = r.maxRequestSize();
+        long maxRequestSize = resource.maxRequestSize();
         if (maxRequestSize > -1) {
             if (b2.length() > 0) {
                 b.append(", ");
