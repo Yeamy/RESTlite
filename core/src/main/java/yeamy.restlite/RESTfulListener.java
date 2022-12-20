@@ -12,11 +12,11 @@ public class RESTfulListener implements ServletRequestListener {
     public void requestInitialized(ServletRequestEvent sre) {
         ServletRequest req = sre.getServletRequest();
         if (req instanceof HttpServletRequest) {
-            action((HttpServletRequest) req);
+            createRequest((HttpServletRequest) req);
         }
     }
 
-    public void action(HttpServletRequest httpReq) {
+    public void createRequest(HttpServletRequest httpReq) {
         if ("Upgrade".equals(httpReq.getHeader("Connection"))//
                 && "websocket".equals(httpReq.getHeader("Upgrade"))) {
             return;

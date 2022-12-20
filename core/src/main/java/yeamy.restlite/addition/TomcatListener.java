@@ -17,7 +17,7 @@ public class TomcatListener extends RESTfulListener {
     private boolean init = false;
 
     @Override
-    public void action(HttpServletRequest httpReq) {
+    public void createRequest(HttpServletRequest httpReq) {
         if (!init && httpReq instanceof RequestFacade) {
             RequestFacade facade = (RequestFacade) httpReq;
             try {
@@ -31,7 +31,7 @@ public class TomcatListener extends RESTfulListener {
                 e.printStackTrace();
             }
         }
-        super.action(httpReq);
+        super.createRequest(httpReq);
     }
 
 }
