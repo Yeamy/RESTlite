@@ -74,29 +74,14 @@ class SourceHttpMethodComponent {
                 continue;
             }
         }
-        serverName.addHttpMethod(httpMethod);
+        String key = env.addServerName(httpMethod, serverName);
         // check arguments
         TreeSet<String> rParams = serverName.getParams();
         if (rParams.size() == 0) {
-            servlet.append('{');
-            for (CharSequence g : args) {
-                servlet.append(g);
-            }
-            doReturn(env, servlet);
-            servlet.append('}');
-            return;
+            servlet.append("default:{");
+        } else {
+            servlet.append("case \"").append(key).append("\":{");
         }
-        servlet.append("if (");
-        boolean first = true;
-        for (String param : rParams) {
-            if (first) {
-                first = false;
-            } else {
-                servlet.append("&&");
-            }
-            servlet.append("_req.has(\"").append(param).append("\")");
-        }
-        servlet.append("){");
         int begin = servlet.length();
         try {
             if (async) {
@@ -116,13 +101,13 @@ class SourceHttpMethodComponent {
             if (async) {
                 servlet.append("}catch(Exception e){onError(_req,_resp,e);}finally{_asyncContext.complete();}});");
             }
-            servlet.append('}');
         } catch (Exception e) {
             env.error(e);
             servlet.deleteLast(servlet.length() - begin);
             servlet.append("return new ").append(servlet.imports(T_TextPlainResponse))
                     .append("(500, \"Server error!\");");
         }
+        servlet.append("break;}");
     }
 
     private boolean doRequest(VariableElement p) {

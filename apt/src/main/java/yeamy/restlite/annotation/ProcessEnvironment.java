@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.HashMap;
+import java.util.TreeMap;
 
 class ProcessEnvironment {
     private final Messager messager;
@@ -28,6 +29,7 @@ class ProcessEnvironment {
     private final SupportPatch supportPatch;
     private final String pkg, response;
     private final TypeMirror closeable, httpResponse, inputStream, file;
+    private final TreeMap<String, SourceServerName> names = new TreeMap<>();
 
     public ProcessEnvironment(ProcessingEnvironment env, TypeElement init) {
         messager = env.getMessager();
@@ -197,5 +199,11 @@ class ProcessEnvironment {
 
     public void note(String msg) {
         messager.printMessage(Kind.NOTE, msg);
+    }
+
+    public String addServerName(String httpMethod, SourceServerName serverName) {
+        String key = serverName.getName(httpMethod);
+        names.put(key, serverName);
+        return key;
     }
 }

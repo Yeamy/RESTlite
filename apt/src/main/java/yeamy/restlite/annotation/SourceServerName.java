@@ -1,13 +1,11 @@
 package yeamy.restlite.annotation;
 
 import javax.lang.model.element.VariableElement;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
 
 class SourceServerName {
     public final String resource, orderKey;
-    private final ArrayList<String> httpMethods = new ArrayList<>();
     private final TreeSet<String> params = new TreeSet<>();
 
     public SourceServerName(String resource, List<? extends VariableElement> arguments) {
@@ -34,11 +32,11 @@ class SourceServerName {
         this.orderKey = (l == 0) ? "" : sb.substring(0, l - 1);
     }
 
-    public void addHttpMethod(String httpMethod) {
-        httpMethods.add(httpMethod);
-    }
-
     public TreeSet<String> getParams() {
         return params;
+    }
+
+    public String getName(String httpMethod) {
+        return resource + ':' + httpMethod + ':' + orderKey;
     }
 }

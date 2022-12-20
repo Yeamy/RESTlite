@@ -6,7 +6,6 @@ import jakarta.servlet.ServletRequestListener;
 import jakarta.servlet.http.HttpServletRequest;
 
 import static yeamy.restlite.RESTfulRequest.REQUEST;
-import static yeamy.restlite.RESTfulRequest.SERVER_NAME;
 
 public class RESTfulListener implements ServletRequestListener {
 
@@ -25,7 +24,7 @@ public class RESTfulListener implements ServletRequestListener {
         try {
             RESTfulRequest restfulReq = HttpRequestFactory.createRequest(httpReq);
             httpReq.setAttribute(REQUEST, restfulReq);
-            httpReq.setAttribute(SERVER_NAME, createServerName(restfulReq));
+            restfulReq.setServerName(createServerName(restfulReq));
         } catch (ClassCastException e) {
             e.printStackTrace();
         }

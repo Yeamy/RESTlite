@@ -29,18 +29,15 @@ class SourceMethodHttpMethod {
 		servlet.append("@Override public void do").append(httpMethod.charAt(0))
 				.append(httpMethod.toLowerCase(), 1, httpMethod.length())
 				.append("(RESTfulRequest _req, HttpServletResponse _resp) throws ServletException, IOException {");
-		servlet.append("try{");
+		servlet.append("try{switch(_req.getServerName()){");
 		for (SourceHttpMethodComponent method : methods) {
 			method.create(httpMethod);
-			servlet.append(" else ");
 		}
-		if (methods.size() >= 1 && !hasNoArgMethod()) {
+		if (methods.size() >= 1 && allMethodHasArg()) {
 			servlet.imports("yeamy.restlite.addition.NoMatchMethodException");
-			servlet.append("{ onError(_req, _resp, new NoMatchMethodException(_req));}");
-		} else {
-			servlet.deleteLast(6);
+			servlet.append("default:{ onError(_req, _resp, new NoMatchMethodException(_req));}");
 		}
-		servlet.append("}catch(Exception ex){onError(_req,_resp,ex);}}");
+		servlet.append("}}catch(Exception ex){onError(_req,_resp,ex);}}");
 	}
 
     protected void createError() {
@@ -107,12 +104,12 @@ class SourceMethodHttpMethod {
         }
 	}
 
-	public boolean hasNoArgMethod() {
+	public boolean allMethodHasArg() {
 		for (SourceHttpMethodComponent component : components) {
 			if (component.orderKey().length() == 0) {
-				return true;
+				return false;
 			}
 		}
-		return false;
+		return true;
 	}
 }

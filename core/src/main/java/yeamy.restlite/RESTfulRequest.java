@@ -17,13 +17,13 @@ import java.util.Map.Entry;
 
 public class RESTfulRequest implements Serializable {
     public static final String REQUEST = "RESTlite:Request";
-    public static final String SERVER_NAME = "RESTlite:ServerName";
+
     public static RESTfulRequest get(ServletRequest r) {
         return (RESTfulRequest) r.getAttribute(REQUEST);
     }
     private static final long serialVersionUID = -7894023380274904092L;
     private HttpServletRequest req;
-    private String resource = "";
+    private String resource = "", serverName;
     private final HashMap<String, String> parameter = new HashMap<>();
     private HashMap<String, HttpRequestFile> fields;
     private HashSet<String> accept;
@@ -49,6 +49,14 @@ public class RESTfulRequest implements Serializable {
         return req;
     }
 
+    public String getServerName() {
+        return serverName;
+    }
+
+    public void setServerName(String serverName) {
+        this.serverName = serverName;
+    }
+
     void setResource(String resource) {
         this.resource = resource;
     }
@@ -71,7 +79,7 @@ public class RESTfulRequest implements Serializable {
         for (int i = 0; i < array.length; i++) {
             array[i] = array[i].trim();
         }
-        return  array;
+        return array;
     }
 
     public List<String> getHeaders(String name) {
@@ -162,7 +170,7 @@ public class RESTfulRequest implements Serializable {
 
     public String getBodyAsText() {
         String cs = getCharset();
-        if (cs == null){
+        if (cs == null) {
             return getBodyAsText(StandardCharsets.UTF_8);
         }
         return getBodyAsText(cs);
