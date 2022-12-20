@@ -12,7 +12,6 @@ import java.util.TreeSet;
 import static yeamy.restlite.annotation.SupportType.*;
 
 class SourceHttpMethodComponent {
-    static final String HANDLER = "RESTlite:Handler";
     private final ProcessEnvironment env;
     private final SourceServlet servlet;
     private final ExecutableElement method;
@@ -126,7 +125,6 @@ class SourceHttpMethodComponent {
             servlet.append('}');
             return;
         }
-        StringBuilder handlerName = new StringBuilder(httpMethod).append(':');
         servlet.append("if (");
         boolean first = true;
         for (String param : rParams) {
@@ -135,20 +133,9 @@ class SourceHttpMethodComponent {
             } else {
                 servlet.append("&&");
             }
-            handlerName.append(param).append(',');
             servlet.append("_req.has(\"").append(param).append("\")");
         }
         servlet.append("){");
-        {// handler name
-            int handlerLastCharIndex = handlerName.length() - 1;
-            if (handlerName.charAt(handlerLastCharIndex) == ',') {
-                handlerName.deleteCharAt(handlerLastCharIndex);
-            }
-            servlet.append("_req.getRequest().setAttribute(\"")
-                    .append(HANDLER)
-                    .append("\", \"")
-                    .append(handlerName).append("\");");
-        }
         int begin = servlet.length();
         try {
             // get arguments
