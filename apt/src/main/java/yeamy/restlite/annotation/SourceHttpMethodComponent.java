@@ -27,16 +27,6 @@ class SourceHttpMethodComponent {
         this.arguments = method.getParameters();
     }
 
-    Body getBody(VariableElement e) {
-        for (AnnotationMirror am : e.getAnnotationMirrors()) {
-            Body body = am.getAnnotationType().asElement().getAnnotation(Body.class);
-            if (body != null) {
-                return body;
-            }
-        }
-        return null;
-    }
-
     final String orderKey() {
         if (orderKey != null) {
             return orderKey;
@@ -49,7 +39,7 @@ class SourceHttpMethodComponent {
             } else if (a.getAnnotation(Header.class) == null//
                     && a.getAnnotation(Cookies.class) == null//
                     && a.getAnnotation(Body.class) == null//
-                    && getBody(a) == null) {
+                    && ProcessEnvironment.getBody(a) == null) {
                 set.add(a.getSimpleName().toString());
             } else {
                 continue;
@@ -239,7 +229,7 @@ class SourceHttpMethodComponent {
         String type = t.toString();
         Body body = p.getAnnotation(Body.class);
         if ((body == null) && TextUtils.notIn(type, T_File, T_Files, T_InputStream, T_ServletInputStream)) {
-            body = getBody(p);
+            body = ProcessEnvironment.getBody(p);
             if (body != null) {
                 SourceParamCreator creator = env.getBodyCreator(servlet, t, body);
                 if (creator instanceof SourceParamFail) {

@@ -5,9 +5,7 @@ import yeamy.utils.TextUtils;
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.PackageElement;
-import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.*;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
@@ -72,6 +70,16 @@ class ProcessEnvironment {
 
     public TypeElement getTypeElement(String clz) {
         return elementUtils.getTypeElement(clz);
+    }
+
+    public static Body getBody(VariableElement e) {
+        for (AnnotationMirror am : e.getAnnotationMirrors()) {
+            Body body = am.getAnnotationType().asElement().getAnnotation(Body.class);
+            if (body != null) {
+                return body;
+            }
+        }
+        return null;
     }
 
     public SourceParamCreator getBodyCreator(SourceServlet servlet, TypeMirror t, Body body) {
