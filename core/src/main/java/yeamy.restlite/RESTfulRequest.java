@@ -17,6 +17,7 @@ import java.util.Map.Entry;
 
 public class RESTfulRequest implements Serializable {
     public static final String REQUEST = "RESTlite:Request";
+    public static final String SERVER_NAME = "RESTlite:ServerName";
     public static RESTfulRequest get(ServletRequest r) {
         return (RESTfulRequest) r.getAttribute(REQUEST);
     }
