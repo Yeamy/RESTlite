@@ -16,7 +16,7 @@ class SourceHttpMethodComponent {
     private final SourceServlet servlet;
     private final ExecutableElement method;
     private final List<? extends VariableElement> arguments;
-    private String orderKey;
+    private final SourceServerName serverName;
 
     private final SourceArguments args = new SourceArguments();
 
@@ -25,33 +25,11 @@ class SourceHttpMethodComponent {
         this.servlet = servlet;
         this.method = method;
         this.arguments = method.getParameters();
+        this.serverName = new SourceServerName(servlet.getResource(), arguments);
     }
 
     final String orderKey() {
-        if (orderKey != null) {
-            return orderKey;
-        }
-        TreeSet<String> set = new TreeSet<>();
-        for (VariableElement a : arguments) {
-            Param pa = a.getAnnotation(Param.class);
-            if (pa != null && pa.required()) {
-                set.add(a.getSimpleName().toString());
-            } else if (a.getAnnotation(Header.class) == null//
-                    && a.getAnnotation(Cookies.class) == null//
-                    && a.getAnnotation(Body.class) == null//
-                    && ProcessEnvironment.getBody(a) == null) {
-                set.add(a.getSimpleName().toString());
-            } else {
-                continue;
-            }
-        }
-        StringBuilder sb = new StringBuilder();
-        for (String s : set) {
-            sb.append(s).append(',');
-        }
-        int l = sb.length();
-        orderKey = (l == 0) ? "" : sb.substring(0, l - 1);
-        return orderKey;
+        return serverName.orderKey;
     }
 
     public void create(String httpMethod) {
@@ -96,6 +74,7 @@ class SourceHttpMethodComponent {
                 continue;
             }
         }
+        serverName.addHttpMethod(httpMethod);
         // check arguments
         ArrayList<String> rParams = args.getRequiredParams();
         if (rParams.size() == 0) {
