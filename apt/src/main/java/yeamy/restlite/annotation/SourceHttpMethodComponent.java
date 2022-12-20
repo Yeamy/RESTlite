@@ -97,14 +97,6 @@ class SourceHttpMethodComponent {
                 async = false;
                 asyncTimeout = 0L;
         }
-        if (async) {
-            servlet.imports("jakarta.servlet.AsyncContext");
-            servlet.append("AsyncContext _asyncContext = _req.startAsync();");
-            if (asyncTimeout > 0) {
-                servlet.append("_asyncContext.setTimeout(").append(asyncTimeout).append("\");\"");
-            }
-            servlet.append("_asyncContext.start(() -> {try {");
-        }
         for (VariableElement a : arguments) {
             if (doRequest(a)
                     || doHeader(a)
@@ -138,16 +130,24 @@ class SourceHttpMethodComponent {
         servlet.append("){");
         int begin = servlet.length();
         try {
+            if (async) {
+                servlet.imports("jakarta.servlet.AsyncContext");
+                servlet.append("AsyncContext _asyncContext = _req.startAsync();");
+                if (asyncTimeout > 0) {
+                    servlet.append("_asyncContext.setTimeout(").append(asyncTimeout).append("\");\"");
+                }
+                servlet.append("_asyncContext.start(() -> {try {");
+            }
             // get arguments
             for (CharSequence g : args) {
                 servlet.append(g);
             }
             // return
             doReturn(env, servlet);
-            servlet.append('}');
             if (async) {
                 servlet.append("}catch(Exception e){onError(_req,_resp,e);}finally{_asyncContext.complete();}});");
             }
+            servlet.append('}');
         } catch (Exception e) {
             env.error(e);
             servlet.deleteLast(servlet.length() - begin);
