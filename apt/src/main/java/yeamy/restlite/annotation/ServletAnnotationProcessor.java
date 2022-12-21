@@ -43,13 +43,6 @@ public class ServletAnnotationProcessor extends AbstractProcessor {
         if (env == null) {
             return false;
         }
-        // listener
-        try {
-            new SourceWebListener(env).create();
-        } catch (Exception e) {
-            env.error(e);
-            return false;
-        }
         // filter
         try {
             new SourceWebFilter(env, roundEnv).create();
@@ -71,6 +64,13 @@ public class ServletAnnotationProcessor extends AbstractProcessor {
                 env.error(e);
                 return false;
             }
+        }
+        // listener
+        try {
+            new SourceWebListener(env).create();
+        } catch (Exception e) {
+            env.error(e);
+            return false;
         }
         return false;
     }

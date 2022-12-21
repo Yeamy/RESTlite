@@ -16,7 +16,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.TreeMap;
 
 class ProcessEnvironment {
@@ -29,7 +31,7 @@ class ProcessEnvironment {
     private final SupportPatch supportPatch;
     private final String pkg, response;
     private final TypeMirror closeable, httpResponse, inputStream, file;
-    private final TreeMap<String, SourceServerName> names = new TreeMap<>();
+    final TreeMap<String, Map<String, SourceServerName>> names = new TreeMap<>();
 
     public ProcessEnvironment(ProcessingEnvironment env, TypeElement init) {
         messager = env.getMessager();
@@ -202,8 +204,10 @@ class ProcessEnvironment {
     }
 
     public String addServerName(String httpMethod, SourceServerName serverName) {
-        String key = serverName.getName(httpMethod);
-        names.put(key, serverName);
-        return key;
+        String key = serverName.resource + ':' + httpMethod;
+        Map<String, SourceServerName> value = names.computeIfAbsent(key, k -> new TreeMap<>(Comparator.reverseOrder()));
+        String key2 = serverName.getName(httpMethod);
+        value.put(key2, serverName);
+        return key2;
     }
 }

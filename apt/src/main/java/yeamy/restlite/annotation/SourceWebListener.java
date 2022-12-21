@@ -1,6 +1,8 @@
 package yeamy.restlite.annotation;
 
 import java.io.IOException;
+import java.util.Map;
+import java.util.TreeSet;
 
 class SourceWebListener extends SourceClass {
 
@@ -23,6 +25,7 @@ class SourceWebListener extends SourceClass {
         }
         imports.put(parentName, parent);
         imports("jakarta.servlet.annotation.WebListener");
+        imports("yeamy.restlite.RESTfulRequest");
     }
 
     @Override
@@ -32,7 +35,31 @@ class SourceWebListener extends SourceClass {
             sb.append("import ").append(clz).append(";");
         }
         sb.append("@WebListener(\"*\") public class ").append(className).append(" extends ")
-                .append(parentName).append(" {}");
+                .append(parentName).append(" {");
+        imports("yeamy.restlite.RESTfulRequest");
+        sb.append("@Override public String createServerName(RESTfulRequest r) {switch (super.createServerName(r)) {");
+        for (Map.Entry<String, Map<String, SourceServerName>> e1 : env.names.entrySet()) {
+            sb.append("case \"").append(e1.getKey()).append("\":");
+            for (Map.Entry<String, SourceServerName> e2 : e1.getValue().entrySet()) {
+                TreeSet<String> params = e2.getValue().getParams();
+                if (params.size() > 0) {
+                    sb.append("if (");
+                    boolean first = true;
+                    for (String param : params) {
+                        if (first) {
+                            first = false;
+                        } else {
+                            sb.append("&&");
+                        }
+                        sb.append("r.has(\"").append(param).append("\")");
+                    }
+                    sb.append("){return \"").append(e2.getKey()).append("\";} else ");
+                }
+            }
+            int l = sb.length();
+            sb.delete(l - 6, l).append("break;");
+        }
+        sb.append("}return \"\";}}");
         try {
             env.createSourceFile(pkg, className, sb);
         } catch (Exception e) {
