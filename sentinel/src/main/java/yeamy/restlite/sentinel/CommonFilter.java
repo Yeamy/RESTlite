@@ -88,7 +88,7 @@ public class CommonFilter implements Filter {
     }
 
     protected String cleanUri(RESTfulRequest req) {
-        return req.getMethod() + ":" + req.getResource();
+        return req.getServerName();
     }
 
     private String parseOrigin(HttpServletRequest request) {
