@@ -31,7 +31,7 @@ class ProcessEnvironment {
     private final SupportPatch supportPatch;
     private final String pkg, response;
     private final TypeMirror closeable, httpResponse, inputStream, file;
-    final TreeMap<String, Map<String, SourceServerName>> names = new TreeMap<>();
+    final TreeMap<String, Map<String, String>> names = new TreeMap<>();
 
     public ProcessEnvironment(ProcessingEnvironment env, TypeElement init) {
         messager = env.getMessager();
@@ -205,9 +205,13 @@ class ProcessEnvironment {
 
     public String addServerName(String httpMethod, SourceServerName serverName) {
         String key = serverName.resource + ':' + httpMethod;
-        Map<String, SourceServerName> value = names.computeIfAbsent(key, k -> new TreeMap<>(Comparator.reverseOrder()));
+        Map<String, String> value = names.computeIfAbsent(key, k -> new TreeMap<>(Comparator.reverseOrder()));
         String key2 = serverName.getName(httpMethod);
-        value.put(key2, serverName);
+        value.put(key2, serverName.ifHas);
         return key2;
+    }
+
+    public Iterable<? extends Map.Entry<String, Map<String, String>>> serverNames() {
+        return names.entrySet();
     }
 }

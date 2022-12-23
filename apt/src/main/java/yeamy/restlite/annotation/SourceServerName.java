@@ -5,38 +5,52 @@ import java.util.List;
 import java.util.TreeSet;
 
 class SourceServerName {
-    public final String resource, orderKey;
-    private final TreeSet<String> params = new TreeSet<>();
+    public final String resource, params, ifHas;
 
     public SourceServerName(String resource, List<? extends VariableElement> arguments) {
         this.resource = resource;
-        TreeSet<String> set = this.params;
+        TreeSet<String> params = new TreeSet<>();
         for (VariableElement a : arguments) {
             Param pa = a.getAnnotation(Param.class);
             if (pa != null && pa.required()) {
-                set.add(a.getSimpleName().toString());
+                params.add(a.getSimpleName().toString());
             } else if (a.getAnnotation(Header.class) == null//
                     && a.getAnnotation(Cookies.class) == null//
                     && a.getAnnotation(Body.class) == null//
                     && ProcessEnvironment.getBody(a) == null) {
-                set.add(a.getSimpleName().toString());
+                params.add(a.getSimpleName().toString());
             } else {
                 continue;
             }
         }
         StringBuilder sb = new StringBuilder();
-        for (String s : set) {
-            sb.append(s).append(',');
+        for (String p : params) {
+            sb.append(p).append(',');
         }
         int l = sb.length();
-        this.orderKey = (l == 0) ? "" : sb.substring(0, l - 1);
+        this.params = (l == 0) ? "" : sb.substring(0, l - 1);
+        sb.delete(0, sb.length());
+        if (params.size() > 0) {
+            sb.append("if (");
+            boolean first = true;
+            for (String param : params) {
+                if (first) {
+                    first = false;
+                } else {
+                    sb.append("&&");
+                }
+                sb.append("r.has(\"").append(param).append("\")");
+            }
+        }
+        this.ifHas = sb.toString();
     }
 
-    public TreeSet<String> getParams() {
-        return params;
+    public boolean isNoParam() {
+        return params.length() == 0;
     }
 
     public String getName(String httpMethod) {
-        return resource + ':' + httpMethod + ':' + orderKey;
+        return resource + ':' + httpMethod + ':' + params;
     }
+
 }

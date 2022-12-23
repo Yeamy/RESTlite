@@ -2,7 +2,6 @@ package yeamy.restlite.annotation;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.TreeSet;
 
 class SourceWebListener extends SourceClass {
 
@@ -38,22 +37,13 @@ class SourceWebListener extends SourceClass {
                 .append(parentName).append(" {");
         imports("yeamy.restlite.RESTfulRequest");
         sb.append("@Override public String createServerName(RESTfulRequest r) {switch (super.createServerName(r)) {");
-        for (Map.Entry<String, Map<String, SourceServerName>> e1 : env.names.entrySet()) {
-            sb.append("case \"").append(e1.getKey()).append("\":");
-            for (Map.Entry<String, SourceServerName> e2 : e1.getValue().entrySet()) {
-                TreeSet<String> params = e2.getValue().getParams();
-                if (params.size() > 0) {
-                    sb.append("if (");
-                    boolean first = true;
-                    for (String param : params) {
-                        if (first) {
-                            first = false;
-                        } else {
-                            sb.append("&&");
-                        }
-                        sb.append("r.has(\"").append(param).append("\")");
-                    }
-                    sb.append("){return \"").append(e2.getKey()).append("\";} else ");
+        for (Map.Entry<String, Map<String, String>> e1 : env.serverNames()) {
+            sb.append("case \"").append(e1.getKey()).append("\":");// resource + ':' + httpMethod
+            for (Map.Entry<String, String> e2 : e1.getValue().entrySet()) {
+                String ifHas = e2.getValue();
+                if (ifHas.length() > 0) {
+                    String name = e2.getKey();// resource + ':' + httpMethod + ':' + params
+                    sb.append(ifHas).append("){return \"").append(name).append("\";} else ");
                 }
             }
             int l = sb.length();

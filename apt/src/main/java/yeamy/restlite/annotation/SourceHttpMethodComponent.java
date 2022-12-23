@@ -7,7 +7,6 @@ import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TreeSet;
 
 import static yeamy.restlite.annotation.SupportType.*;
 
@@ -29,7 +28,7 @@ class SourceHttpMethodComponent {
     }
 
     final String orderKey() {
-        return serverName.orderKey;
+        return serverName.params;
     }
 
     public void create(String httpMethod) {
@@ -76,8 +75,7 @@ class SourceHttpMethodComponent {
         }
         String key = env.addServerName(httpMethod, serverName);
         // check arguments
-        TreeSet<String> rParams = serverName.getParams();
-        if (rParams.size() == 0) {
+        if (serverName.isNoParam()) {
             servlet.append("default:{");
         } else {
             servlet.append("case \"").append(key).append("\":{");
@@ -463,7 +461,7 @@ class SourceHttpMethodComponent {
     public String name() {
         StringBuilder name = new StringBuilder(servlet.getImplClass()).append('.')
                 .append(method.getSimpleName()).append('(');
-        for (VariableElement a: arguments) {
+        for (VariableElement a : arguments) {
             TypeMirror t = a.asType();
             if (t.getKind().isPrimitive()) {
                 name.append(t).append(',');
