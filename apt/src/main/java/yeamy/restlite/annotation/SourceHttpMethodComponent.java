@@ -102,7 +102,7 @@ class SourceHttpMethodComponent {
         } catch (Exception e) {
             env.error(e);
             servlet.deleteLast(servlet.length() - begin);
-            servlet.append("return new ").append(servlet.imports(T_TextPlainResponse))
+            servlet.append("new ").append(servlet.imports(T_TextPlainResponse))
                     .append("(500, \"Server error!\");");
         }
         servlet.append("break;}");
@@ -425,8 +425,7 @@ class SourceHttpMethodComponent {
 
     private ExecutableElement getConstructor(ProcessEnvironment env, SourceServlet servlet,
                                              TypeElement resp, TypeMirror rt) {
-        TypeElement te = env.getTypeElement(rt.toString());
-        String fpk = ((PackageElement) te.getEnclosingElement()).getQualifiedName().toString();
+        String fpk = ((PackageElement) resp.getEnclosingElement()).getQualifiedName().toString();
         boolean samePackage = fpk.equals(servlet.getPackage());
         for (Element li : resp.getEnclosedElements()) {
             if (li.getKind() == ElementKind.CONSTRUCTOR
