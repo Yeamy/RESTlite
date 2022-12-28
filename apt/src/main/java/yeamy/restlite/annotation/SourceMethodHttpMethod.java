@@ -6,44 +6,44 @@ import static yeamy.restlite.annotation.SupportType.T_HttpRequest;
 import static yeamy.restlite.annotation.SupportType.T_TextPlainResponse;
 
 class SourceMethodHttpMethod {
-	protected final ProcessEnvironment env;
-	protected final SourceServlet servlet;
-	private final ArrayList<SourceHttpMethodComponent> components = new ArrayList<>();
-	protected final String httpMethod;
+    protected final ProcessEnvironment env;
+    protected final SourceServlet servlet;
+    private final ArrayList<SourceHttpMethodComponent> components = new ArrayList<>();
+    protected final String httpMethod;
 
-	public SourceMethodHttpMethod(ProcessEnvironment env, SourceServlet servlet, String httpMethod) {
-		this.env = env;
-		this.servlet = servlet;
-		this.httpMethod = httpMethod;
-	}
+    public SourceMethodHttpMethod(ProcessEnvironment env, SourceServlet servlet, String httpMethod) {
+        this.env = env;
+        this.servlet = servlet;
+        this.httpMethod = httpMethod;
+    }
 
-	public final void addMethod(SourceHttpMethodComponent method) {
-		components.add(method);
-	}
+    public final void addMethod(SourceHttpMethodComponent method) {
+        components.add(method);
+    }
 
-	protected void create(boolean catchException, ArrayList<SourceHttpMethodComponent> methods) {
-		servlet.imports(T_HttpRequest);
-		servlet.imports("jakarta.servlet.http.HttpServletResponse");
-		servlet.imports("jakarta.servlet.ServletException");
-		servlet.imports("java.io.IOException");
-		servlet.append("@Override public void do").append(httpMethod.charAt(0))
-				.append(httpMethod.toLowerCase(), 1, httpMethod.length())
-				.append("(RESTfulRequest _req, HttpServletResponse _resp) throws ServletException, IOException {");
-		if (catchException) servlet.append("try{");
-		servlet.append("switch(_req.getServerName()){");
-		for (SourceHttpMethodComponent method : methods) {
-			method.create(httpMethod);
-		}
-		if (methods.size() >= 1 && allMethodHasArg()) {
-			servlet.imports("yeamy.restlite.addition.NoMatchMethodException");
-			servlet.append("default:{ onError(_req, _resp, new NoMatchMethodException(_req));}");
-		}
+    protected void create(boolean catchException, ArrayList<SourceHttpMethodComponent> methods) {
+        servlet.imports(T_HttpRequest);
+        servlet.imports("jakarta.servlet.http.HttpServletResponse");
+        servlet.imports("jakarta.servlet.ServletException");
+        servlet.imports("java.io.IOException");
+        servlet.append("@Override public void do").append(httpMethod.charAt(0))
+                .append(httpMethod.toLowerCase(), 1, httpMethod.length())
+                .append("(RESTfulRequest _req, HttpServletResponse _resp) throws ServletException, IOException {");
+        if (catchException) servlet.append("try{");
+        servlet.append("switch(_req.getServerName()){");
+        for (SourceHttpMethodComponent method : methods) {
+            method.create(httpMethod);
+        }
+        if (methods.size() >= 1 && allMethodHasArg()) {
+            servlet.imports("yeamy.restlite.addition.NoMatchMethodException");
+            servlet.append("default:{ onError(_req, _resp, new NoMatchMethodException(_req));}");
+        }
         servlet.append(catchException ? "}}catch(Exception ex){onError(_req,_resp,ex);}}" : "}}");
-	}
+    }
 
-	/**
-	 * cannot create server
-	 */
+    /**
+     * cannot create server
+     */
     protected void createError() {
         servlet.imports(T_HttpRequest);
         servlet.imports("jakarta.servlet.http.HttpServletResponse");
@@ -56,27 +56,27 @@ class SourceMethodHttpMethod {
                 .append("(500, \"Server error!\");}");
     }
 
-	public void create(boolean catchException) {
-		components.sort((m1, m2) -> {
-			String k1 = m1.orderKey();
-			String k2 = m2.orderKey();
-			if (k1.length() < k2.length()) {
-				return 1;
-			} else if (k1.length() > k2.length()) {
-				return -1;
-			} else {
-				for (int i = 0, l = k2.length(); i < l; i++) {
-					char c1 = k1.charAt(i);
-					char c2 = k2.charAt(i);
-					if (c1 < c2) {
-						return 1;
-					} else if (c1 > c2) {
-						return -1;
-					}
-				}
-				return 0;
-			}
-		});
+    public void create(boolean catchException) {
+        components.sort((m1, m2) -> {
+            String k1 = m1.orderKey();
+            String k2 = m2.orderKey();
+            if (k1.length() < k2.length()) {
+                return 1;
+            } else if (k1.length() > k2.length()) {
+                return -1;
+            } else {
+                for (int i = 0, l = k2.length(); i < l; i++) {
+                    char c1 = k1.charAt(i);
+                    char c2 = k2.charAt(i);
+                    if (c1 < c2) {
+                        return 1;
+                    } else if (c1 > c2) {
+                        return -1;
+                    }
+                }
+                return 0;
+            }
+        });
         boolean ok = true;
         String cache = null;
         ArrayList<SourceHttpMethodComponent> conflicts = new ArrayList<>();
@@ -106,14 +106,14 @@ class SourceMethodHttpMethod {
         } else {
             createError();
         }
-	}
+    }
 
-	public boolean allMethodHasArg() {
-		for (SourceHttpMethodComponent component : components) {
-			if (component.orderKey().length() == 0) {
-				return false;
-			}
-		}
-		return true;
-	}
+    public boolean allMethodHasArg() {
+        for (SourceHttpMethodComponent component : components) {
+            if (component.orderKey().length() == 0) {
+                return false;
+            }
+        }
+        return true;
+    }
 }
