@@ -10,20 +10,16 @@ import static yeamy.restlite.annotation.SupportType.*;
 class SourceMethodOnError {
     private static final String T_Exception = "java.lang.Exception";
     private static final String T_HttpResponse = "yeamy.restlite.HttpResponse";
+    private static final String T_HttpServlet = "jakarta.servlet.http.HttpServlet";
 
     protected final ProcessEnvironment env;
     protected final SourceServlet servlet;
-    private ExecutableElement method;
-    private boolean intercept;
+    private final ExecutableElement method;
 
-    SourceMethodOnError(ProcessEnvironment env, SourceServlet servlet) {
+    SourceMethodOnError(ProcessEnvironment env, SourceServlet servlet, ExecutableElement method) {
         this.env = env;
         this.servlet = servlet;
-    }
-
-    public void setMethod(ExecutableElement method, boolean intercept) {
         this.method = method;
-        this.intercept = intercept;
     }
 
     public final void create() {
@@ -69,6 +65,9 @@ class SourceMethodOnError {
                             case T_HttpServletRequest:
                                 servlet.append("_req.getRequest()");
                                 break a;
+                            case T_HttpServlet:
+                                servlet.append("this");
+                                break a;
                         }
                     case ARRAY:
                     default:
@@ -81,18 +80,13 @@ class SourceMethodOnError {
                 servlet.deleteLast(1);
             }
             servlet.append(")");
-            if (intercept) {
-                TypeMirror rt = method.getReturnType();
-                if (!(rt.getKind() == TypeKind.DECLARED
-                        && env.isAssignable(rt, env.getTypeElement(T_HttpResponse).asType()))) {
-                    servlet.imports("yeamy.restlite.addition.ExceptionResponse");
-                    servlet.append(";new ExceptionResponse(e)");
-                }
-                servlet.append(".write(_resp);");
-            } else {
-                servlet.append(";throw e;");
+            TypeMirror rt = method.getReturnType();
+            if (!(rt.getKind() == TypeKind.DECLARED
+                    && env.isAssignable(rt, env.getTypeElement(T_HttpResponse).asType()))) {
+                servlet.imports("yeamy.restlite.addition.ExceptionResponse");
+                servlet.append(";new ExceptionResponse(e)");
             }
-            servlet.append('}');
+            servlet.append(".write(_resp);}");
         }
     }
 

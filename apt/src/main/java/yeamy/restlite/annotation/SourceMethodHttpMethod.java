@@ -21,7 +21,7 @@ class SourceMethodHttpMethod {
 		components.add(method);
 	}
 
-	protected void create(ArrayList<SourceHttpMethodComponent> methods) {
+	protected void create(boolean catchException, ArrayList<SourceHttpMethodComponent> methods) {
 		servlet.imports(T_HttpRequest);
 		servlet.imports("jakarta.servlet.http.HttpServletResponse");
 		servlet.imports("jakarta.servlet.ServletException");
@@ -29,7 +29,8 @@ class SourceMethodHttpMethod {
 		servlet.append("@Override public void do").append(httpMethod.charAt(0))
 				.append(httpMethod.toLowerCase(), 1, httpMethod.length())
 				.append("(RESTfulRequest _req, HttpServletResponse _resp) throws ServletException, IOException {");
-		servlet.append("try{switch(_req.getServerName()){");
+		if (catchException) servlet.append("try{");
+		servlet.append("switch(_req.getServerName()){");
 		for (SourceHttpMethodComponent method : methods) {
 			method.create(httpMethod);
 		}
@@ -37,9 +38,12 @@ class SourceMethodHttpMethod {
 			servlet.imports("yeamy.restlite.addition.NoMatchMethodException");
 			servlet.append("default:{ onError(_req, _resp, new NoMatchMethodException(_req));}");
 		}
-		servlet.append("}}catch(Exception ex){onError(_req,_resp,ex);}}");
+        servlet.append(catchException ? "}}catch(Exception ex){onError(_req,_resp,ex);}}" : "}}");
 	}
 
+	/**
+	 * cannot create server
+	 */
     protected void createError() {
         servlet.imports(T_HttpRequest);
         servlet.imports("jakarta.servlet.http.HttpServletResponse");
@@ -52,7 +56,7 @@ class SourceMethodHttpMethod {
                 .append("(500, \"Server error!\");}");
     }
 
-	public void create() {
+	public void create(boolean catchException) {
 		components.sort((m1, m2) -> {
 			String k1 = m1.orderKey();
 			String k2 = m2.orderKey();
@@ -98,7 +102,7 @@ class SourceMethodHttpMethod {
             }
         }
         if (ok) {
-            create(components);
+            create(catchException, components);
         } else {
             createError();
         }

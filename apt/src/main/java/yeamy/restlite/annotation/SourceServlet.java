@@ -23,17 +23,18 @@ class SourceServlet extends SourceClass {
             throw new RuntimeException("Cannot create servlet with illegal resource in class:" + element.asType());
         }
         this.pkg = ((PackageElement) element.getEnclosingElement()).getQualifiedName().toString();
-        this.error = new SourceMethodOnError(env, this);
+        SourceMethodOnError error = null;
         for (Element li : element.getEnclosedElements()) {
             if (li.getKind() == ElementKind.METHOD) {
                 ExecutableElement eli = (ExecutableElement) li;
                 addMethod(eli);
-                ERROR ann = element.getAnnotation(ERROR.class);
+                ERROR ann = eli.getAnnotation(ERROR.class);
                 if (ann != null) {
-                    error.setMethod(eli, ann.intercept());
+                    error = new SourceMethodOnError(env, this, eli);
                 }
             }
         }
+        this.error = error;
     }
 
     public CharSequence getImplClass() {
@@ -123,10 +124,12 @@ class SourceServlet extends SourceClass {
         b.append("private ").append(impl).append(" _impl = new ").append(impl).append("();");
         // method
         for (SourceMethodHttpMethod method : httpMethods.values()) {
-            method.create();
+            method.create(error != null);
         }
         // error
-        error.create();
+        if (error != null) {
+            error.create();
+        }
         b.append("}");
     }
 

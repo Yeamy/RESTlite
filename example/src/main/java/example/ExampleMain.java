@@ -1,10 +1,9 @@
 package example;
 
 import bean.ExampleBean;
-import yeamy.restlite.annotation.Body;
-import yeamy.restlite.annotation.POST;
-import yeamy.restlite.annotation.Param;
-import yeamy.restlite.annotation.Resource;
+import yeamy.restlite.HttpResponse;
+import yeamy.restlite.addition.TextPlainResponse;
+import yeamy.restlite.annotation.*;
 
 import java.util.ArrayList;
 
@@ -34,6 +33,11 @@ public class ExampleMain {
     @POST
     public ArrayList<String> post3(String p1, String p2) {
         return null;
+    }
+
+    @ERROR
+    public Object error(Exception e) {
+        return new TextPlainResponse(e.toString());
     }
 
 //    @POST
