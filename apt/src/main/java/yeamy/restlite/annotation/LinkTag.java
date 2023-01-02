@@ -2,7 +2,7 @@ package yeamy.restlite.annotation;
 
 import java.lang.annotation.*;
 
-@Target({ ElementType.CONSTRUCTOR, ElementType.METHOD })
+@Target({ElementType.FIELD, ElementType.CONSTRUCTOR, ElementType.METHOD})
 @Retention(RetentionPolicy.SOURCE)
 public @interface LinkTag {
 

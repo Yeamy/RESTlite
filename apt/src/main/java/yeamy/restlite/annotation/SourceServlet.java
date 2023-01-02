@@ -14,6 +14,7 @@ class SourceServlet extends SourceClass {
     private final HashMap<Class<?>, SourceMethodHttpMethod> httpMethods = new HashMap<>();
     private final SourceMethodOnError error;
     private final StringBuilder b = new StringBuilder();
+    private final ArrayList<SourceInject> injects = new ArrayList<>();
 
     public SourceServlet(ProcessEnvironment env, TypeElement element) {
         super(env);
@@ -25,11 +26,17 @@ class SourceServlet extends SourceClass {
         this.pkg = ((PackageElement) element.getEnclosingElement()).getQualifiedName().toString();
         SourceMethodOnError error = null;
         for (Element li : element.getEnclosedElements()) {
-            if (li.getKind() == ElementKind.METHOD) {
+            ElementKind kind = li.getKind();
+            if (kind == ElementKind.FIELD) {
+                Inject inject = li.getAnnotation(Inject.class);
+                if (inject != null) {
+                    injects.add(new SourceInject(this, (VariableElement) li));
+                }
+            } else if (kind == ElementKind.METHOD) {
                 ExecutableElement eli = (ExecutableElement) li;
                 addMethod(eli);
                 ERROR ann = eli.getAnnotation(ERROR.class);
-                if (ann != null) {
+                if (ann != null && error == null) {
                     error = new SourceMethodOnError(env, this, eli);
                 }
             }
@@ -122,6 +129,16 @@ class SourceServlet extends SourceClass {
         b.append("private static final long serialVersionUID = ").append(-1).append("L;");
         // impl
         b.append("private ").append(impl).append(" _impl = new ").append(impl).append("();");
+        // field
+        if (injects.size() > 0) {
+            b.append("@Override public void init(")
+                    .append(imports("jakarta.servlet.ServletConfig"))
+                    .append(" config) throws ServletException { super.init(config);");
+            for (SourceInject inject : injects) {
+                inject.create(b);
+            }
+            b.append('}');
+        }
         // method
         for (SourceMethodHttpMethod method : httpMethods.values()) {
             method.create(error != null);

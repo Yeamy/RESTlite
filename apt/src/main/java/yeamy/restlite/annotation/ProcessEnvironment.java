@@ -32,6 +32,7 @@ class ProcessEnvironment {
     private final String pkg, response;
     private final TypeMirror closeable, httpResponse, inputStream, file;
     final TreeMap<String, Map<String, String>> names = new TreeMap<>();
+    private final HashMap<String, SourceInjectProvider> injects = new HashMap<>();
 
     public ProcessEnvironment(ProcessingEnvironment env, TypeElement init) {
         messager = env.getMessager();
@@ -213,5 +214,13 @@ class ProcessEnvironment {
 
     public Iterable<? extends Map.Entry<String, Map<String, String>>> serverNames() {
         return names.entrySet();
+    }
+
+    public void addInject(SourceInjectProvider inject) {
+        injects.put(inject.type, inject);
+    }
+
+    public SourceInjectProvider getInject(String type) {
+        return injects.get(type);
     }
 }
