@@ -43,9 +43,6 @@ public class ServletAnnotationProcessor extends AbstractProcessor {
         if (env == null) {
             return false;
         }
-        for (Element element : roundEnv.getElementsAnnotatedWith(InjectProvider.class)) {
-            env.addInject(new SourceInjectProvider(env, element));
-        }
         // filter
         try {
             new SourceWebFilter(env).create();
