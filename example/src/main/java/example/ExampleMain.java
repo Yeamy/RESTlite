@@ -1,7 +1,6 @@
 package example;
 
-import bean.ExampleBean;
-import yeamy.restlite.HttpResponse;
+import bean.*;
 import yeamy.restlite.addition.TextPlainResponse;
 import yeamy.restlite.annotation.*;
 
@@ -9,12 +8,20 @@ import java.util.ArrayList;
 
 @Resource("example")
 public class ExampleMain {
-    //	ExampleClient client;
-//
+    @Inject
+    InjectField field;
+    @Inject
+    InjectStaticMethod method;
+    @Inject
+    InjectConstructor constructor;
+    @Inject
+    InjectCreator creator;
+
 //	@GET
 //	public String get(String p) {
 //		return null;
 //	}
+
     @POST
     public String post1(@Body(creator = "yeamy.restlite.addition.GsonParser") ExampleBean bean) {
         return null;
