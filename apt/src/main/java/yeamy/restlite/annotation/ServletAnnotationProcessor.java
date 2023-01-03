@@ -18,7 +18,6 @@ public class ServletAnnotationProcessor extends AbstractProcessor {
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
         supportedAnnotationTypes.add(Initialization.class.getCanonicalName());
-        supportedAnnotationTypes.add(Interceptor.class.getCanonicalName());
         supportedAnnotationTypes.add(Resource.class.getCanonicalName());
     }
 
