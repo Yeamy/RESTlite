@@ -9,6 +9,7 @@ import java.util.TreeSet;
 
 class SourceServlet extends SourceClass {
     private static final Class<?>[] METHODS = {GET.class, POST.class, PUT.class, PATCH.class, DELETE.class};
+    private final ProcessEnvironment env;
     private final TypeElement element;
     private final Resource resource;
     private final HashMap<Class<?>, SourceMethodHttpMethod> httpMethods = new HashMap<>();
@@ -17,7 +18,7 @@ class SourceServlet extends SourceClass {
     private final ArrayList<SourceInject> injects = new ArrayList<>();
 
     public SourceServlet(ProcessEnvironment env, TypeElement element) {
-        super(env);
+        this.env = env;
         this.element = element;
         this.resource = element.getAnnotation(Resource.class);
         if (getResource().contains("/")) {

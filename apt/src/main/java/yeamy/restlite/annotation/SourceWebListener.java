@@ -4,11 +4,11 @@ import java.io.IOException;
 import java.util.Map;
 
 class SourceWebListener extends SourceClass {
-
+    private final ProcessEnvironment env;
     private final String className, parentName;
 
     SourceWebListener(ProcessEnvironment env) throws IOException {
-        super(env);
+        this.env = env;
         this.pkg = env.getPackage();
         this.className = env.getFileName(pkg, "RESTliteWebListener");
         String parent;

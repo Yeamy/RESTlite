@@ -9,13 +9,8 @@ import java.util.HashMap;
  * @see SourceWebFilter
  */
 abstract class SourceClass {
-    protected final ProcessEnvironment env;
     protected String pkg;
     protected HashMap<String, String> imports = new HashMap<>();
-
-    SourceClass(ProcessEnvironment env) {
-        this.env = env;
-    }
 
     public String getPackage() {
         return pkg;

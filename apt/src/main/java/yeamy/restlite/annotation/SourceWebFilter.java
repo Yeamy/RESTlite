@@ -3,11 +3,11 @@ package yeamy.restlite.annotation;
 import java.io.IOException;
 
 class SourceWebFilter extends SourceClass {
-
+    private final ProcessEnvironment env;
     private final String className;
 
     SourceWebFilter(ProcessEnvironment env) throws IOException {
-        super(env);
+        this.env = env;
         this.pkg = env.getPackage();
         this.className = env.getFileName(pkg, "RESTliteWebFilter");
         imports("jakarta.servlet.annotation.WebFilter");
