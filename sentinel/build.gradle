@@ -2,7 +2,7 @@ plugins {
     id 'java-library'
 }
 sourceCompatibility = JavaVersion.VERSION_11
-var $version = '1.0-SNAPSHOT'
+var $version = '1.0'
 
 group 'io.github.yeamy'
 version $version

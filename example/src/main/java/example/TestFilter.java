@@ -1,15 +1,17 @@
 package example;
 
+import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebFilter;
-import yeamy.restlite.DispatchFilter;
-import yeamy.restlite.RESTliteFilter;
+
+import java.io.IOException;
 
 @WebFilter("/*")
-public class TestFilter extends DispatchFilter {
+public class TestFilter implements Filter {
 
     @Override
-    protected RESTliteFilter[] createFilters() {
-        return new RESTliteFilter[]{new MyInterceptor()};
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+        System.out.println("------------2");
+        chain.doFilter(request, response);
     }
 }
 

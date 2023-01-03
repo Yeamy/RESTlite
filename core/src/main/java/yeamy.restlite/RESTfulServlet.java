@@ -21,6 +21,7 @@ public abstract class RESTfulServlet extends HttpServlet {
             case "HEAD":
             case "OPTIONS":
                 super.service(req, resp);
+                break;
             case "PATCH":
                 doPatch(RESTfulRequest.get(req), resp);
                 break;

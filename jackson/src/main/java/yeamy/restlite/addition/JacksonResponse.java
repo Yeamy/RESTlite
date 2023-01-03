@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.io.OutputStream;
+import java.io.PrintWriter;
 
 public class JacksonResponse extends AbstractHttpResponse<Object> {
 
@@ -24,8 +24,8 @@ public class JacksonResponse extends AbstractHttpResponse<Object> {
 
     @Override
     protected void writeContent(HttpServletResponse resp) throws IOException {
-        try(OutputStream os = resp.getOutputStream()) {
-            os.write(toJSON().getBytes(getCharset()));
+        try (PrintWriter w = resp.getWriter()) {
+            w.write(toJSON());
         }
     }
 
