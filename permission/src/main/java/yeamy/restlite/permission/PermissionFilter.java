@@ -1,14 +1,12 @@
 package yeamy.restlite.permission;
 
-import yeamy.restlite.RESTfulRequest;
-import yeamy.restlite.RESTliteFilter;
-
-import jakarta.servlet.FilterConfig;
-import jakarta.servlet.ServletException;
+import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletResponse;
+import yeamy.restlite.RESTfulRequest;
+
 import java.io.IOException;
 
-public abstract class PermissionFilter implements RESTliteFilter {
+public abstract class PermissionFilter implements Filter {
     private PermissionManager manager;
 
     @Override
@@ -28,24 +26,26 @@ public abstract class PermissionFilter implements RESTliteFilter {
     }
 
     @Override
-    public boolean intercept(RESTfulRequest req, HttpServletResponse resp) throws IOException,
-            ServletException {
-        Account account = manager.getAccount(getAccount(req));
-        if (manager.isAllow(account, req.getResource(), req.getMethod(), req.getParams().keySet())) {
-            return false;
-        } else if (account == null) {
-            doNoAccount(resp);
-        } else {
-            doDeny(resp);
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+        Object a = request.getAttribute(RESTfulRequest.REQUEST);
+        if (a instanceof RESTfulRequest) {
+            RESTfulRequest req = (RESTfulRequest) a;
+            Account account = manager.getAccount(getAccount(req));
+            if (manager.isAllow(account, req.getResource(), req.getMethod(), req.getParams().keySet())) {
+                chain.doFilter(request, response);
+            } else if (account == null) {
+                doNoAccount(req, (HttpServletResponse) response);
+            } else {
+                doDeny(req, (HttpServletResponse)response);
+            }
         }
-        return true;
     }
 
     protected abstract String getAccount(RESTfulRequest request);
 
-    public abstract void doDeny(HttpServletResponse resp) throws IOException, ServletException;
+    public abstract void doDeny(RESTfulRequest req, HttpServletResponse resp) throws IOException, ServletException;
 
-    public abstract void doNoAccount(HttpServletResponse resp) throws IOException, ServletException;
+    public abstract void doNoAccount(RESTfulRequest req, HttpServletResponse resp) throws IOException, ServletException;
 
     @Override
     public void destroy() {

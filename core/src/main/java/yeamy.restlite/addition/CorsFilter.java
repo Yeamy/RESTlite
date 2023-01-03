@@ -1,43 +1,40 @@
 package yeamy.restlite.addition;
 
+import jakarta.servlet.*;
+import jakarta.servlet.http.HttpServletResponse;
 import yeamy.restlite.RESTfulRequest;
-import yeamy.restlite.RESTliteFilter;
 import yeamy.utils.TextUtils;
 
-import jakarta.servlet.FilterConfig;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-public abstract class CorsFilter implements RESTliteFilter {
+public abstract class CorsFilter implements Filter {
     @Override
-    public void init(FilterConfig config) throws ServletException {
-    }
-
-    @Override
-    public boolean intercept(RESTfulRequest req, HttpServletResponse resp) throws IOException, ServletException {
-        String origin = req.getHeader("Origin");
-        if (TextUtils.isEmpty(origin)) {
-            return false;
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+        Object a = request.getAttribute(RESTfulRequest.REQUEST);
+        if (a instanceof RESTfulRequest) {
+            RESTfulRequest req = (RESTfulRequest) a;
+            String origin = req.getHeader("Origin");
+            if (TextUtils.isNotEmpty(origin)) {
+                CorsHandle handle = new CorsHandle(req, (HttpServletResponse) response);
+                switch (req.getMethod()) {
+                    case "OPTIONS":
+                        preflightRequest(origin, handle);
+                        break;
+                    case "GET":
+                    case "POST":
+                    case "HEAD":
+                        doCorsRequest(origin, handle);
+                }
+                if (handle.isIntercept()) {
+                    return;
+                }
+            }
         }
-        CorsHandle handle = new CorsHandle(req, resp);
-        switch (req.getMethod()) {
-            case "OPTIONS":
-                preflightRequest(origin, handle);
-                break;
-            case "GET":
-            case "POST":
-            case "HEAD":
-                doCorsRequest(origin, handle);
-        }
-        return handle.isIntercept();
+        chain.doFilter(request, response);
     }
 
     protected abstract void preflightRequest(String origin, CorsHandle handle);
 
     protected abstract void doCorsRequest(String origin, CorsHandle handle);
 
-    @Override
-    public void destroy() {
-    }
 }

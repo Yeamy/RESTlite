@@ -1,14 +1,14 @@
 package yeamy.restlite.permission;
 
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.http.HttpServletResponse;
 import yeamy.restlite.RESTfulRequest;
 import yeamy.restlite.addition.TextPlainResponse;
 
-import jakarta.servlet.FilterConfig;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public class SimplePermissionFilter extends PermissionFilter {
+    public static final String HEADER_API_TOKEN = "X-Api-Token";
 
     @Override
     protected PermissionManager createPermissionManager(FilterConfig config) {
@@ -17,16 +17,16 @@ public class SimplePermissionFilter extends PermissionFilter {
 
     @Override
     protected String getAccount(RESTfulRequest request) {
-        return request.getHeader("token");
+        return request.getHeader(HEADER_API_TOKEN);
     }
 
     @Override
-    public void doDeny(HttpServletResponse resp) throws IOException, ServletException {
+    public void doDeny(RESTfulRequest request, HttpServletResponse resp) throws IOException {
         new TextPlainResponse(HttpServletResponse.SC_FORBIDDEN, "no permission").write(resp);
     }
 
     @Override
-    public void doNoAccount(HttpServletResponse resp) throws IOException, ServletException {
+    public void doNoAccount(RESTfulRequest request, HttpServletResponse resp) throws IOException {
         new TextPlainResponse(HttpServletResponse.SC_UNAUTHORIZED, "no account").write(resp);
     }
 

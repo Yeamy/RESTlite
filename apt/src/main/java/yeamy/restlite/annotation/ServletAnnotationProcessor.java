@@ -48,7 +48,7 @@ public class ServletAnnotationProcessor extends AbstractProcessor {
         }
         // filter
         try {
-            new SourceWebFilter(env, roundEnv).create();
+            new SourceWebFilter(env).create();
         } catch (Exception e) {
             env.error(e);
             return false;
