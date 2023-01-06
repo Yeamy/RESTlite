@@ -15,7 +15,7 @@ public class MyResponse extends AbstractHttpResponse<Object> {
     @Override
     protected void writeContent(HttpServletResponse resp) throws IOException {
         try (PrintWriter w = resp.getWriter()) {
-            w.write(Configuration.gson.toJson(getData()));
+            w.write(Config.gson.toJson(getData()));
         }
     }
 }
