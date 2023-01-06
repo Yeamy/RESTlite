@@ -7,3 +7,5 @@ include 'apt'
 include 'example'
 include 'sentinel'
 include 'httpclient'
+include 'tomcat'
+

@@ -27,6 +27,7 @@ public class RESTfulRequest implements Serializable {
     private final HashMap<String, String> parameter = new HashMap<>();
     private HashMap<String, HttpRequestFile> fields;
     private HashSet<String> accept;
+    boolean dispatch = false;
 
     private Cookie[] cookies;
 

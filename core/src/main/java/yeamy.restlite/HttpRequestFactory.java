@@ -1,32 +1,28 @@
 package yeamy.restlite;
 
-import java.io.IOException;
-import java.util.Collection;
-
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.Part;
-
 import yeamy.utils.StreamUtils;
 import yeamy.utils.TextUtils;
 
+import java.io.IOException;
+import java.util.Collection;
+
 public class HttpRequestFactory {
 
-	public static RESTfulRequest createRequest(HttpServletRequest req) {
+	public static RESTfulRequest createRequest(HttpServletRequest req, boolean isEmbed) {
 		RESTfulRequest out = new RESTfulRequest();
 		out.insert(req);
-		readUri(req, out);
+		readUri(req, out, isEmbed);
 		readBody(req, out);
 		return out;
 	}
 
-	private static void readUri(HttpServletRequest req, RESTfulRequest out) {
+	private static void readUri(HttpServletRequest req, RESTfulRequest out, boolean isEmbed) {
 		String uri = req.getRequestURI();
 		String[] kv = uri.split("/");
-		String[] kv2 = new String[kv.length - 1];
-		System.arraycopy(kv, 1, kv2, 0, kv2.length);
-		kv2 = kv;
-		int skip = 2;
+		int skip = isEmbed ? 1 : 2;
 		int length = kv.length;
 		if (length <= skip) {
 			return;
@@ -41,6 +37,7 @@ public class HttpRequestFactory {
 				out.addParameter(kv[i], kv[i + 1]);
 			}
 		}
+		out.dispatch = !out.getResource().equals(kv[skip]);
 	}
 
 	public static void readBody(HttpServletRequest req, RESTfulRequest out) {

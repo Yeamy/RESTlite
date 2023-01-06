@@ -17,7 +17,7 @@ public class ServletAnnotationProcessor extends AbstractProcessor {
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
-        supportedAnnotationTypes.add(Initialization.class.getCanonicalName());
+        supportedAnnotationTypes.add(Configuration.class.getCanonicalName());
         supportedAnnotationTypes.add(Resource.class.getCanonicalName());
     }
 
@@ -34,7 +34,7 @@ public class ServletAnnotationProcessor extends AbstractProcessor {
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         ProcessEnvironment env = null;
-        for (Element element : roundEnv.getElementsAnnotatedWith(Initialization.class)) {
+        for (Element element : roundEnv.getElementsAnnotatedWith(Configuration.class)) {
             TypeElement init = (TypeElement) element;
             env = new ProcessEnvironment(processingEnv, init);
             break;

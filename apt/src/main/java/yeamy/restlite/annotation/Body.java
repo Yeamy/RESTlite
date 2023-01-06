@@ -36,7 +36,7 @@ public @interface Body {
 	String tag() default "";
 
 	/**
-	 * keep empty will be same as {@link Initialization}
+	 * keep empty will be same as {@link Configuration}
 	 */
 	String charset() default "";
 }

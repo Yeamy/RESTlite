@@ -41,7 +41,7 @@ class ProcessEnvironment {
         filer = env.getFiler();
         PackageElement element = (PackageElement) init.getEnclosingElement();
         pkg = element.getQualifiedName().toString();
-        Initialization ann = init.getAnnotation(Initialization.class);
+        Configuration ann = init.getAnnotation(Configuration.class);
         charset = ann.charset();
         supportPatch = ann.supportPatch();
         response = ann.response();

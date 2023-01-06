@@ -16,10 +16,10 @@ class SourceWebFilter extends SourceClass {
 
     @Override
     public void create() throws IOException {
-        StringBuilder sb = new StringBuilder("package ").append(pkg).append(";");
+        StringBuilder sb = new StringBuilder("package ").append(pkg).append(';');
         sb.append("import static jakarta.servlet.DispatcherType.*;");
         for (String clz : imports.values()) {
-            sb.append("import ").append(clz).append(";");
+            sb.append("import ").append(clz).append(';');
         }
         sb.append("@WebFilter(value=\"*\",dispatcherTypes={FORWARD,INCLUDE,REQUEST,ASYNC,ERROR}) public class ")
                 .append(className).append(" extends ").append("DispatchFilter");

@@ -7,8 +7,9 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import static yeamy.restlite.RESTfulRequest.REQUEST;
 
-public class RESTfulListener implements ServletRequestListener {
+public abstract class RESTfulListener implements ServletRequestListener {
 
+    @Override
     public void requestInitialized(ServletRequestEvent sre) {
         ServletRequest req = sre.getServletRequest();
         if (req instanceof HttpServletRequest) {
@@ -22,13 +23,15 @@ public class RESTfulListener implements ServletRequestListener {
             return;
         }
         try {
-            RESTfulRequest restfulReq = HttpRequestFactory.createRequest(httpReq);
+            RESTfulRequest restfulReq = HttpRequestFactory.createRequest(httpReq, isEmbed());
             httpReq.setAttribute(REQUEST, restfulReq);
             restfulReq.setServerName(createServerName(restfulReq));
         } catch (ClassCastException e) {
             e.printStackTrace();
         }
     }
+
+    public abstract boolean isEmbed();
 
     public String createServerName(RESTfulRequest restfulReq) {
         return restfulReq.getResource() + ':' + restfulReq.getMethod();

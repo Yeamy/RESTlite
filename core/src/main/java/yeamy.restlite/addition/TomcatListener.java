@@ -34,4 +34,7 @@ public class TomcatListener extends RESTfulListener {
         super.createRequest(httpReq);
     }
 
+    public boolean isEmbed() {
+        return true;
+    }
 }

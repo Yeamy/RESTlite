@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.SOURCE)
-public @interface Initialization {
+public @interface Configuration {
 
     /**
      * set default output encoding, if not define, using

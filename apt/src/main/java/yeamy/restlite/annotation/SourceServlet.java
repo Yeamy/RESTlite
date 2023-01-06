@@ -9,7 +9,7 @@ import java.util.TreeSet;
 
 class SourceServlet extends SourceClass {
     private static final Class<?>[] METHODS = {GET.class, POST.class, PUT.class, PATCH.class, DELETE.class};
-    private final ProcessEnvironment env;
+    final ProcessEnvironment env;
     private final TypeElement element;
     private final Resource resource;
     private final HashMap<Class<?>, SourceMethodHttpMethod> httpMethods = new HashMap<>();
@@ -86,10 +86,10 @@ class SourceServlet extends SourceClass {
         createBody(impl, name);
 
         StringBuilder sb = new StringBuilder();
-        sb.append("package ").append(pkg).append(";");
+        sb.append("package ").append(pkg).append(';');
         for (String p : new TreeSet<>(imports.values())) {
             if (env.needImport(p)) {
-                sb.append("import ").append(p).append(";");
+                sb.append("import ").append(p).append(';');
             }
         }
         sb.append(this.b);
