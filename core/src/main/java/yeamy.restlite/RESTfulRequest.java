@@ -51,16 +51,16 @@ public class RESTfulRequest implements Serializable {
         return req;
     }
 
-    public String getHostName() {
+    public String getServerName() {
         return req.getServerName();
     }
 
-    public String getServerName() {
-        return serverName;
+    public String getServiceName() {
+        return serviceName;
     }
 
-    public void setServerName(String serverName) {
-        this.serverName = serverName;
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
     }
 
     void setResource(String resource) {
