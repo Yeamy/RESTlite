@@ -51,8 +51,12 @@ public class RESTfulRequest implements Serializable {
         return req;
     }
 
-    public String getServerName() {
-        return req.getServerName();
+    public String getRemoteAddr() {
+        return req.getRemoteAddr();
+    }
+
+    public int getRemotePort() {
+        return req.getRemotePort();
     }
 
     public String getServiceName() {
