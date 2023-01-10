@@ -54,7 +54,7 @@ class SourceMethodOnError {
                     case DECLARED:
                         switch (clz) {
                             case T_String:
-                                servlet.append("_req.getServerName()");
+                                servlet.append("_req.getServiceName()");
                                 break a;
                             case T_Exception:
                                 servlet.append(e.getSimpleName());

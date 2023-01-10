@@ -21,9 +21,10 @@ public class RESTfulRequest implements Serializable {
     public static RESTfulRequest get(ServletRequest r) {
         return (RESTfulRequest) r.getAttribute(REQUEST);
     }
+
     private static final long serialVersionUID = -7894023380274904092L;
     private HttpServletRequest req;
-    private String resource = "", serverName;
+    private String resource = "", serviceName;
     private final HashMap<String, String> parameter = new HashMap<>();
     private HashMap<String, HttpRequestFile> fields;
     private HashSet<String> accept;
@@ -48,6 +49,10 @@ public class RESTfulRequest implements Serializable {
 
     public HttpServletRequest getRequest() {
         return req;
+    }
+
+    public String getHostName() {
+        return req.getServerName();
     }
 
     public String getServerName() {

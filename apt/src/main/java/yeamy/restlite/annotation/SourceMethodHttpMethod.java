@@ -30,7 +30,7 @@ class SourceMethodHttpMethod {
                 .append(httpMethod.toLowerCase(), 1, httpMethod.length())
                 .append("(RESTfulRequest _req, HttpServletResponse _resp) throws ServletException, IOException {");
         if (catchException) servlet.append("try{");
-        servlet.append("switch(_req.getServerName()){");
+        servlet.append("switch(_req.getServiceName()){");
         for (SourceHttpMethodComponent method : methods) {
             method.create(httpMethod);
         }
