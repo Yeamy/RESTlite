@@ -15,7 +15,7 @@ import java.text.SimpleDateFormat;
 public class GsonParser {
     private static final DateFormat DF = new SimpleDateFormat("yyyy-MM-dd");
     private static final DateFormat TF = new SimpleDateFormat("HH:mm:ss");
-    public static volatile Gson gson = new GsonBuilder()
+    private static volatile Gson gson = new GsonBuilder()
             .setDateFormat("yyyy-MM-dd HH:mm:ss X")
             .registerTypeAdapter(BigDecimal.class, (JsonSerializer<BigDecimal>)
                     (src, typeOfSrc, context) -> new JsonPrimitive(src.toPlainString()))
