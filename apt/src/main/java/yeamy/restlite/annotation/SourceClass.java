@@ -1,5 +1,7 @@
 package yeamy.restlite.annotation;
 
+import yeamy.utils.TextUtils;
+
 import javax.lang.model.element.TypeElement;
 import java.io.IOException;
 import java.util.HashMap;
@@ -45,4 +47,10 @@ abstract class SourceClass {
 
     public abstract void create() throws IOException;
 
+    public static CharSequence convStr(CharSequence str) {
+        StringBuilder sb = new StringBuilder(str);
+        TextUtils.replace(sb, "\\", "\\\\");
+        TextUtils.replace(sb, "\"", "\\\"");
+        return sb;
+    }
 }

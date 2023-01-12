@@ -1,21 +1,22 @@
 package yeamy.restlite.annotation;
 
+import jakarta.servlet.annotation.WebInitParam;
+
 import javax.lang.model.element.*;
 import java.io.IOException;
-import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.TreeSet;
 
 class SourceServlet extends SourceClass {
-    private static final Class<?>[] METHODS = {GET.class, POST.class, PUT.class, PATCH.class, DELETE.class};
     final ProcessEnvironment env;
     private final TypeElement element;
     private final Resource resource;
-    private final HashMap<Class<?>, SourceMethodHttpMethod> httpMethods = new HashMap<>();
+    private final HashMap<String, SourceMethodHttpMethod> httpMethods = new HashMap<>();
     private final SourceMethodOnError error;
     private final StringBuilder b = new StringBuilder();
     private final ArrayList<SourceInject> injects = new ArrayList<>();
+    private boolean asyncSupported = false;
 
     public SourceServlet(ProcessEnvironment env, TypeElement element) {
         this.env = env;
@@ -35,7 +36,16 @@ class SourceServlet extends SourceClass {
                 }
             } else if (kind == ElementKind.METHOD) {
                 ExecutableElement eli = (ExecutableElement) li;
-                addMethod(eli);
+                GET get = element.getAnnotation(GET.class);
+                if (get != null) addMethodComponent("GET", eli, get.async(), get.asyncTimeout());
+                POST post = element.getAnnotation(POST.class);
+                if (post != null) addMethodComponent("POST", eli, post.async(), post.asyncTimeout());
+                PUT put = element.getAnnotation(PUT.class);
+                if (put != null) addMethodComponent("PUT", eli, put.async(), put.asyncTimeout());
+                PATCH patch = element.getAnnotation(PATCH.class);
+                if (patch != null) addMethodComponent("PATCH", eli, patch.async(), patch.asyncTimeout());
+                DELETE delete = element.getAnnotation(DELETE.class);
+                if (delete != null) addMethodComponent("DELETE", eli, delete.async(), delete.asyncTimeout());
                 ERROR ann = eli.getAnnotation(ERROR.class);
                 if (ann != null && error == null) {
                     error = new SourceMethodOnError(env, this, eli);
@@ -53,34 +63,26 @@ class SourceServlet extends SourceClass {
         return resource.value();
     }
 
-    @SuppressWarnings("unchecked")
-    private void addMethod(ExecutableElement element) {
-        ArrayList<Class<?>> methods = new ArrayList<>(METHODS.length);
-        for (Class<?> clz : METHODS) {
-            if (element.getAnnotation((Class<? extends Annotation>) clz) != null) {
-                methods.add(clz);
-            }
+    private void addMethodComponent(String ann, ExecutableElement element, boolean async, long asyncTimeout) {
+        if (async) asyncSupported = true;
+        SourceHttpMethodComponent method = new SourceHttpMethodComponent(env, this, element, async, asyncTimeout);
+        SourceMethodHttpMethod httpMethod = httpMethods.get(ann);
+        if (httpMethod == null) {
+            httpMethod = new SourceMethodHttpMethod(env, this, ann);
+            httpMethods.put(ann, httpMethod);
         }
-        if (methods.size() == 0) {
-            return;
-        }
-        SourceHttpMethodComponent method = new SourceHttpMethodComponent(env, this, element);
-        for (Class<?> clz : methods) {
-            SourceMethodHttpMethod httpMethod = httpMethods.get(clz);
-            if (httpMethod == null) {
-                httpMethod = new SourceMethodHttpMethod(env, this, clz.getSimpleName());
-                httpMethods.put(clz, httpMethod);
-            }
-            httpMethod.addMethod(method);
-        }
+        httpMethod.addMethod(method);
     }
 
     @Override
     public void create() throws IOException {
+        imports("java.io.IOException");
         imports("jakarta.servlet.annotation.MultipartConfig");
         imports("jakarta.servlet.annotation.WebServlet");
-        imports("yeamy.restlite.RESTfulServlet");
         imports("jakarta.servlet.http.HttpServletResponse");
+        imports("jakarta.servlet.ServletException");
+        imports("yeamy.restlite.RESTfulRequest");
+        imports("yeamy.restlite.RESTfulServlet");
         String impl = element.getSimpleName().toString();
         String name = env.getFileName(pkg, impl + "Servlet");
         createBody(impl, name);
@@ -99,30 +101,44 @@ class SourceServlet extends SourceClass {
     private void createBody(String impl, String name) {
         {// WebServlet
             b.append("@WebServlet(");
-            if (resource.asyncSupported()) {
+            if (asyncSupported) {
                 b.append("asyncSupported = true, value = \"");
             } else {
                 b.append('"');
             }
-            b.append('/').append(getResource()).append("\")");
+            b.append('/').append(getResource()).append('"');
+            WebInitParam[] initParams = resource.initParams();
+            if (initParams.length > 0) {
+                b.append(", initParams = {");
+                for (WebInitParam p : initParams) {
+                    b.append("@WebInitParam(name=\"").append(convStr(p.name()))
+                            .append("\",value=\"").append(convStr(p.value())).append("\")");
+                }
+                b.append('}');
+            }
+            b.append(')');
         }
         // MultipartConfig
         b.append("@MultipartConfig ");
-        StringBuilder b2 = new StringBuilder("(");
+        StringBuilder b2 = new StringBuilder();
         long maxFileSize = resource.maxFileSize();
-        if (maxFileSize > -1) {
-            b2.append("maxFileSize = ").append(maxFileSize).append('L');
+        if (maxFileSize != -1) {
+            b2.append(",maxFileSize = ").append(maxFileSize).append('L');
         }
         long maxRequestSize = resource.maxRequestSize();
-        if (maxRequestSize > -1) {
-            if (b2.length() > 0) {
-                b.append(", ");
-            }
-            b.append("maxRequestSize = ").append(maxRequestSize).append('L');
+        if (maxRequestSize != -1) {
+            b2.append(",maxRequestSize = ").append(maxRequestSize).append('L');
         }
-        b2.append(')');
-        if (b2.length() > 3) {
-            b.append(b2);
+        String location = resource.tempLocation();
+        if (location.length() > 0) {
+            b2.append(",location = \"").append(convStr(location)).append('"');
+        }
+        int fileSizeThreshold = resource.fileSizeThreshold();
+        if (fileSizeThreshold != 0) {
+            b2.append(",fileSizeThreshold=").append(fileSizeThreshold);
+        }
+        if (b2.length() > 0) {
+            b.append('(').append(b2, 1, b2.length()).append(") ");
         }
         // class
         b.append("public class ").append(name).append(" extends RESTfulServlet {");

@@ -16,15 +16,20 @@ class SourceHttpMethodComponent {
     private final ExecutableElement method;
     private final List<? extends VariableElement> arguments;
     private final SourceServerName serverName;
+    private final boolean async;
+    private final long asyncTimeout;
 
     private final SourceArguments args = new SourceArguments();
 
-    public SourceHttpMethodComponent(ProcessEnvironment env, SourceServlet servlet, ExecutableElement method) {
+    public SourceHttpMethodComponent(ProcessEnvironment env, SourceServlet servlet, ExecutableElement method,
+                                     boolean async, long asyncTimeout) {
         this.env = env;
         this.servlet = servlet;
         this.method = method;
         this.arguments = method.getParameters();
         this.serverName = new SourceServerName(servlet.getResource(), arguments);
+        this.async = async;
+        this.asyncTimeout = asyncTimeout;
     }
 
     final String orderKey() {
@@ -32,38 +37,6 @@ class SourceHttpMethodComponent {
     }
 
     public void create(String httpMethod) {
-        boolean async;
-        long asyncTimeout;
-        switch (httpMethod) {
-            case "GET":
-                GET get = method.getAnnotation(GET.class);
-                async = get.async();
-                asyncTimeout = get.asyncTimeout();
-                break;
-            case "POST":
-                POST post = method.getAnnotation(POST.class);
-                async = post.async();
-                asyncTimeout = post.asyncTimeout();
-                break;
-            case "DELETE":
-                DELETE delete = method.getAnnotation(DELETE.class);
-                async = delete.async();
-                asyncTimeout = delete.asyncTimeout();
-                break;
-            case "PUT":
-                PUT put = method.getAnnotation(PUT.class);
-                async = put.async();
-                asyncTimeout = put.asyncTimeout();
-                break;
-            case "PATCH":
-                PATCH patch = method.getAnnotation(PATCH.class);
-                async = patch.async();
-                asyncTimeout = patch.asyncTimeout();
-                break;
-            default:
-                async = false;
-                asyncTimeout = 0L;
-        }
         for (VariableElement a : arguments) {
             if (doRequest(a)
                     || doHeader(a)
