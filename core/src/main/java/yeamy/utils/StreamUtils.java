@@ -28,7 +28,7 @@ public class StreamUtils {
 
     public static boolean write(OutputStream os, InputStream is) {
         try {
-            byte[] buf = new byte[512];
+            byte[] buf = new byte[8192];
             while (true) {
                 int l = is.read(buf);
                 if (l == -1) {
@@ -48,8 +48,11 @@ public class StreamUtils {
 
     public static boolean write(OutputStream os, InputStream is, long begin, long len) {
         try {
-            is.skip(begin);
-            byte[] buf = new byte[512];
+            long skip = 0;
+            do {
+                skip += is.skip(begin - skip);
+            } while (skip != begin);
+            byte[] buf = new byte[8192];
             while (true) {
                 int l = is.read(buf);
                 if (l == -1) {
@@ -76,13 +79,26 @@ public class StreamUtils {
         }
     }
 
+    public static boolean writeWithoutClose(OutputStream os, InputStream is) throws IOException {
+        byte[] buf = new byte[8192];
+        while (true) {
+            int l = is.read(buf);
+            if (l == -1) {
+                os.flush();
+                break;
+            }
+            os.write(buf, 0, l);
+        }
+        return true;
+    }
+
     public static boolean writeWithoutClose(OutputStream os, InputStream is, long begin, long len) {
         try {
             long skip = 0;
             do {
                 skip += is.skip(begin - skip);
             } while (skip != begin);
-            byte[] buf = new byte[512];
+            byte[] buf = new byte[8192];
             while (true) {
                 int l = is.read(buf);
                 if (l == -1) {
@@ -120,7 +136,7 @@ public class StreamUtils {
 
     private static ByteArrayOutputStream read(InputStream is) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream(is.available());
-        byte[] buf = new byte[512];
+        byte[] buf = new byte[8192];
         while (true) {
             int l = is.read(buf);
             if (l == -1) {
