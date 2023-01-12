@@ -1,21 +1,17 @@
 package example;
 
+import jakarta.servlet.MultipartConfigElement;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import org.apache.catalina.Context;
 import org.apache.catalina.Host;
-import org.apache.catalina.LifecycleException;
 import org.apache.catalina.Wrapper;
 import org.apache.catalina.connector.Connector;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.tomcat.util.descriptor.web.FilterDef;
 import org.apache.tomcat.util.descriptor.web.FilterMap;
-import yeamy.restlite.tomcat.NoSessionManager;
 import yeamy.utils.TextUtils;
-
-import java.io.IOException;
-import java.io.Reader;
-import java.util.Properties;
 
 public class MyMain {
     // tomcat对象
@@ -59,6 +55,8 @@ public class MyMain {
             String name = webServlet.name();
             if (TextUtils.isEmpty(name)) name = servlet.getClass().getSimpleName();
             Wrapper wrapper = tomcat.addServlet("", name, servlet);
+            wrapper.setMultipartConfigElement(new MultipartConfigElement(OkServlet.class.getAnnotation(MultipartConfig.class)));
+
             for (String uri : uris) {
                 wrapper.addMapping(uri);
             }
