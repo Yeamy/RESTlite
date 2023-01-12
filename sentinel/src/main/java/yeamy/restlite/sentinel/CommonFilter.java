@@ -32,10 +32,12 @@ import java.io.IOException;
 
 /**
  * Servlet filter that integrates with Sentinel.
+ * <pre>
+ * &#64;WebFilter(urlPatterns = "/*",
+ *         filterName = "sentinelFilter",
+ *         dispatcherTypes = DispatcherType.FORWARD)
+ * </pre>
  */
-@WebFilter(urlPatterns = "/*",
-        filterName = "sentinelFilter",
-        dispatcherTypes = DispatcherType.FORWARD)
 public class CommonFilter implements Filter {
 
     /**
