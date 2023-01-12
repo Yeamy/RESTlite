@@ -112,7 +112,7 @@ class SourceServlet extends SourceClass {
                 b.append(", initParams = {");
                 for (WebInitParam p : initParams) {
                     b.append("@WebInitParam(name=\"").append(convStr(p.name()))
-                            .append("\",value=\"").append(convStr(p.value())).append("\")");
+                            .append("\",value=\"").append(convStr(p.value())).append("\"),");
                 }
                 b.append('}');
             }
