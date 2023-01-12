@@ -9,7 +9,6 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
-import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
 import java.util.HashSet;
@@ -51,13 +50,10 @@ public class MainAnnotationProcessor extends AbstractProcessor {
         if (source == null) {
             Set<? extends Element> conf = roundEnv.getElementsAnnotatedWith(Configuration.class);
             for (Element element : conf) {
-                String pkg = ((PackageElement) element.getEnclosingElement()).getQualifiedName().toString();
-                TomcatConfig tf = null;
                 for (Element e : roundEnv.getElementsAnnotatedWith(TomcatConfig.class)) {
-                    tf = e.getAnnotation(TomcatConfig.class);
+                    source = new SourceMain(processingEnv, element, e.getAnnotation(TomcatConfig.class));
                     break;
                 }
-                source = new SourceMain(processingEnv, pkg, tf);
                 break;
             }
         }

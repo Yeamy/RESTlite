@@ -8,6 +8,7 @@ import yeamy.utils.TextUtils;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.tools.JavaFileObject;
 import java.io.IOException;
@@ -23,10 +24,20 @@ class SourceMain extends SourceClass {
     private final Set<PositionBean> listeners = new TreeSet<>();
     private final Set<PositionBean> filters = new TreeSet<>();
     private final Set<Element> servlets = new HashSet<>();
+    private final String name;
 
-    public SourceMain(ProcessingEnvironment env, String pkg, TomcatConfig conf) {
+    public SourceMain(ProcessingEnvironment env, Element element, TomcatConfig conf) {
         this.env = env;
-        this.pkg = pkg;
+        String main = conf.main();
+        if (main.length() == 0) {
+            this.pkg = ((PackageElement) element.getEnclosingElement()).getQualifiedName().toString();
+            this.name = "Main";
+        } else {
+            int b = main.lastIndexOf('.');
+            if (b == -1) b = 0;
+            this.pkg = main.substring(0, b);
+            this.name = main.substring(b);
+        }
         this.conf = conf;
         imports("org.apache.catalina.Context");
         imports("org.apache.catalina.LifecycleException");
@@ -51,15 +62,18 @@ class SourceMain extends SourceClass {
 
     @Override
     public void create() throws IOException {
-        StringBuilder sb = new StringBuilder("package ").append(pkg).append(';');
+        String file = pkg + '.' + name;
+        StringBuilder sb = new StringBuilder();
+        if (pkg.length() > 0) {
+            sb.append("package ").append(pkg).append(';');
+        }
         sb.append("import static yeamy.restlite.tomcat.TomcatUtils.*;");
         StringBuilder content = new StringBuilder();
         createContent(content);
         for (String clz : imports.values()) {
             sb.append("import ").append(clz).append(';');
         }
-        sb.append("public class Main{").append(content).append('}');
-        String file = pkg + ".Main";
+        sb.append("public class ").append(name).append('{').append(content).append('}');
         JavaFileObject f = env.getFiler().createSourceFile(file);
         try (OutputStream os = f.openOutputStream()) {
             os.write(sb.toString().getBytes());
@@ -169,8 +183,8 @@ class SourceMain extends SourceClass {
                 setProperty(sb, "connector" + i + ".sslProtocol", connector.sslProtocol());
                 setProperty(sb, "connector" + i + ".ciphers", connector.ciphers());
                 setProperty(sb, "connector" + i + ".keyStoreType", connector.keyStoreType());
-                setProperty(sb, "connector" + i + ".keyStoreFile", str(connector.keyStoreFile()));
-                setProperty(sb, "connector" + i + ".keyStorePass", str(connector.keyStorePass()));
+                setProperty(sb, "connector" + i + ".keyStoreFile", convStr(connector.keyStoreFile()));
+                setProperty(sb, "connector" + i + ".keyStorePass", convStr(connector.keyStorePass()));
             }
             i++;
         }
@@ -184,13 +198,6 @@ class SourceMain extends SourceClass {
 
     private static void setProperty(StringBuilder b, String key, Object value) {
         b.append("properties.setProperty(\"").append(key).append("\", \"").append(value).append("\");");
-    }
-
-    private CharSequence str(String str) {
-        StringBuilder sb = new StringBuilder(str);
-        TextUtils.replace(sb, "\\", "\\\\");
-        TextUtils.replace(sb, "\"", "\\\"");
-        return sb;
     }
 
     private static class PositionBean implements Comparable<PositionBean> {
