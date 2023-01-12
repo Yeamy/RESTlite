@@ -6,13 +6,13 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * support type : {@linkplain java.io.InputStream InputStream},
+ * declare the parameter(or the type of parameter) is http request body.<br>
+ * <b>support parameter:</b> {@linkplain java.io.InputStream InputStream},
  * {@linkplain jakarta.servlet.ServletInputStream ServletInputStream}, byte[],
- * {@linkplain String String} or any declared type with annotation
- * {@link Body}
- * <br>
- * body can read only once per request
- * 
+ * {@linkplain String String} or any declared type with this annotation.<br>
+ * <b>Noted</b> that only POST, PUT, PATCH contains body
+ * and each request body(InputStream) can read only once.
+ *
  * @author Yeamy
  * @see Header
  * @see Cookies
@@ -22,21 +22,23 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.CLASS) // ANNOTATION_TYPE need CLASS
 public @interface Body {
 
-	/**
-	 * class name of static factory class. If empty, using type's Body annotation,
-	 * if still empty, using type's constructor.
-	 */
-	String creator() default "";
+    /**
+     * Class name of static factory class. If empty, using type's Body annotation,
+     * if still empty, using type's constructor.
+     */
+    String creator() default "";
 
-	/**
-	 * tag the constructor/creator-method, suggest to use if more than one
-	 * constructor/method
-	 * @see LinkTag
-	 */
-	String tag() default "";
+    /**
+     * tag the constructor/creator-method, suggest to use if more than one
+     * constructor/method
+     *
+     * @see LinkTag
+     */
+    String tag() default "";
 
-	/**
-	 * keep empty will be same as {@link Configuration}
-	 */
-	String charset() default "";
+    /**
+     * Only work when body is string rather than binary,
+     * keep empty will be same as {@link Configuration}
+     */
+    String charset() default "";
 }

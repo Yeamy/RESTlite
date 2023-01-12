@@ -108,6 +108,9 @@ public class RESTfulRequest implements Serializable {
         return req.getHeaderNames();
     }
 
+    /**
+     * get http header "Accept"
+     */
     public Set<String> getAccept() {
         if (accept == null) {
             accept = new HashSet<>();
@@ -120,6 +123,9 @@ public class RESTfulRequest implements Serializable {
         return accept;
     }
 
+    /**
+     * @return if http header "Accept" contains mime
+     */
     public boolean isAccept(String mime) {
         Set<String> set = getAccept();
         if (set.contains(mime)) {

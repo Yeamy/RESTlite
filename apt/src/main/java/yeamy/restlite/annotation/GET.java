@@ -1,29 +1,29 @@
 package yeamy.restlite.annotation;
 
-import yeamy.restlite.RESTfulRequest;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * <b>HTTP GET</b><br>
+ * <b>Http method GET</b><br>
  * support parameter :
  * {@link Header},
  * {@link Cookies},
  * {@link Param},
- * {@link Body},
  * {@linkplain jakarta.servlet.http.HttpServletRequest HttpServletRequest},
- * {@linkplain RESTfulRequest RESTfulRequest},
- * if no annotation defend it will be treated as {@link Param}
+ * {@linkplain yeamy.restlite.RESTfulRequest RESTfulRequest}
  *
- * @author Yeamy
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.SOURCE)
 public @interface GET {
 
+    /**
+     * asyncSupported
+     *
+     * @see jakarta.servlet.annotation.WebServlet
+     */
     boolean async() default false;
 
     long asyncTimeout() default 0;

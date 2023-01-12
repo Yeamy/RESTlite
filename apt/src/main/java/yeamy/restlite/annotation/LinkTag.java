@@ -2,13 +2,16 @@ package yeamy.restlite.annotation;
 
 import java.lang.annotation.*;
 
+/**
+ * @see Body
+ * @see Inject
+ */
 @Target({ElementType.FIELD, ElementType.CONSTRUCTOR, ElementType.METHOD})
 @Retention(RetentionPolicy.SOURCE)
 public @interface LinkTag {
 
 	/**
-	 * tag the constructor and link the http-request-parameter, if more than one
-	 * constructor
+	 * tag the field/method/constructor
 	 */
 	String[] value() default {};
 

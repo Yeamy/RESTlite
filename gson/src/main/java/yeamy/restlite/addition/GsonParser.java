@@ -12,6 +12,9 @@ import java.sql.Time;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
+/**
+ * gson with date format yyyy-MM-dd HH:mm:ss X
+ */
 public class GsonParser {
     private static final DateFormat DF = new SimpleDateFormat("yyyy-MM-dd");
     private static final DateFormat TF = new SimpleDateFormat("HH:mm:ss");
@@ -25,13 +28,23 @@ public class GsonParser {
                     (src, typeOfSrc, context) -> new JsonPrimitive(TF.format(src)))
             .create();
 
+    /**
+     * replace the gson
+     */
     public static void setGson(Gson gson) {
         GsonParser.gson = gson;
     }
+
+    /**
+     * deserializes request body as JSON into an object of the specified class.
+     */
     public static <T> T parse(RESTfulRequest request, Class<T> clz) {
         return gson.fromJson(request.getBodyAsText(), clz);
     }
 
+    /**
+     * serializes the given object to JSON
+     */
     public static String toJSON(Object data) {
         return gson.toJson(data);
     }

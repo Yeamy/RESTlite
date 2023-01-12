@@ -1,50 +1,65 @@
 package yeamy.restlite.annotation;
 
+import jakarta.servlet.annotation.MultipartConfig;
+import jakarta.servlet.annotation.WebInitParam;
+import jakarta.servlet.annotation.WebServlet;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * @see jakarta.servlet.annotation.WebServlet
- * @see jakarta.servlet.annotation.MultipartConfig
+ * declare the REST Resource
  *
+ * @see WebServlet
+ * @see MultipartConfig
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.SOURCE)
 public @interface Resource {
 
-//	Class<? extends RESTfulServlet> clz() default RESTfulServlet.class;
+    // @WebServlet ---------------------
 
-//	String encoding() default "utf-8";
+    /**
+     * name of Resource
+     */
+    String value();
 
-//	String contentType() default "application/json";
-	// @WebServlet ---------------------
+    /**
+     * array of initialization params for this Servlet
+     *
+     * @see WebServlet#initParams()
+     */
+    WebInitParam[] initParams() default {};
 
-	String value();
+    // @MultipartConfig ---------------------
 
-//	int loadOnStartup() default -1;
+    /**
+     * location in which the Container stores temporary files
+     *
+     * @see MultipartConfig#location()
+     */
+    String tempLocation() default "";
 
-	boolean asyncSupported() default false;
+    /**
+     * the maximum size of the request allowed for multipart/form-data
+     *
+     * @see MultipartConfig#maxRequestSize()
+     */
+    long maxRequestSize() default -1L;
 
-//	String smallIcon() default "";
+    /**
+     * the maximum size allowed for uploaded files (in bytes)
+     *
+     * @see MultipartConfig#maxFileSize()
+     */
+    long maxFileSize() default -1L;
 
-//	String largeIcon() default "";
-
-//	String name() default "";
-
-//	String description() default "";
-
-//	String displayName() default "";
-
-//	WebInitParam[] initParams() default {};
-
-	// @MultipartConfig ---------------------
-//	String location() default "";
-
-	long maxFileSize() default -1L;
-
-	long maxRequestSize() default -1L;
-
-//	int fileSizeThreshold() default 0;
+    /**
+     * the size threshold at which the file will be written to the disk
+     *
+     * @see MultipartConfig#fileSizeThreshold()
+     */
+    int fileSizeThreshold() default 0;
 }

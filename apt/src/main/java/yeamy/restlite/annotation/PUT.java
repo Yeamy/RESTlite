@@ -6,14 +6,13 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * HTTP PUT<br>
+ * <b>Http method PUT</b><br>
  * support parameter :
  * {@linkplain Param Param},
  * {@linkplain Header Header},
  * {@linkplain Cookies Cookies},
  * {@linkplain Body Body}.<br>
- * if no annotation defend, take it as <b>Param</b>
- * 
+ *
  * @author Yeamy
  *
  */
@@ -21,6 +20,11 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.SOURCE)
 public @interface PUT {
 
+	/**
+	 * asyncSupported
+	 *
+	 * @see jakarta.servlet.annotation.WebServlet
+	 */
 	boolean async() default false;
 
 	long asyncTimeout() default 0;

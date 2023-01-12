@@ -6,7 +6,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * declare to inject the field of Resource.
+ * declare to inject the field of Resource.<br>
+ * Noted that the injection instances will be created once and cached in the pool.
  */
 @Target({ElementType.FIELD, ElementType.TYPE})
 @Retention(RetentionPolicy.SOURCE)

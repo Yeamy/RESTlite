@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * HTTP POST<br>
+ * <b>Http method POST</b><br>
  * support parameter :
  * {@linkplain Param Param},
  * {@linkplain Header Header},
@@ -21,6 +21,11 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface POST {
 
+	/**
+	 * asyncSupported
+	 *
+	 * @see jakarta.servlet.annotation.WebServlet
+	 */
 	boolean async() default false;
 
 	long asyncTimeout() default 0;

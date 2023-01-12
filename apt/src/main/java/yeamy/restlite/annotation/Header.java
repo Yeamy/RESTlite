@@ -6,7 +6,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * support type : {@linkplain String String}
+ * declare the parameter is http request header.<br>
+ * <b>support type:</b> {@linkplain String String}
  * @author Yeamy
  * @see Cookies
  * @see Param

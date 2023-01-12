@@ -6,22 +6,27 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * HTTP DELETE<br>
- * support parameter :
- * {@linkplain Param Param},
- * {@linkplain Header Header},
- * {@linkplain Cookies Cookies}, if no annotation
- * defend, take it as <b>Param</b>
- * 
- * @author Yeamy
+ * Http method DELETE<br>
+ * <b>support parameter:</b>
+ * {@link Header},
+ * {@link Cookies},
+ * {@link Param},
+ * {@linkplain jakarta.servlet.http.HttpServletRequest HttpServletRequest},
+ * {@linkplain yeamy.restlite.RESTfulRequest RESTfulRequest}
  *
+ * @author Yeamy
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.SOURCE)
 public @interface DELETE {
 
-	boolean async() default false;
+    /**
+     * asyncSupported
+     *
+     * @see jakarta.servlet.annotation.WebServlet
+     */
+    boolean async() default false;
 
-	long asyncTimeout() default 0;
+    long asyncTimeout() default 0;
 
 }

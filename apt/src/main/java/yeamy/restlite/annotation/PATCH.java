@@ -12,8 +12,7 @@ import java.lang.annotation.Target;
  * {@linkplain Header Header},
  * {@linkplain Cookies Cookies},
  * {@linkplain Body Body}.<br>
- * if no annotation defend, take it as <b>Param</b>
- * 
+ *
  * @author Yeamy
  *
  */
@@ -21,6 +20,11 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface PATCH {
 
+	/**
+	 * asyncSupported
+	 *
+	 * @see jakarta.servlet.annotation.WebServlet
+	 */
 	boolean async() default false;
 
 	long asyncTimeout() default 0;

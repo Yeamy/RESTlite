@@ -17,36 +17,31 @@ import java.lang.annotation.Target;
 public @interface Configuration {
 
     /**
-     * set default output encoding, if not define, using
-     * {@linkplain java.nio.charset.Charset#defaultCharset()
-     * Charset.defaultCharset()}
+     * set default response text encoding
      */
     String charset() default "UTF-8";
 
     /**
-     * support Patch <b>(only support Tomcat via Reflection yet)</b>, default: false
+     * support http method PATCH (only support <b>Tomcat</b> yet)
      */
     SupportPatch supportPatch() default SupportPatch.undefined;
 
     /**
      * Subclass of {@linkplain RESTfulRequest HttpResponse}, the class must have a one-parameter-constructor,
-     * and the only one parameter will accept data.
+     * and the only one parameter will accept data.<br>
      * <br>
-     * <br>
-     * All server method({@link GET}, {@link POST},{@link PUT},{@link PATCH},{@link DELETE}) returned type will be
+     * All service method({@link GET}, {@link POST},{@link PUT},{@link PATCH},{@link DELETE}) returned type will be
      * converted to {@linkplain yeamy.restlite.HttpResponse HttpResponse} for output:<br>
      * <br>
      * void → {@linkplain yeamy.restlite.addition.VoidResponse VoidResponse}<br>
      * base type / BigDecimal / String → {@linkplain yeamy.restlite.addition.TextPlainResponse TextPlainResponse}<br>
      * OutputStream → {@linkplain yeamy.restlite.addition.StreamResponse StreamResponse}<br>
-     * HttpResponse  → keep it<br>
-     * others → converted to this type
+     * Subtype of HttpResponse  → keep it<br>
+     * others → currently set type
      *
      * <pre>
      *
      * public class MyResponse implements HttpResponse {
-     *
-     *     public MyResponse(Object data) { ... }
      *
      *     &#64;Override
      *     public void write(HttpServletResponse resp) throws IOException {

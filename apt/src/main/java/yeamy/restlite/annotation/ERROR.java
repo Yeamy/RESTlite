@@ -12,7 +12,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * declare a method to catch all exceptions from any other HTTP method.<br>
+ * declare a method to catch all exceptions from any HTTP method.<br>
  * <b>support parameter type:</b> {@link RESTfulRequest},
  * {@link HttpServletRequest},
  * {@link HttpServlet},
