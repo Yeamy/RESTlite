@@ -1,5 +1,6 @@
 package yeamy.restlite.annotation;
 
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.annotation.WebInitParam;
 import jakarta.servlet.annotation.WebServlet;
@@ -120,6 +121,14 @@ class SourceMain extends SourceClass {
                 sb.append("wrapper = tomcat.addServlet(\"\", \"").append(name).append("\", new ").append(clz).append("());");
                 for (String uri : urlPatterns) {
                     sb.append("wrapper.addMapping(\"").append(uri).append("\");");
+                }
+                MultipartConfig multipart = element.getAnnotation(MultipartConfig.class);
+                if (multipart != null) {
+                    sb.append("wrapper.setMultipartConfigElement(new ")
+                            .append(imports("jakarta.servlet.MultipartConfigElement"))
+                            .append("(").append(clz).append(".class.getAnnotation(")
+                            .append(imports("jakarta.servlet.annotation.MultipartConfig"))
+                            .append(".class)));");
                 }
             }
         }
