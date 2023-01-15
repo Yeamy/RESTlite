@@ -15,7 +15,7 @@ class SourceHttpMethodComponent {
     private final SourceServlet servlet;
     private final ExecutableElement method;
     private final List<? extends VariableElement> arguments;
-    private final SourceServerName serverName;
+    private final SourceServiceName serverName;
     private final boolean async;
     private final long asyncTimeout;
 
@@ -27,7 +27,7 @@ class SourceHttpMethodComponent {
         this.servlet = servlet;
         this.method = method;
         this.arguments = method.getParameters();
-        this.serverName = new SourceServerName(servlet.getResource(), arguments);
+        this.serverName = new SourceServiceName(servlet.getResource(), arguments);
         this.async = async;
         this.asyncTimeout = asyncTimeout;
     }

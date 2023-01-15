@@ -4,23 +4,23 @@ import javax.lang.model.element.VariableElement;
 import java.util.List;
 import java.util.TreeSet;
 
-class SourceServerName {
+class SourceServiceName {
     public final String resource, params, ifHas;
 
-    public SourceServerName(String resource, List<? extends VariableElement> arguments) {
+    public SourceServiceName(String resource, List<? extends VariableElement> arguments) {
         this.resource = resource;
         TreeSet<String> params = new TreeSet<>();
         for (VariableElement a : arguments) {
             Param pa = a.getAnnotation(Param.class);
-            if (pa != null && pa.required()) {
-                params.add(a.getSimpleName().toString());
+            if (pa != null) {
+                if (pa.required()) {
+                    params.add(a.getSimpleName().toString());
+                }
             } else if (a.getAnnotation(Header.class) == null//
                     && a.getAnnotation(Cookies.class) == null//
                     && a.getAnnotation(Body.class) == null//
                     && ProcessEnvironment.getBody(a) == null) {
                 params.add(a.getSimpleName().toString());
-            } else {
-                continue;
             }
         }
         StringBuilder sb = new StringBuilder();
