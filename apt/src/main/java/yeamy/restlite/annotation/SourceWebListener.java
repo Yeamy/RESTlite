@@ -37,12 +37,12 @@ class SourceWebListener extends SourceClass {
                 .append(parentName).append(" {");
         imports("yeamy.restlite.RESTfulRequest");
         sb.append("@Override public String createServerName(RESTfulRequest r) {switch (super.createServerName(r)) {");
-        for (Map.Entry<String, Map<String, String>> e1 : env.serverNames()) {
-            sb.append("case \"").append(e1.getKey()).append("\":");// resource + ':' + httpMethod
+        for (Map.Entry<String, Map<String, String>> resMeth : env.serverNames()) {
+            sb.append("case \"").append(resMeth.getKey()).append("\":");// key = resource + ':' + httpMethod
             boolean delLast = false;
-            for (Map.Entry<String, String> e2 : e1.getValue().entrySet()) {
-                String ifHas = e2.getValue();
-                String name = e2.getKey();// resource + ':' + httpMethod + ':' + params
+            for (Map.Entry<String, String> serName : resMeth.getValue().entrySet()) {
+                String ifHas = serName.getValue();
+                String name = serName.getKey();// resource + ':' + httpMethod + ':' + params
                 if (ifHas.length() > 0) {
                     sb.append(ifHas).append("){return \"").append(name).append("\";} else ");
                     delLast = true;
