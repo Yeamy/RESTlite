@@ -93,6 +93,8 @@ public class TomcatUtils {
             String prefix = "connector" + i + ".";
             if (properties.containsKey(prefix + "port")) {
                 addConnector(properties, prefix, tomcat);
+            } else {
+                break;
             }
         }
     }
