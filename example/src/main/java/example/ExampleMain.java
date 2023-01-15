@@ -23,7 +23,7 @@ public class ExampleMain {
 	}
 
     @POST
-    public String post1(@Body(creator = "yeamy.restlite.addition.GsonParser") ExampleBean bean) {
+    public String post1(@Body(creator = "yeamy.restlite.addition.GsonParser") ExampleBody bean) {
         return null;
     }
 
@@ -48,7 +48,7 @@ public class ExampleMain {
     }
 
 //    @POST
-//    public String post3(@Body(creator = "xxx.XXX") ExampleBean bean) {
+//    public String post3(@Body(creator = "xxx.XXX") ExampleBody bean) {
 //        return null;
 //    }
 
