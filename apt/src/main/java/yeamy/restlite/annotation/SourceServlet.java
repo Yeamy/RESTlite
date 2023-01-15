@@ -36,15 +36,15 @@ class SourceServlet extends SourceClass {
                 }
             } else if (kind == ElementKind.METHOD) {
                 ExecutableElement eli = (ExecutableElement) li;
-                GET get = element.getAnnotation(GET.class);
+                GET get = eli.getAnnotation(GET.class);
                 if (get != null) addMethodComponent("GET", eli, get.async(), get.asyncTimeout());
-                POST post = element.getAnnotation(POST.class);
+                POST post = eli.getAnnotation(POST.class);
                 if (post != null) addMethodComponent("POST", eli, post.async(), post.asyncTimeout());
-                PUT put = element.getAnnotation(PUT.class);
+                PUT put = eli.getAnnotation(PUT.class);
                 if (put != null) addMethodComponent("PUT", eli, put.async(), put.asyncTimeout());
-                PATCH patch = element.getAnnotation(PATCH.class);
+                PATCH patch = eli.getAnnotation(PATCH.class);
                 if (patch != null) addMethodComponent("PATCH", eli, patch.async(), patch.asyncTimeout());
-                DELETE delete = element.getAnnotation(DELETE.class);
+                DELETE delete = eli.getAnnotation(DELETE.class);
                 if (delete != null) addMethodComponent("DELETE", eli, delete.async(), delete.asyncTimeout());
                 ERROR ann = eli.getAnnotation(ERROR.class);
                 if (ann != null && error == null) {
