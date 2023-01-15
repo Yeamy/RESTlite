@@ -14,7 +14,7 @@ class SourceWebListener extends SourceClass {
         String parent;
         switch (env.supportPatch()) {
             case tomcat:
-                parent = "yeamy.restlite.annotation.TomcatListener";
+                parent = "yeamy.restlite.addition.TomcatListener";
                 parentName = "TomcatListener";
                 break;
             case undefined:
@@ -39,15 +39,22 @@ class SourceWebListener extends SourceClass {
         sb.append("@Override public String createServerName(RESTfulRequest r) {switch (super.createServerName(r)) {");
         for (Map.Entry<String, Map<String, String>> e1 : env.serverNames()) {
             sb.append("case \"").append(e1.getKey()).append("\":");// resource + ':' + httpMethod
+            boolean delLast = false;
             for (Map.Entry<String, String> e2 : e1.getValue().entrySet()) {
                 String ifHas = e2.getValue();
+                String name = e2.getKey();// resource + ':' + httpMethod + ':' + params
                 if (ifHas.length() > 0) {
-                    String name = e2.getKey();// resource + ':' + httpMethod + ':' + params
                     sb.append(ifHas).append("){return \"").append(name).append("\";} else ");
+                    delLast = true;
+                } else {
+                    sb.append("{return \"").append(name).append("\";}");
+                    delLast = false;
                 }
             }
-            int l = sb.length();
-            sb.delete(l - 6, l).append("break;");
+            if (delLast) {
+                int l = sb.length();
+                sb.delete(l - 6, l).append("break;");
+            }
         }
         sb.append("}return super.createServerName(r);}@Override public boolean isEmbed(){return ")
                 .append(env.getTypeElement("yeamy.restlite.annotation.TomcatConfig") != null ? "true" : "false")

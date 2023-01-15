@@ -204,7 +204,7 @@ class ProcessEnvironment {
         messager.printMessage(Kind.NOTE, msg);
     }
 
-    public String addServerName(String httpMethod, SourceServerName serverName) {
+    public String addServerName(String httpMethod, SourceServiceName serverName) {
         String key = serverName.resource + ':' + httpMethod;
         Map<String, String> value = names.computeIfAbsent(key, k -> new TreeMap<>(Comparator.reverseOrder()));
         String key2 = serverName.getName(httpMethod);
