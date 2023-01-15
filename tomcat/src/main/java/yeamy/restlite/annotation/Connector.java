@@ -47,10 +47,9 @@ public @interface Connector {
     String keyStoreType() default "";
 
     /**
-     * keystore file path, if in jar current jar file withing prefix "!":<br>
-     * <b>!keystore.pfx</b> // keystore in package<br>
-     * <b>!xyz/keystore.pfx</b><br>
-     * <b>/home/keystore.pfx</b> // keystore in local storage
+     * keystore file path, if in current jar file withing prefix "!":<br>
+     * <b>!a/b/c/keystore.pfx</b> // keystore in package: a.b.c<br>
+     * <b>/home/keystore.pfx</b> // keystore in local storage: /home
      */
     String keyStoreFile() default "";
 

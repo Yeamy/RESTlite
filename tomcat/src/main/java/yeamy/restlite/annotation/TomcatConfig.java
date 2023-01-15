@@ -24,7 +24,7 @@ public @interface TomcatConfig {
     String hostName() default "";
 
     /**
-     * keep empty for the user.dir system property (the directory where Java was run from)
+     * keep empty for the “user.dir” system property (the directory where Java was run from)
      *
      * @see org.apache.catalina.startup.Tomcat#setBaseDir(String)
      */

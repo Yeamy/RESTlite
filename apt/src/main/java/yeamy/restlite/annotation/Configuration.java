@@ -41,6 +41,10 @@ public @interface Configuration {
      *
      * public class MyResponse implements HttpResponse {
      *
+     *     public MyResponse(Object data) {
+     *         super(data);
+     *     }
+     *
      *     &#64;Override
      *     public void write(HttpServletResponse resp) throws IOException {
      *         resp.setStatus(200);
