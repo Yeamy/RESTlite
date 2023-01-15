@@ -34,8 +34,6 @@ public @interface Configuration {
      * converted to {@linkplain yeamy.restlite.HttpResponse HttpResponse} for output:<br>
      * <br>
      * void → {@linkplain yeamy.restlite.addition.VoidResponse VoidResponse}<br>
-     * base type / BigDecimal / String → {@linkplain yeamy.restlite.addition.TextPlainResponse TextPlainResponse}<br>
-     * OutputStream → {@linkplain yeamy.restlite.addition.StreamResponse StreamResponse}<br>
      * Subtype of HttpResponse  → keep it<br>
      * others → currently set type
      *
@@ -50,7 +48,18 @@ public @interface Configuration {
      *     }
      * }
      * </pre>
+     * @see #responseAllType()
      */
     String response();
+
+    /**
+     * response() serialize all return type, default true.<br>
+     * if set false, serialize by RESTlite:<br>
+     * base type(int, long...) → {@linkplain yeamy.restlite.addition.TextPlainResponse TextPlainResponse}<br>
+     * BigDecimal → {@linkplain yeamy.restlite.addition.TextPlainResponse TextPlainResponse}<br>
+     * String → {@linkplain yeamy.restlite.addition.TextPlainResponse TextPlainResponse}<br>
+     * OutputStream → {@linkplain yeamy.restlite.addition.StreamResponse StreamResponse}<br>
+     */
+    boolean responseAllType() default true;
 
 }

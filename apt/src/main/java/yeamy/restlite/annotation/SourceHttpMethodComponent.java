@@ -240,14 +240,11 @@ class SourceHttpMethodComponent {
         String type = t.toString();
         Param param = p.getAnnotation(Param.class);
         String alias = p.getSimpleName().toString();
-        boolean required;
         String fallback, name;
         if (param != null) {
-            required = param.required();
             fallback = param.fallback();
             name = param.value().length() > 0 ? param.value() : alias;
         } else {
-            required = true;
             fallback = "";
             name = alias;
         }
@@ -330,15 +327,22 @@ class SourceHttpMethodComponent {
             servlet.append("try{");
         }
         TypeMirror t = method.getReturnType();
-        switch (t.getKind()) {
+        TypeKind kind = t.getKind();
+        switch (kind) {
             case ARRAY:
                 doReturnSerialize(env, servlet, t);
                 break;
-            case DECLARED:
+            case VOID:
+                servlet.imports("yeamy.restlite.addition.VoidResponse");
+                servlet.append("new VoidResponse();}");
+                break;
+            default:// base type
                 if (env.isHttpResponse(t)) {
                     servlet.append("this._impl.").append(method.getSimpleName()).append('(');
                     doReturnArguments(servlet);
                     servlet.append(").write(_resp);");
+                } else if (env.responseAllType()) {
+                    doReturnSerialize(env, servlet, t);
                 } else if (env.isStream(t)) {
                     doReturnStream(servlet);
                 } else if (T_String.equals(t.toString())) {
@@ -351,19 +355,14 @@ class SourceHttpMethodComponent {
                             .append("(this._impl.").append(method.getSimpleName()).append('(');
                     doReturnArguments(servlet);
                     servlet.append(").toPlainString()).write(_resp);");
+                } else if (kind.isPrimitive()){// base type
+                    servlet.append("new ").append(servlet.imports(T_TextPlainResponse))
+                            .append("(String.valueOf(this._impl.").append(method.getSimpleName()).append('(');
+                    doReturnArguments(servlet);
+                    servlet.append("))).write(_resp);");
                 } else {
                     doReturnSerialize(env, servlet, t);
                 }
-                break;
-            case VOID:
-                servlet.imports("yeamy.restlite.addition.VoidResponse");
-                servlet.append("new VoidResponse();}");
-                break;
-            default:
-                servlet.append("new ").append(servlet.imports(T_TextPlainResponse))
-                        .append("(String.valueOf(this._impl.").append(method.getSimpleName()).append('(');
-                doReturnArguments(servlet);
-                servlet.append("))).write(_resp);");
         }
         if (needTry) {
             servlet.append(");}catch(Exception e1){doError(_resp, e1);}");
@@ -391,6 +390,7 @@ class SourceHttpMethodComponent {
             doReturnArguments(servlet);
             servlet.append(")).write(_resp);");
         } else {
+            env.error("Cannot find target constructor of " + resp + " accept parameter: "+ rt);
             servlet.append("new ").append(servlet.imports(T_TextPlainResponse))
                     .append("(500,\"Cannot find target constructor\").write(_resp);");
         }

@@ -27,6 +27,7 @@ class ProcessEnvironment {
     private final Elements elementUtils;
     private final Filer filer;
     private final HashMap<String, SourceParamCreator> paramCreator = new HashMap<>();
+    private final boolean responseAllType;
     private final String charset;
     private final SupportPatch supportPatch;
     private final String pkg, response;
@@ -42,6 +43,7 @@ class ProcessEnvironment {
         PackageElement element = (PackageElement) init.getEnclosingElement();
         pkg = element.getQualifiedName().toString();
         Configuration ann = init.getAnnotation(Configuration.class);
+        responseAllType = ann.responseAllType();
         charset = ann.charset();
         supportPatch = ann.supportPatch();
         response = ann.response();
@@ -222,5 +224,9 @@ class ProcessEnvironment {
 
     public SourceInjectProvider getInject(String type) {
         return injects.get(type);
+    }
+
+    public boolean responseAllType() {
+        return responseAllType;
     }
 }
