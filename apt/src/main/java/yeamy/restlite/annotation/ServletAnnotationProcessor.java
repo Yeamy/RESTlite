@@ -42,9 +42,11 @@ public class ServletAnnotationProcessor extends AbstractProcessor {
         if (env == null) {
             return false;
         }
+        TypeElement tomcatConfig = env.getTypeElement("yeamy.restlite.annotation.TomcatConfig");
+        boolean embed = tomcatConfig != null && roundEnv.getElementsAnnotatedWith(tomcatConfig).size() > 0;
         // filter
         try {
-            new SourceWebFilter(env).create();
+            new SourceWebFilter(env, embed).create();
         } catch (Exception e) {
             env.error(e);
             return false;

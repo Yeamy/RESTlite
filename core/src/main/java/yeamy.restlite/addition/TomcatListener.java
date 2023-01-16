@@ -13,7 +13,7 @@ import java.lang.reflect.Field;
  *
  * @author Yeamy
  */
-public class TomcatListener extends RESTfulListener {
+public abstract class TomcatListener extends RESTfulListener {
     private boolean init = false;
 
     @Override
@@ -34,7 +34,4 @@ public class TomcatListener extends RESTfulListener {
         super.createRequest(httpReq);
     }
 
-    public boolean isEmbed() {
-        return true;
-    }
 }

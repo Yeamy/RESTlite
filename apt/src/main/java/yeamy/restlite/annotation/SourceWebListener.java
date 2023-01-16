@@ -5,10 +5,12 @@ import java.util.Map;
 
 class SourceWebListener extends SourceClass {
     private final ProcessEnvironment env;
+    private final boolean embed;
     private final String className, parentName;
 
-    SourceWebListener(ProcessEnvironment env) throws IOException {
+    SourceWebListener(ProcessEnvironment env, boolean embed) throws IOException {
         this.env = env;
+        this.embed = embed;
         this.pkg = env.getPackage();
         this.className = env.getFileName(pkg, "RESTliteWebListener");
         String parent;
@@ -32,6 +34,9 @@ class SourceWebListener extends SourceClass {
         StringBuilder sb = new StringBuilder("package ").append(pkg).append(';');
         for (String clz : imports.values()) {
             sb.append("import ").append(clz).append(';');
+        }
+        if (embed) {
+            sb.append('@').append(imports("yeamy.restlite.annotation.Position")).append("(1)");
         }
         sb.append("@WebListener(\"*\") public class ").append(className).append(" extends ")
                 .append(parentName).append(" {");
@@ -57,7 +62,7 @@ class SourceWebListener extends SourceClass {
             }
         }
         sb.append("}return super.createServerName(r);}@Override public boolean isEmbed(){return ")
-                .append(env.getTypeElement("yeamy.restlite.annotation.TomcatConfig") != null ? "true" : "false")
+                .append(embed)
                 .append(";}}");
         try {
             env.createSourceFile(pkg, className, sb);

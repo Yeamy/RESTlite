@@ -3,12 +3,14 @@ package yeamy.restlite.annotation;
 import yeamy.utils.TextUtils;
 
 import javax.lang.model.element.*;
+import javax.lang.model.type.TypeMirror;
 import java.util.List;
 import java.util.Set;
 
 class SourceInject {
     private final SourceServlet servlet;
     private final ProcessEnvironment env;
+    private final TypeMirror typeMirror;
     private final VariableElement element;
     private final String simpleName;
 
@@ -16,6 +18,7 @@ class SourceInject {
         this.servlet = servlet;
         this.env = servlet.env;
         this.element = element;
+        this.typeMirror = element.getEnclosingElement().asType();
         this.simpleName = element.getSimpleName().toString();
     }
 
@@ -45,40 +48,38 @@ class SourceInject {
         for (Element e : type.getEnclosedElements()) {
             if (e.getKind().equals(ElementKind.FIELD)) {
                 Set<Modifier> modifiers = e.getModifiers();
+                VariableElement ve = (VariableElement) e;
                 if (modifiers.contains(Modifier.STATIC)
-                        && modifiers.contains(Modifier.FINAL)
-                        && !modifiers.contains(Modifier.PRIVATE)) {
-                    VariableElement ve = (VariableElement) e;
-                    if (ve.asType().equals(element.asType())) {
-                        return ve;
-                    }
+                        && ve.asType().equals(element.asType())
+                        && isAssignable(e, modifiers)) {
+                    return ve;
                 }
             }
         }
         return null;
     }
 
-    private static ExecutableElement findStaticMethod(TypeElement type) {
+    private ExecutableElement findStaticMethod(TypeElement type) {
         for (Element e : type.getEnclosedElements()) {
             if (e.getKind().equals(ElementKind.METHOD)) {
+                ExecutableElement ee = (ExecutableElement) e;
                 Set<Modifier> modifiers = e.getModifiers();
-                if (modifiers.contains(Modifier.STATIC) && !modifiers.contains(Modifier.PRIVATE)) {
-                    ExecutableElement ee = (ExecutableElement) e;
-                    if (ee.getParameters().size() == 0) {
-                        return ee;
-                    }
+                if (modifiers.contains(Modifier.STATIC)
+                        && ee.getParameters().size() == 0
+                        && isAssignable(e, modifiers)) {
+                    return ee;
                 }
             }
         }
         return null;
     }
 
-    private static ExecutableElement findConstructor(TypeElement type) {
+    private ExecutableElement findConstructor(TypeElement type) {
         for (Element e : type.getEnclosedElements()) {
             if (e.getKind() == ElementKind.CONSTRUCTOR) {
                 ExecutableElement c = (ExecutableElement) e;
-                if (!c.getModifiers().contains(Modifier.PRIVATE)
-                        && c.getParameters().size() == 0) {
+                if (c.getParameters().size() == 0
+                        && isAssignable(c, c.getModifiers())) {
                     return c;
                 }
             }
@@ -91,6 +92,8 @@ class SourceInject {
         if (element.getModifiers().contains(Modifier.PRIVATE)) {
             setter = findSetter();
             if (setter == null) {
+                env.error("Cannot assign " + typeMirror + "." + simpleName
+                        + " case it's private and no setter found");
                 b.append("/* Cannot assign _impl.").append(simpleName)
                         .append(" case it's private and no setter found*/");
                 return;
@@ -138,6 +141,12 @@ class SourceInject {
         }
     }
 
+    private boolean isAssignable(Element e, Set<Modifier> modifiers) {
+        return modifiers.contains(Modifier.PUBLIC)
+                || (env.isAssignable(typeMirror, e.asType())
+                && !modifiers.contains(Modifier.PRIVATE));
+    }
+
     private void createByCreator(StringBuilder b, ExecutableElement setter, String creator, String tag, boolean fromType) {
         TypeElement type = env.getTypeElement(creator);
         String typeName = element.asType().toString();
@@ -149,19 +158,25 @@ class SourceInject {
         } else if (tag.length() > 0) {
             for (Element e : type.getEnclosedElements()) {
                 ElementKind kind = e.getKind();
-                if (kind.equals(ElementKind.FIELD)) {
+                Set<Modifier> modifiers = e.getModifiers();
+                if (kind.equals(ElementKind.FIELD)
+                        && modifiers.contains(Modifier.STATIC)
+                        && isAssignable(e, modifiers)) {
                     LinkTag t = e.getAnnotation(LinkTag.class);
                     if (t != null && TextUtils.in(tag, t.value())) {
                         success(b, setter, typeName, e.getSimpleName().toString());
                         return;
                     }
-                } else if (kind.equals(ElementKind.CONSTRUCTOR)) {
+                } else if (kind.equals(ElementKind.CONSTRUCTOR)
+                        && isAssignable(e, modifiers)) {
                     LinkTag t = e.getAnnotation(LinkTag.class);
                     if (t != null && TextUtils.in(tag, t.value())) {
                         success(b, setter, key, "new " + servlet.imports(type) + "()");
                         return;
                     }
-                } else if (kind.equals(ElementKind.METHOD)) {
+                } else if (kind.equals(ElementKind.METHOD)
+                        && modifiers.contains(Modifier.STATIC)
+                        && isAssignable(e, modifiers)) {
                     LinkTag t = e.getAnnotation(LinkTag.class);
                     if (t != null && TextUtils.in(tag, t.value())) {
                         success(b, setter, key, servlet.imports(type) + '.' + e.getSimpleName() + "()");
