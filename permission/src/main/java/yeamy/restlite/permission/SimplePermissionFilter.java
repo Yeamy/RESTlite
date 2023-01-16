@@ -7,6 +7,10 @@ import yeamy.restlite.addition.TextPlainResponse;
 
 import java.io.IOException;
 
+/**
+ * Simple PermissionFilter with LocalPermissionManager.
+ * Access account with http header "X-Api-Token"
+ */
 public class SimplePermissionFilter extends PermissionFilter {
     public static final String HEADER_API_TOKEN = "X-Api-Token";
 
