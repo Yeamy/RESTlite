@@ -20,7 +20,6 @@ import com.alibaba.csp.sentinel.context.ContextUtil;
 import com.alibaba.csp.sentinel.slots.block.BlockException;
 import com.alibaba.csp.sentinel.util.StringUtil;
 import jakarta.servlet.*;
-import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import yeamy.restlite.RESTfulRequest;
@@ -36,6 +35,8 @@ import java.io.IOException;
  * &#64;WebFilter(urlPatterns = "/*",
  *         filterName = "sentinelFilter",
  *         dispatcherTypes = DispatcherType.FORWARD)
+ * public class SentinelFilter extends CommonFilter {
+ * }
  * </pre>
  */
 public class CommonFilter implements Filter {

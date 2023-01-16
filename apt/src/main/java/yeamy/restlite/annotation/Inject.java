@@ -25,7 +25,7 @@ public @interface Inject {
      * &nbsp;└ no tag:<br>
      * &nbsp;&nbsp;├ lookup InjectProvider<br>
      * &nbsp;&nbsp;├ lookup static method<br>
-     * &nbsp;&nbsp;└ use constructor<br>
+     * &nbsp;&nbsp;└ lookup no param constructor<br>
      */
     String creator() default "";
 
