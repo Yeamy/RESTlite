@@ -11,19 +11,13 @@ public abstract class CorsFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         Object a = request.getAttribute(RESTfulRequest.REQUEST);
-        if (a instanceof RESTfulRequest) {
-            RESTfulRequest req = (RESTfulRequest) a;
+        if (a instanceof RESTfulRequest req) {
             String origin = req.getHeader("Origin");
             if (TextUtils.isNotEmpty(origin)) {
                 CorsHandle handle = new CorsHandle(req, (HttpServletResponse) response);
                 switch (req.getMethod()) {
-                    case "OPTIONS":
-                        preflightRequest(origin, handle);
-                        break;
-                    case "GET":
-                    case "POST":
-                    case "HEAD":
-                        doCorsRequest(origin, handle);
+                    case "OPTIONS" -> preflightRequest(origin, handle);
+                    case "GET", "POST", "HEAD" -> doCorsRequest(origin, handle);
                 }
                 if (handle.isIntercept()) {
                     return;

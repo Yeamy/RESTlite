@@ -90,10 +90,10 @@ public abstract class AbstractHttpResponse<T> implements HttpResponse {
         resp.setStatus(status);
         for (Map.Entry<String, Object> entry : headers.entrySet()) {
             Object value = entry.getValue();
-            if (value instanceof Integer) {
-                resp.setIntHeader(entry.getKey(), (Integer) value);
-            } else if (value instanceof Long) {
-                resp.setDateHeader(entry.getKey(), (Long) value);
+            if (value instanceof Integer intVal) {
+                resp.setIntHeader(entry.getKey(), intVal);
+            } else if (value instanceof Long longVal) {
+                resp.setDateHeader(entry.getKey(), longVal);
             } else {
                 resp.setHeader(entry.getKey(), value.toString());
             }

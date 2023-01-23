@@ -9,24 +9,13 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 
 public abstract class RESTfulServlet extends HttpServlet {
-    private static final long serialVersionUID = 1L;
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         switch (req.getMethod()) {
-            case "GET":
-            case "POST":
-            case "DELETE":
-            case "PUT":
-            case "HEAD":
-            case "OPTIONS":
-                super.service(req, resp);
-                break;
-            case "PATCH":
-                doPatch(RESTfulRequest.get(req), resp);
-                break;
-            default:
-                do_(RESTfulRequest.get(req), resp);
+            case "GET", "POST", "DELETE", "PUT", "HEAD", "OPTIONS" -> super.service(req, resp);
+            case "PATCH" -> doPatch(RESTfulRequest.get(req), resp);
+            default -> do_(RESTfulRequest.get(req), resp);
         }
     }
 

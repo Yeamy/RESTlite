@@ -18,8 +18,7 @@ public abstract class TomcatListener extends RESTfulListener {
 
     @Override
     public void createRequest(HttpServletRequest httpReq) {
-        if (!init && httpReq instanceof RequestFacade) {
-            RequestFacade facade = (RequestFacade) httpReq;
+        if (!init && httpReq instanceof RequestFacade facade) {
             try {
                 Field f_req = RequestFacade.class.getDeclaredField("request");
                 f_req.setAccessible(true);

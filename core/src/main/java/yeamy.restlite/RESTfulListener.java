@@ -12,8 +12,8 @@ public abstract class RESTfulListener implements ServletRequestListener {
     @Override
     public void requestInitialized(ServletRequestEvent sre) {
         ServletRequest req = sre.getServletRequest();
-        if (req instanceof HttpServletRequest) {
-            createRequest((HttpServletRequest) req);
+        if (req instanceof HttpServletRequest httpReq) {
+            createRequest(httpReq);
         }
     }
 
