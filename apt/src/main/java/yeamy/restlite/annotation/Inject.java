@@ -13,6 +13,8 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.SOURCE)
 public @interface Inject {
 
+    Singleton singleton() default Singleton.auto;
+
     /**
      * class name of creator.<br>
      * ├not empty:<br>

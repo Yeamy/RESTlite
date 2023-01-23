@@ -104,19 +104,19 @@ class SourceInject {
         if (inject == null) return;
         String creator = inject.creator();
         if (creator.length() > 0) {
-            createByCreator(b, setter, creator, inject.tag(), false);
+            createByCreator(b, setter, creator, inject.singleton(), inject.tag(), false);
             return;
         }
         String typeName = element.asType().toString();
         TypeElement type = env.getTypeElement(typeName);
         Inject inject2 = type.getAnnotation(Inject.class);
         if (inject2 != null && inject2.creator().length() > 0) {
-            createByCreator(b, setter, inject2.creator(), inject2.tag(), true);
+            createByCreator(b, setter, inject2.creator(), inject2.singleton(), inject2.tag(), true);
             return;
         }
         SourceInjectProvider p = env.getInject(typeName);
         if (p != null) {
-            success(b, setter, typeName, p.create(servlet));
+            success(b, setter, inject2.singleton(), typeName, p.create(servlet));
         } else if (type.getKind() == ElementKind.INTERFACE) {
             fail(b, setter, "null/* Cannot create instance of interface */");
             env.error("Cannot find creator of interface: " + type);
@@ -126,14 +126,14 @@ class SourceInject {
         } else {
             Element e = findField(type);
             if (e != null) {
-                success(b, setter, typeName, servlet.imports(type) + "." + e.getSimpleName());
+                success(b, setter, inject2.singleton(), typeName, servlet.imports(type) + "." + e.getSimpleName());
                 return;
             }
             e = findStaticMethod(type);
             if (e != null) {
-                success(b, setter, typeName, servlet.imports(type) + '.' + e.getSimpleName() + "()");
+                success(b, setter, inject2.singleton(), typeName, servlet.imports(type) + '.' + e.getSimpleName() + "()");
             } else if (findConstructor(type) != null) {
-                success(b, setter, typeName, "new " + servlet.imports(type) + "()");
+                success(b, setter, inject2.singleton(), typeName, "new " + servlet.imports(type) + "()");
             } else {
                 fail(b, setter, "null/* Cannot find constructor */");
                 env.error("Cannot find none params constructor of type: " + type);
@@ -147,7 +147,8 @@ class SourceInject {
                 && !modifiers.contains(Modifier.PRIVATE));
     }
 
-    private void createByCreator(StringBuilder b, ExecutableElement setter, String creator, String tag, boolean fromType) {
+    private void createByCreator(StringBuilder b, ExecutableElement setter, String creator, Singleton singleton,
+                                 String tag, boolean fromType) {
         TypeElement type = env.getTypeElement(creator);
         String typeName = element.asType().toString();
         String key = fromType ? typeName + ':' + tag : typeName;
@@ -164,14 +165,18 @@ class SourceInject {
                         && isAssignable(e, modifiers)) {
                     LinkTag t = e.getAnnotation(LinkTag.class);
                     if (t != null && TextUtils.in(tag, t.value())) {
-                        success(b, setter, typeName, e.getSimpleName().toString());
+                        if (singleton.equals(Singleton.no)) {
+                            fail(b, setter, e.getSimpleName().toString());
+                        } else {
+                            success(b, setter, singleton, typeName, e.getSimpleName().toString());
+                        }
                         return;
                     }
                 } else if (kind.equals(ElementKind.CONSTRUCTOR)
                         && isAssignable(e, modifiers)) {
                     LinkTag t = e.getAnnotation(LinkTag.class);
                     if (t != null && TextUtils.in(tag, t.value())) {
-                        success(b, setter, key, "new " + servlet.imports(type) + "()");
+                        success(b, setter, singleton, key, "new " + servlet.imports(type) + "()");
                         return;
                     }
                 } else if (kind.equals(ElementKind.METHOD)
@@ -179,7 +184,7 @@ class SourceInject {
                         && isAssignable(e, modifiers)) {
                     LinkTag t = e.getAnnotation(LinkTag.class);
                     if (t != null && TextUtils.in(tag, t.value())) {
-                        success(b, setter, key, servlet.imports(type) + '.' + e.getSimpleName() + "()");
+                        success(b, setter, singleton, key, servlet.imports(type) + '.' + e.getSimpleName() + "()");
                         return;
                     }
                 }
@@ -190,17 +195,17 @@ class SourceInject {
         }
         Element e = findField(type);
         if (e != null) {
-            success(b, setter, key, servlet.imports(type) + "." + e.getSimpleName());
+            success(b, setter, singleton, key, servlet.imports(type) + "." + e.getSimpleName());
             return;
         }
         e = findStaticMethod(type);
         if (e != null) {
-            success(b, setter, key, servlet.imports(type) + "." + e.getSimpleName() + "()");
+            success(b, setter, singleton, key, servlet.imports(type) + "." + e.getSimpleName() + "()");
             return;
         }
         if (env.isAssignable(type.asType(), element.asType())
                 && findConstructor(type) != null) {
-            success(b, setter, key, "new " + servlet.imports(type) + "()");
+            success(b, setter, singleton, key, "new " + servlet.imports(type) + "()");
             return;
         }
         fail(b, setter, "null/* Cannot find creator:" + creator + " */");
@@ -212,25 +217,31 @@ class SourceInject {
      * @param key <b>by field:</b> typeName + ':' + tag<br>
      *            <b>otherwise:</b> typeName
      */
-    private void success(StringBuilder b, ExecutableElement setter, String key, String out) {
-        b.append(servlet.imports("yeamy.utils.SingletonPool")).append(".getOrCreate(\"")
-                .append(key).append("\",k->_impl.");
-        if (setter != null) {
-            b.append(setter.getSimpleName()).append('(').append(out).append(")");
+    private void success(StringBuilder b, ExecutableElement setter, Singleton sinleton, String key, String out) {
+        if (sinleton.equals(Singleton.no)) {
+            b.append("_impl.");
+            setter(b, setter, out);
+            b.append(';');
         } else {
-            b.append(simpleName).append('=').append(out);
+            b.append(servlet.imports("yeamy.utils.SingletonPool")).append(".getOrCreate(\"")
+                    .append(key).append("\",k->_impl.");
+            setter(b, setter, out);
+            b.append(");");
         }
-        b.append(");");
     }
 
     private void fail(StringBuilder b, ExecutableElement setter, String out) {
         b.append("_impl.");
+        setter(b, setter, out);
+        b.append(';');
+    }
+
+    private void setter(StringBuilder b, ExecutableElement setter, String out) {
         if (setter != null) {
-            b.append(setter.getSimpleName()).append('(').append(out).append(")");
+            b.append(setter.getSimpleName()).append('(').append(out).append(')');
         } else {
             b.append(simpleName).append('=').append(out);
         }
-        b.append(';');
     }
 
 }
