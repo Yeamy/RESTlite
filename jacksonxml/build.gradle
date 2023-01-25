@@ -1,0 +1,111 @@
+plugins {
+    id 'java-library'
+}
+sourceCompatibility = JavaVersion.VERSION_17
+
+group 'io.github.yeamy'
+var $version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    api project(':core')
+    compileOnly project(':apt')
+    api 'com.fasterxml.jackson.core:jackson-databind:2.9.5'
+    api 'com.fasterxml.jackson.core:jackson-annotations:2.9.5'
+    api 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.14.1'
+//    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
+//    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+apply plugin: 'maven-publish'
+
+jar {// package code
+    archiveFileName = 'restlite-jacksonxml.jar'
+}
+task generateSourceJar(type: Jar) {
+    archiveClassifier.set('sources')
+    from sourceSets.main.java.srcDirs
+    archiveFileName = 'lib-sources.jar'
+}
+javadoc {// create document
+    source = sourceSets.main.java.srcDirs
+    options {
+        encoding "UTF-8"
+        charSet 'UTF-8'
+        author true
+        version true
+        links "http://docs.oracle.com/javase/8/docs/api"
+    }
+}
+task generateJavadoc(type: Jar) { // package document as jar
+    group = 'jar'
+    archiveFileName = 'lib-javadoc.jar'
+    archiveClassifier.set('javadoc')
+    from "$rootDir/javadoc"
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId 'io.github.yeamy'
+            artifactId 'restlite-jacksonxml'
+            version $version
+            pom {
+                name = 'restlite-jacksonxml'
+                description = 'Gson plugin supported.'
+                url = 'https://github.com/Yeamy/RESTlite'
+                inceptionYear = '2022'
+                scm {
+                    url = 'https://github.com/Yeamy/RESTlite'
+                    connection = 'scm:git@https://github.com/Yeamy/RESTlite.git'
+                    developerConnection = 'scm:git@https://github.com/Yeamy/RESTlite.git'
+                }
+                licenses {
+                    license {
+                        name = 'MIT'
+                        url = 'https://mit-license.org/'
+                        distribution = 'repo'
+                        comments = 'A business-friendly OSS license'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'yeamy0754'
+                        name = 'Yeaming'
+                        email = 'yeamy0754@hotmail.com'
+                        url = 'https://github.com/Yeamy'
+                    }
+                }
+                issueManagement {
+                    system = 'Github'
+                    url = 'https://github.com/Yeamy/RESTlite'
+                }
+            }
+            artifact generateSourceJar
+            artifact jar
+            artifact generateJavadoc
+        }
+    }
+
+    repositories {
+        maven {
+            url = 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
+            credentials {
+                username ossrhUsername
+                password ossrhPassword
+            }
+        }
+    }
+}
+
+apply plugin: 'signing'
+signing {
+    sign publishing.publications.maven
+}
