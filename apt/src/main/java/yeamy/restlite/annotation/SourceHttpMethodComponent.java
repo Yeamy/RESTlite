@@ -160,51 +160,45 @@ class SourceHttpMethodComponent {
     }
 
     private boolean doBody(VariableElement p) {
-        TypeMirror t = p.asType();
-        String type = t.toString();
-        Body body = p.getAnnotation(Body.class);
-        if ((body == null) && TextUtils.notIn(type, T_File, T_Files, T_InputStream, T_ServletInputStream)) {
-            body = ProcessEnvironment.getBody(p);
-            if (body != null) {
-                SourceParamCreator creator = env.getBodyCreator(servlet, t, body);
-                if (creator instanceof SourceParamFail) {
-                    addNoType(t.getKind());
-                    env.error("Not support body type " + type + " without annotation Creator");
-                } else {
-                    String name = p.getSimpleName().toString();
-                    args.addBody(name).write(creator.toCharSequence(servlet, args, name));
-                }
-                return true;
-            }
-            return false;
-        }
         if (args.containsBody()) {
             args.addFallback("null");
             env.error("cannot read body twice");
             return true;
         }
+        TypeMirror t = p.asType();
+        String type = t.toString();
+        Body body = p.getAnnotation(Body.class);
+        if ((body == null) || TextUtils.in(type, T_File, T_Files, T_InputStream, T_ServletInputStream)) {
+            String name = p.getSimpleName().toString();
+            switch (type) {
+                case T_File -> args.addBody(name)
+                        .write(servlet.imports(T_File), " ", name, " = _req.getFile(\"", name, "\");");
+                case T_Files -> args.addBody(name)
+                        .write(servlet.imports(T_File), "[] ", name, " = _req.getFiles();");
+                case T_InputStream, T_ServletInputStream -> args.addBody(name)
+                        .write(servlet.imports(T_ServletInputStream), " ", name, " = _req.getBody();");
+                default -> {
+                    body = ProcessEnvironment.getBody(p);
+                    if (body == null) return false;
+                    SourceParamCreator creator = env.getBodyCreator(servlet, t, body);
+                    if (creator instanceof SourceParamFail) {
+                        addNoType(t.getKind());
+                        env.error("Not support body type " + type + " without annotation Creator");
+                    } else {
+                        args.addBody(name).write(creator.toCharSequence(servlet, args, name));
+                    }
+                    return true;
+                }
+            }
+            return true;
+        }
         String name = p.getSimpleName().toString();
         switch (type) {
-            case T_File:
-                args.addBody(name).write(servlet.imports(T_File), " ", name, " = _req.getFile(\"", name, "\");");
-                break;
-            case T_Files:
-                args.addBody(name).write(servlet.imports(T_File), "[] ", name, " = _req.getFiles();");
-                break;
-            case T_InputStream:
-            case T_ServletInputStream:
-                args.addBody(name).write(servlet.imports(T_ServletInputStream), " ", name, " = _req.getBody();");
-                break;
-            case T_Bytes:
-                args.addBody(name).write("byte[] ", name, " = _req.getBodyAsByte();");
-                break;
-            case T_String:
-                assert body != null;
-                String charset = env.charset(body.charset());
-                args.addBody(name).write("String ", name, " = _req.getBodyAsText(\"", charset, "\");");
-                break;
-            default:
-                assert body != null;
+            case T_Bytes -> args.addBody(name)
+                    .write("byte[] ", name, " = _req.getBodyAsByte();");
+            case T_String -> args.addBody(name)
+                    .write("String ", name, " = _req.getBodyAsText(\"", env.charset(body.charset()), "\");");
+            default -> {
                 SourceParamCreator creator = env.getBodyCreator(servlet, t, body);
                 if (creator instanceof SourceParamFail) {
                     addNoType(t.getKind());
@@ -212,26 +206,16 @@ class SourceHttpMethodComponent {
                 } else {
                     args.addBody(name).write(creator.toCharSequence(servlet, args, name));
                 }
+            }
         }
         return true;
     }
 
     private void addNoType(TypeKind k) {
         switch (k) {
-            case BOOLEAN:
-                args.addFallback("false");
-                break;
-            case BYTE:
-            case CHAR:
-            case SHORT:
-            case INT:
-            case LONG:
-            case FLOAT:
-            case DOUBLE:
-                args.addFallback("0");
-                break;
-            default:
-                args.addFallback("null");
+            case BOOLEAN -> args.addFallback("false");
+            case BYTE, CHAR, SHORT, INT, LONG, FLOAT, DOUBLE -> args.addFallback("0");
+            default -> args.addFallback("null");
         }
     }
 
@@ -291,29 +275,17 @@ class SourceHttpMethodComponent {
             }
             case ARRAY:
                 switch (type) {
-                    case T_Bools:
-                        args.addParam(type, name, alias)
-                                .write("boolean[] ", alias, " = _req.getBoolParams(\"", name, "\");");
-                        break;
-                    case T_Ints:
-                        args.addParam(type, name, alias)
-                                .write("int[] ", alias, " = _req.getIntParams(\"", name, "\");");
-                        break;
-                    case T_Longs:
-                        args.addParam(type, name, alias)
-                                .write("long[] ", alias, " = _req.getLongParams(\"", name, "\");");
-                        break;
-                    case T_Decimals:
-                        args.addParam(type, name, alias)
-                                .write(servlet.imports(T_Decimal), "[] ", alias, " = _req.getDecimalParams(\"", name, "\");");
-                        break;
-                    case T_Strings:
-                        args.addParam(type, name, alias)
-                                .write("String[] ", alias, " = _req.getParams(\"", name, "\");");
-                        break;
-                    default:
-                        args.addFallback("null");
-                        break;
+                    case T_Bools -> args.addParam(type, name, alias)
+                            .write("boolean[] ", alias, " = _req.getBoolParams(\"", name, "\");");
+                    case T_Ints -> args.addParam(type, name, alias)
+                            .write("int[] ", alias, " = _req.getIntParams(\"", name, "\");");
+                    case T_Longs -> args.addParam(type, name, alias)
+                            .write("long[] ", alias, " = _req.getLongParams(\"", name, "\");");
+                    case T_Decimals -> args.addParam(type, name, alias)
+                            .write(servlet.imports(T_Decimal), "[] ", alias, " = _req.getDecimalParams(\"", name, "\");");
+                    case T_Strings -> args.addParam(type, name, alias)
+                            .write("String[] ", alias, " = _req.getParams(\"", name, "\");");
+                    default -> args.addFallback("null");
                 }
             default:
         }
@@ -329,14 +301,10 @@ class SourceHttpMethodComponent {
         TypeMirror t = method.getReturnType();
         TypeKind kind = t.getKind();
         switch (kind) {
-            case ARRAY:
-                doReturnSerialize(env, servlet, t);
-                break;
-            case VOID:
-                servlet.imports("yeamy.restlite.addition.VoidResponse");
-                servlet.append("new VoidResponse();}");
-                break;
-            default:// base type
+            case ARRAY -> doReturnSerialize(env, servlet, t);
+            case VOID -> servlet.append(servlet.imports("yeamy.restlite.addition.VoidResponse"))
+                    .append(".instance.write(_resp);");
+            default -> {// base type
                 if (env.isHttpResponse(t)) {
                     servlet.append("this._impl.").append(method.getSimpleName()).append('(');
                     doReturnArguments(servlet);
@@ -355,7 +323,7 @@ class SourceHttpMethodComponent {
                             .append("(this._impl.").append(method.getSimpleName()).append('(');
                     doReturnArguments(servlet);
                     servlet.append(").toPlainString()).write(_resp);");
-                } else if (kind.isPrimitive()){// base type
+                } else if (kind.isPrimitive()) {// base type
                     servlet.append("new ").append(servlet.imports(T_TextPlainResponse))
                             .append("(String.valueOf(this._impl.").append(method.getSimpleName()).append('(');
                     doReturnArguments(servlet);
@@ -363,6 +331,7 @@ class SourceHttpMethodComponent {
                 } else {
                     doReturnSerialize(env, servlet, t);
                 }
+            }
         }
         if (needTry) {
             servlet.append(");}catch(Exception e1){doError(_resp, e1);}");
@@ -390,7 +359,7 @@ class SourceHttpMethodComponent {
             doReturnArguments(servlet);
             servlet.append(")).write(_resp);");
         } else {
-            env.error("Cannot find target constructor of " + resp + " accept parameter: "+ rt);
+            env.error("Cannot find target constructor of " + resp + " accept parameter: " + rt);
             servlet.append("new ").append(servlet.imports(T_TextPlainResponse))
                     .append("(500,\"Cannot find target constructor\").write(_resp);");
         }

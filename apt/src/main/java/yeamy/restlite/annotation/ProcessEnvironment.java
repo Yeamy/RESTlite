@@ -35,7 +35,7 @@ class ProcessEnvironment {
     final TreeMap<String, Map<String, String>> names = new TreeMap<>();
     private final HashMap<String, SourceInjectProvider> injects = new HashMap<>();
 
-    public ProcessEnvironment(ProcessingEnvironment env, TypeElement init) {
+    public ProcessEnvironment(ProcessingEnvironment env, Element init) {
         messager = env.getMessager();
         typeUtils = env.getTypeUtils();
         elementUtils = env.getElementUtils();

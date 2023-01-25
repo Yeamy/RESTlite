@@ -6,7 +6,7 @@ import java.util.Set;
 class SourceInjectProvider {
     public final TypeElement importType;
     public final String type;
-    private final String[] content;
+    private final Object[] content;
 
     public SourceInjectProvider(ProcessEnvironment env, Element element) {
         this.importType = (TypeElement) element.getEnclosingElement();
@@ -25,7 +25,7 @@ class SourceInjectProvider {
             if (modifiers.contains(Modifier.PUBLIC)
                     && modifiers.contains(Modifier.STATIC)
                     && modifiers.contains(Modifier.FINAL)) {
-                this.content = new String[]{null, "." + element.getSimpleName() + ';'};
+                this.content = new Object[]{importType, "." + element.getSimpleName() + ';'};
             } else {
                 env.error("InjectProvider field must have the modifier public static final:"
                         + element.asType().toString() + "." + element.getSimpleName());
@@ -35,7 +35,7 @@ class SourceInjectProvider {
             Set<Modifier> modifiers = element.getModifiers();
             if (modifiers.contains(Modifier.PUBLIC)
                     && modifiers.contains(Modifier.STATIC)) {
-                this.content = new String[]{null, "." + element.getSimpleName() + "()"};
+                this.content = new Object[]{importType, "." + element.getSimpleName() + "()"};
             } else {
                 env.error("InjectProvider method must have the modifier public static:"
                         + element.asType().toString() + "." + element.getSimpleName());
@@ -43,7 +43,7 @@ class SourceInjectProvider {
             }
         } else {// METHOD
             if (element.getModifiers().contains(Modifier.PUBLIC)) {
-                this.content = new String[]{"new ", null, "()"};
+                this.content = new Object[]{"new ", importType, "()"};
             } else {
                 env.error("InjectProvider constructor must have the modifier public:"
                         + element.asType().toString() + "." + element.getSimpleName());
@@ -54,8 +54,8 @@ class SourceInjectProvider {
 
     public String create(SourceServlet servlet) {
         StringBuilder b = new StringBuilder();
-        for (String s : content) {
-            b.append(s == null ? servlet.imports(importType) : s);
+        for (Object s : content) {
+            b.append(s instanceof TypeElement ? servlet.imports((TypeElement) s) : s);
         }
         return b.toString();
     }

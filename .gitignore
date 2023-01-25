@@ -4,6 +4,7 @@ core/build/
 permission/build/
 gson/build/
 jackson/build/
+jacksonxml/build/
 apt/build/
 sentinel/build/
 example/build/

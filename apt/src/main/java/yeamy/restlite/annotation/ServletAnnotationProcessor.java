@@ -34,14 +34,18 @@ public class ServletAnnotationProcessor extends AbstractProcessor {
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         ProcessEnvironment env = null;
-        for (Element element : roundEnv.getElementsAnnotatedWith(Configuration.class)) {
-            TypeElement init = (TypeElement) element;
+        for (Element init : roundEnv.getElementsAnnotatedWith(Configuration.class)) {
             env = new ProcessEnvironment(processingEnv, init);
             break;
         }
         if (env == null) {
             return false;
         }
+        // inject provider
+        for (Element element : roundEnv.getElementsAnnotatedWith(InjectProvider.class)) {
+            env.addInject(new SourceInjectProvider(env, element));
+        }
+        // embed
         TypeElement tomcatConfig = env.getTypeElement("yeamy.restlite.annotation.TomcatConfig");
         boolean embed = tomcatConfig != null && roundEnv.getElementsAnnotatedWith(tomcatConfig).size() > 0;
         // filter
@@ -68,7 +72,7 @@ public class ServletAnnotationProcessor extends AbstractProcessor {
         }
         // listener
         try {
-            new SourceWebListener(env).create();
+            new SourceWebListener(env, embed).create();
         } catch (Exception e) {
             env.error(e);
             return false;

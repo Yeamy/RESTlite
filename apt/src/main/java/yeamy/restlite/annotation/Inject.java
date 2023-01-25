@@ -17,17 +17,10 @@ public @interface Inject {
 
     /**
      * class name of creator.<br>
-     * ├not empty:<br>
-     * │ ├ with tag: use target.<br>
-     * │ └ no tag:<br>
-     * │&nbsp;&nbsp;├ lookup static method<br>
-     * │&nbsp;&nbsp;└ use type's constructor.<br>
-     * └empty:type's creator<br>
-     * &nbsp;├ with tag: use target.<br>
-     * &nbsp;└ no tag:<br>
-     * &nbsp;&nbsp;├ lookup InjectProvider<br>
-     * &nbsp;&nbsp;├ lookup static method<br>
-     * &nbsp;&nbsp;└ lookup no param constructor<br>
+     * <br>
+     * <b>1.Lookup</b> field's creator() -> type's creator() -> @InjectProvider -> type's constructor<br>
+     * <b>2.Lookup</b> tag() -> type's static field, method, none param public constructor -> null
+     * @see #tag()
      */
     String creator() default "";
 

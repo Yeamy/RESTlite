@@ -91,24 +91,10 @@ abstract class SourceParamCreator {
             return;
         }
         switch (param.asType().getKind()) {
-            case BYTE:
-            case CHAR:
-            case SHORT:
-            case INT:
-            case LONG:
-            case FLOAT:
-            case DOUBLE:
-                b.append("0");
-                break;
-            case BOOLEAN:
-                b.append("false");
-                break;
-            case DECLARED:
-                b.append(declaredArgument(servlet, param));
-                break;
-            case ARRAY:
-            default:
-                b.append("null");
+            case BYTE, CHAR, SHORT, INT, LONG, FLOAT, DOUBLE -> b.append("0");
+            case BOOLEAN -> b.append("false");
+            case DECLARED -> b.append(declaredArgument(servlet, param));
+            case ARRAY, default -> b.append("null");
         }
     }
 
@@ -195,38 +181,29 @@ abstract class SourceParamCreator {
     }
 
     private boolean doBody(SourceArguments args, VariableElement p, StringBuilder b) {
-        Body body = p.getAnnotation(Body.class);
-        TypeMirror t = p.asType();
-        String type = t.toString();
-        if ((body == null) && TextUtils.notIn(type, T_File, T_Files, T_InputStream, T_ServletInputStream)) {
-            return false;
-        }
         if (args.containsBody()) {
             args.addFallback("null");
             env.error("cannot read body twice");
             return true;
         }
+        Body body = p.getAnnotation(Body.class);
+        TypeMirror t = p.asType();
+        String type = t.toString();
+        if ((body == null) || TextUtils.in(type, T_File, T_Files, T_InputStream, T_ServletInputStream)) {
+            switch (type) {
+                case T_File -> b.append("_req.getFile(\"").append(p.getSimpleName()).append("\")");
+                case T_Files -> b.append("_req.getFiles()");
+                case T_InputStream, T_ServletInputStream -> b.append("_req.getBody()");
+                default -> {
+                    return false;
+                }
+            }
+            return true;
+        }
         switch (type) {
-            case T_File:
-                b.append("_req.getFile(\"").append(p.getSimpleName()).append("\")");
-                break;
-            case T_Files:
-                b.append("_req.getFiles()");
-                break;
-            case T_InputStream:
-            case T_ServletInputStream:
-                b.append("_req.getBody()");
-                break;
-            case T_Bytes:
-                b.append("_req.getBodyAsByte()");
-                break;
-            case T_String:
-                assert body != null;
-                String charset = env.charset(body.charset());
-                b.append("_req.getBodyAsText(\"").append(charset).append("\")");
-                break;
-            default:
-                b.append("null");
+            case T_Bytes -> b.append("_req.getBodyAsByte()");
+            case T_String -> b.append("_req.getBodyAsText(\"").append(env.charset(body.charset())).append("\")");
+            default -> b.append("null");
         }
         return true;
     }
@@ -272,22 +249,21 @@ abstract class SourceParamCreator {
                 }
                 return true;
             case DECLARED: {
-                switch (type) {
-                    case T_String:
-                        b.append("_req.getParameter(\"").append(name);
-                        if (!"".equals(fallback.trim())) {
-                            b.append("\", \"").append(fallback).append("\")");
-                        } else {
-                            b.append("\")");
-                        }
-                        return true;
-                    case T_Decimal:
-                        b.append("_req.getDecimalParam(\"").append(name).append('"');
-                        if (!"".equals(fallback.trim())) {
-                            b.append("\", new BigDecimal(\"").append(fallback).append("\")");
-                        }
-                        b.append(')');
-                        return true;
+                if (T_String.equals(type)) {
+                    b.append("_req.getParameter(\"").append(name);
+                    if (!"".equals(fallback.trim())) {
+                        b.append("\", \"").append(fallback).append("\")");
+                    } else {
+                        b.append("\")");
+                    }
+                    return true;
+                } else if (T_Decimal.equals(type)) {
+                    b.append("_req.getDecimalParam(\"").append(name).append('"');
+                    if (!"".equals(fallback.trim())) {
+                        b.append("\", new BigDecimal(\"").append(fallback).append("\")");
+                    }
+                    b.append(')');
+                    return true;
                 }
             }
             case ARRAY:

@@ -16,7 +16,7 @@ class SourceArguments implements Iterable<CharSequence> {
         private Impl(Kind kind, String type, String hName, String jName, boolean throwable, boolean close,
                      boolean closeThrow, boolean autoClose) {
             this.kind = kind;
-            this.type = type;
+            this.type = type;// class type
             this.hName = hName;// http name
             this.jName = jName;// java name
             this.throwable = throwable;
@@ -43,8 +43,7 @@ class SourceArguments implements Iterable<CharSequence> {
 
         @Override
         public boolean equals(Object obj) {
-            if (obj instanceof Impl) {
-                Impl n = (Impl) obj;
+            if (obj instanceof Impl n) {
                 return n.kind == kind && n.hName.equals(hName);
             }
             return false;

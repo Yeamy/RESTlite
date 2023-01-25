@@ -93,9 +93,9 @@ class SourceInject {
             setter = findSetter();
             if (setter == null) {
                 env.error("Cannot assign " + typeMirror + "." + simpleName
-                        + " case it's private and no setter found");
+                        + " cause it's private and no setter found");
                 b.append("/* Cannot assign _impl.").append(simpleName)
-                        .append(" case it's private and no setter found*/");
+                        .append(" cause it's private and no setter found*/");
                 return;
             }
         }
@@ -218,16 +218,12 @@ class SourceInject {
      *            <b>otherwise:</b> typeName
      */
     private void success(StringBuilder b, ExecutableElement setter, Singleton sinleton, String key, String out) {
-        if (sinleton.equals(Singleton.no)) {
-            b.append("_impl.");
-            setter(b, setter, out);
-            b.append(';');
-        } else {
-            b.append(servlet.imports("yeamy.utils.SingletonPool")).append(".getOrCreate(\"")
-                    .append(key).append("\",k->_impl.");
-            setter(b, setter, out);
-            b.append(");");
+        if (!sinleton.equals(Singleton.no)) {
+            out = servlet.imports("yeamy.utils.SingletonPool") + ".getOrCreate(\"" + key + "\",k->" + out + ')';
         }
+        b.append("_impl.");
+        setter(b, setter, out);
+        b.append(';');
     }
 
     private void fail(StringBuilder b, ExecutableElement setter, String out) {

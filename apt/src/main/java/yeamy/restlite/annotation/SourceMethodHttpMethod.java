@@ -88,7 +88,7 @@ class SourceMethodHttpMethod {
             }
             if ((!eq || i == max) && conflicts.size() >= 2) {
                 ok = false;
-                StringBuilder msg = new StringBuilder("Conflict case methods in class ").append(servlet.getImplClass())
+                StringBuilder msg = new StringBuilder("Conflict cause methods in class ").append(servlet.getImplClass())
                         .append(" with same request parameter(s):");
                 for (SourceHttpMethodComponent conflict : conflicts) {
                     msg.append(conflict.name()).append(", ");
