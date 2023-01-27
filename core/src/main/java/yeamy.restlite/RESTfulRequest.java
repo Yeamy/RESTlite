@@ -155,8 +155,9 @@ public class RESTfulRequest implements Serializable {
         if (fields == null) {
             return null;
         }
-        Collection<HttpRequestFile> out = fields.values();
-        return new HttpRequestFile[out.size()];
+        HttpRequestFile[] array = new HttpRequestFile[fields.size()];
+        fields.values().toArray(array);
+        return array;
     }
 
     public HttpRequestFile getFile(String name) {

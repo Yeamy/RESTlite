@@ -12,6 +12,7 @@ import java.io.*;
  * @author Yeamy
  */
 public class HttpRequestFile implements Serializable {
+    @Serial
     private static final long serialVersionUID = -3268287626476820927L;
     private final Part part;
 
