@@ -135,12 +135,14 @@ class SourceArguments {
         ArrayList<CharSequence> out = new ArrayList<>(list.size());
         for (Impl impl : list) {
             if (impl.kind != Kind.fallback // without fallback
-                    && impl.kind != Kind.body) { // body at the end
+                    && impl.kind != Kind.body // body at the end
+                    && impl.kind != Kind.inject) { // inject at the end
                 out.add(impl.vs);
             }
         }
         for (Impl impl : list) {
-            if (!impl.throwable && !impl.closeThrow) {
+            if ((impl.kind == Kind.body || impl.kind == Kind.inject)
+                    && !impl.throwable && !impl.closeable && !impl.closeThrow) {
                 out.add(impl.vs);
             }
         }

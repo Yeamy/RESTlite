@@ -82,7 +82,7 @@ class SourceHttpMethodComponent {
                 // return
                 doReturn(env, servlet);
                 if (servlet.containsError() && args.hasThrow()) {
-                    servlet.append("}catch(Exception e){doError(_req, _resp, e);}");
+                    servlet.append("}catch(Exception e){onError(_req, _resp, e);}");
                 }
             } else {
                 ArrayList<CharSequence> inTry = args.getInTry();
@@ -93,7 +93,7 @@ class SourceHttpMethodComponent {
                     }
                     // return
                     doReturn(env, servlet);
-                    servlet.append("}catch(Exception e){doError(_req, _resp, e);}");
+                    servlet.append("}catch(Exception e){onError(_req, _resp, e);}");
                 } else {
                     // return
                     doReturn(env, servlet);

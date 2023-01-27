@@ -20,6 +20,7 @@ class SourceWebFilter extends SourceClass {
     public void create() throws IOException {
         StringBuilder sb = new StringBuilder("package ").append(pkg).append(';');
         sb.append("import static jakarta.servlet.DispatcherType.*;");
+        if (embed) imports("yeamy.restlite.annotation.Position");
         for (String clz : imports.values()) {
             sb.append("import ").append(clz).append(';');
         }

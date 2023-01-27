@@ -32,6 +32,7 @@ class SourceWebListener extends SourceClass {
     @Override
     public void create() throws IOException {
         StringBuilder sb = new StringBuilder("package ").append(pkg).append(';');
+        if (embed) imports("yeamy.restlite.annotation.Position");
         for (String clz : imports.values()) {
             sb.append("import ").append(clz).append(';');
         }

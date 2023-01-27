@@ -228,7 +228,7 @@ class SourceInject {
      */
     private String success(String key, String value) {
         if (key != null) {
-            return servlet.imports("yeamy.utils.SingletonPool") + ".getOrCreate(\"" + key + "\",k->" + value + ");";
+            return servlet.imports("yeamy.utils.SingletonPool") + ".getOrCreate(\"" + key + "\",k->" + value + ")";
         } else {
             needClose = env.isCloseable(element.asType());
         }
