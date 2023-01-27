@@ -1,28 +1,17 @@
 package yeamy.utils;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.charset.Charset;
 
 public class StreamUtils {
 
-    public static void close(OutputStream os) {
+    public static void close(Closeable obj) {
         try {
-            if (os != null) {
-                os.close();
+            if (obj != null) {
+                obj.close();
             }
         } catch (Exception e) {
-        }
-    }
-
-    public static void close(InputStream is) {
-        try {
-            if (is != null) {
-                is.close();
-            }
-        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

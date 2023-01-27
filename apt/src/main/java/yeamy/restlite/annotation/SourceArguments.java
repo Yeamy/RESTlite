@@ -1,9 +1,8 @@
 package yeamy.restlite.annotation;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
-class SourceArguments implements Iterable<CharSequence> {
+class SourceArguments {
 
     private final ArrayList<Impl> list = new ArrayList<>();
 
@@ -11,22 +10,20 @@ class SourceArguments implements Iterable<CharSequence> {
         private final Kind kind;
         private final String type, hName, jName;
         private CharSequence vs;// out string e.g. String a = _req.getParam("a");
-        private final boolean throwable, close, closeThrow, autoClose;// db
+        private final boolean throwable, closeable, closeThrow;// db
 
-        private Impl(Kind kind, String type, String hName, String jName, boolean throwable, boolean close,
-                     boolean closeThrow, boolean autoClose) {
+        private Impl(Kind kind, String type, String hName, String jName, boolean throwable, boolean closeable, boolean closeThrow) {
             this.kind = kind;
             this.type = type;// class type
             this.hName = hName;// http name
             this.jName = jName;// java name
             this.throwable = throwable;
-            this.close = close;
+            this.closeable = closeable;
             this.closeThrow = closeThrow;
-            this.autoClose = autoClose;
         }
 
         private Impl(Kind kind, String type, String hName, String jName) {
-            this(kind, type, hName, jName, false, false, false, false);
+            this(kind, type, hName, jName, false, false, false);
         }
 
         public void write(CharSequence... vs) {
@@ -76,14 +73,14 @@ class SourceArguments implements Iterable<CharSequence> {
         return impl;
     }
 
-    public Impl addBody(String name) {
-        Impl impl = new Impl(Kind.body, "", name, name);
+    public Impl addBody(String name, boolean throwable, boolean closeable, boolean closeThrow) {
+        Impl impl = new Impl(Kind.body, "", name, name, throwable, closeable, closeThrow);
         list.add(impl);
         return impl;
     }
 
-    public Impl addInject(String name) {
-        Impl impl = new Impl(Kind.inject, "", name, name);
+    public Impl addInject(String name, boolean throwable, boolean closeable, boolean closeThrow) {
+        Impl impl = new Impl(Kind.inject, "", name, name, throwable, closeable, closeThrow);
         list.add(impl);
         return impl;
     }
@@ -134,8 +131,7 @@ class SourceArguments implements Iterable<CharSequence> {
         return false;
     }
 
-    @Override
-    public Iterator<CharSequence> iterator() {
+    public ArrayList<CharSequence> getNormal() {
         ArrayList<CharSequence> out = new ArrayList<>(list.size());
         for (Impl impl : list) {
             if (impl.kind != Kind.fallback // without fallback
@@ -144,47 +140,46 @@ class SourceArguments implements Iterable<CharSequence> {
             }
         }
         for (Impl impl : list) {
-            if (impl.kind == Kind.body) {
+            if (!impl.throwable && !impl.closeThrow) {
                 out.add(impl.vs);
             }
         }
-        return out.iterator();
+        return out;
+    }
+
+    public ArrayList<CharSequence> getCloseable() {
+        ArrayList<CharSequence> out = new ArrayList<>(list.size());
+        for (Impl impl : list) {
+            if (impl.closeable || impl.closeThrow) {
+                out.add(impl.vs);
+            }
+        }
+        return out;
+    }
+
+    public ArrayList<CharSequence> getInTry() {
+        ArrayList<CharSequence> out = new ArrayList<>(list.size());
+        for (Impl impl : list) {
+            if (impl.throwable && !impl.closeable) {
+                out.add(impl.vs);
+            }
+        }
+        return out;
+    }
+
+    public boolean hasThrow() {
+        for (Impl impl : list) {
+            if (impl.throwable || impl.closeable) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public ArrayList<String> getAlias() {
         ArrayList<String> out = new ArrayList<>(list.size());
         for (Impl impl : list) {
             out.add(impl.name());
-        }
-        return out;
-    }
-
-    public ArrayList<CharSequence> throwList() {
-        ArrayList<CharSequence> out = new ArrayList<>(list.size());
-        for (Impl a : list) {
-            if (a.throwable) {
-                out.add(a.vs);
-            }
-        }
-        return out;
-    }
-
-    public ArrayList<String> closeNoThrow() {
-        ArrayList<String> out = new ArrayList<>(list.size());
-        for (Impl a : list) {
-            if (a.autoClose && a.close && !a.closeThrow) {
-                out.add(a.hName);
-            }
-        }
-        return out;
-    }
-
-    public ArrayList<String> closeThrow() {
-        ArrayList<String> out = new ArrayList<>(list.size());
-        for (Impl a : list) {
-            if (a.autoClose && a.closeThrow) {
-                out.add(a.hName);
-            }
         }
         return out;
     }

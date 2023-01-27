@@ -151,10 +151,21 @@ class SourceServlet extends SourceClass {
             b.append("@Override public void init(")
                     .append(imports("jakarta.servlet.ServletConfig"))
                     .append(" config) throws ServletException { super.init(config);");
+            ArrayList<SourceInject> closeable = new ArrayList<>();
             for (SourceInject inject : injects) {
                 inject.createField(b);
+                if (inject.needClose()) {
+                    closeable.add(inject);
+                }
             }
             b.append('}');
+            if (closeable.size() > 0) {
+                b.append("@Override public void destroy() { super.destroy();");
+                for (SourceInject inject : closeable) {
+                    inject.createClose(b);
+                }
+                b.append('}');
+            }
         }
         // method
         boolean catchException = error != null;
@@ -192,8 +203,13 @@ class SourceServlet extends SourceClass {
         return this;
     }
 
-    public void deleteLast(int i) {
+    public SourceServlet deleteLast(int i) {
         int l = b.length();
         b.delete(l - i, l);
+        return this;
+    }
+
+    public boolean containsError() {
+        return error != null;
     }
 }

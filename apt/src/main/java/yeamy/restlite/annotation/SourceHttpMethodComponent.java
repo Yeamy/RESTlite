@@ -65,11 +65,40 @@ class SourceHttpMethodComponent {
                 servlet.append("_asyncContext.start(() -> {try {");
             }
             // get arguments
-            for (CharSequence g : args) {
+            for (CharSequence g : args.getNormal()) {
                 servlet.append(g);
             }
-            // return
-            doReturn(env, servlet);
+            // try
+            ArrayList<CharSequence> closeable = args.getCloseable();
+            if (closeable.size() > 0) {
+                servlet.append("try(");
+                for (CharSequence g : closeable) {
+                    servlet.append(g);
+                }
+                servlet.deleteLast(1).append("){");
+                for (CharSequence g : args.getInTry()) {
+                    servlet.append(g);
+                }
+                // return
+                doReturn(env, servlet);
+                if (servlet.containsError() && args.hasThrow()) {
+                    servlet.append("}catch(Exception e){doError(_req, _resp, e);}");
+                }
+            } else {
+                ArrayList<CharSequence> inTry = args.getInTry();
+                if (inTry.size() > 0) {
+                    servlet.append("try{");
+                    for (CharSequence g : inTry) {
+                        servlet.append(g);
+                    }
+                    // return
+                    doReturn(env, servlet);
+                    servlet.append("}catch(Exception e){doError(_req, _resp, e);}");
+                } else {
+                    // return
+                    doReturn(env, servlet);
+                }
+            }
             if (async) {
                 servlet.append("}catch(Exception e){onError(_req,_resp,e);}finally{_asyncContext.complete();}});");
             }
@@ -172,11 +201,11 @@ class SourceHttpMethodComponent {
         if ((body == null) || TextUtils.in(type, T_File, T_Files, T_InputStream, T_ServletInputStream)) {
             String name = p.getSimpleName().toString();
             switch (type) {
-                case T_File -> args.addBody(name)
+                case T_File -> args.addBody(name, false, false, false)
                         .write(servlet.imports(T_File), " ", name, " = _req.getFile(\"", name, "\");");
-                case T_Files -> args.addBody(name)
+                case T_Files -> args.addBody(name, false, false, false)
                         .write(servlet.imports(T_File), "[] ", name, " = _req.getFiles();");
-                case T_InputStream, T_ServletInputStream -> args.addBody(name)
+                case T_InputStream, T_ServletInputStream -> args.addBody(name, true, true, true)
                         .write(servlet.imports(T_ServletInputStream), " ", name, " = _req.getBody();");
                 default -> {
                     body = ProcessEnvironment.getBody(p);
@@ -186,7 +215,8 @@ class SourceHttpMethodComponent {
                         addNoType(t.getKind());
                         env.error("Not support body type " + type + " without annotation Creator");
                     } else {
-                        args.addBody(name).write(creator.toCharSequence(servlet, args, name));
+                        args.addBody(name, creator.isThrowable(), creator.isCloseable(), creator.isCloseThrow())
+                                .write(creator.toCharSequence(servlet, args, name));
                     }
                     return true;
                 }
@@ -195,9 +225,9 @@ class SourceHttpMethodComponent {
         }
         String name = p.getSimpleName().toString();
         switch (type) {
-            case T_Bytes -> args.addBody(name)
+            case T_Bytes -> args.addBody(name, false, false, false)
                     .write("byte[] ", name, " = _req.getBodyAsByte();");
-            case T_String -> args.addBody(name)
+            case T_String -> args.addBody(name, false, false, false)
                     .write("String ", name, " = _req.getBodyAsText(\"", env.charset(body.charset()), "\");");
             default -> {
                 SourceParam creator = env.getBodyCreator(servlet, t, body);
@@ -205,7 +235,8 @@ class SourceHttpMethodComponent {
                     addNoType(t.getKind());
                     env.error("Not support body type " + type + " without annotation Creator");
                 } else {
-                    args.addBody(name).write(creator.toCharSequence(servlet, args, name));
+                    args.addBody(name, creator.isThrowable(), creator.isCloseable(), creator.isCloseThrow())
+                            .write(creator.toCharSequence(servlet, args, name));
                 }
             }
         }
@@ -223,7 +254,8 @@ class SourceHttpMethodComponent {
             addNoType(t.getKind());
             env.error("Not support body type " + type + " without annotation Creator");
         } else {
-            args.addInject(name).write(creator.toCharSequence(servlet, args, name));
+            args.addInject(name, creator.isThrowable(), creator.isCloseable(), creator.isCloseThrow())
+                    .write(creator.toCharSequence(servlet, args, name));
         }
         return true;
     }
@@ -310,11 +342,6 @@ class SourceHttpMethodComponent {
     }
 
     private void doReturn(ProcessEnvironment env, SourceServlet servlet) {
-        ArrayList<CharSequence> throwList = args.throwList();
-        boolean needTry = throwList.size() > 0;
-        if (needTry) {
-            servlet.append("try{");
-        }
         TypeMirror t = method.getReturnType();
         TypeKind kind = t.getKind();
         switch (kind) {
@@ -348,19 +375,6 @@ class SourceHttpMethodComponent {
                 } else {
                     doReturnSerialize(env, servlet, t);
                 }
-            }
-        }
-        if (needTry) {
-            servlet.append(");}catch(Exception e1){doError(_resp, e1);}");
-            if (args.closeNoThrow().size() + args.closeThrow().size() > 0) {
-                servlet.append("finally{");
-                for (String name : args.closeNoThrow()) {
-                    servlet.append(name).append(".close();");
-                }
-                for (String name : args.closeThrow()) {
-                    servlet.append("try{").append(name).append(".close();}catch(Exception e2){doError(e2);}");
-                }
-                servlet.append('}');
             }
         }
     }

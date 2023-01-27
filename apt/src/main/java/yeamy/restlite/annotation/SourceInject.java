@@ -13,6 +13,7 @@ class SourceInject {
     private final TypeMirror typeMirror;
     private final VariableElement element;
     private final String simpleName;
+    private boolean needClose = false;
 
     public SourceInject(SourceServlet servlet, VariableElement element) {
         this.servlet = servlet;
@@ -228,8 +229,17 @@ class SourceInject {
     private String success(String key, String value) {
         if (key != null) {
             return servlet.imports("yeamy.utils.SingletonPool") + ".getOrCreate(\"" + key + "\",k->" + value + ");";
+        } else {
+            needClose = env.isCloseable(element.asType());
         }
         return value + ";";
     }
 
+    public boolean needClose() {
+        return needClose;
+    }
+
+    public void createClose(StringBuilder b) {
+        b.append(servlet.imports("yeamy.utils.StreamUtils")).append(".close(").append(simpleName).append(");");
+    }
 }
