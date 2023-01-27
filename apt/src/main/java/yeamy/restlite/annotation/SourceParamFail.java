@@ -2,12 +2,12 @@ package yeamy.restlite.annotation;
 
 import javax.lang.model.element.VariableElement;
 
-class SourceParamFail extends SourceParamCreator {
+class SourceParamFail extends SourceParam {
 
     final static SourceParamFail INSTANCE = new SourceParamFail();
 
     private SourceParamFail() {
-        super(null, null);
+        super(null, null, false);
     }
 
     @Override

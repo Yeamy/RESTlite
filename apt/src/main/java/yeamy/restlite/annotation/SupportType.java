@@ -13,8 +13,8 @@ class SupportType {
     public static final String T_String = "java.lang.String";
     public static final String T_InputStream = "java.io.InputStream";
     public static final String T_Bytes = "byte[]";
-    public static final String T_Bools = "boolean[]";
-    public static final String T_Ints = "int[]";
+    public static final String T_Booleans = "boolean[]";
+    public static final String T_Integers = "int[]";
     public static final String T_Longs = "long[]";
     public static final String T_Strings = T_String + "[]";
     public static final String T_TextPlainResponse = "yeamy.restlite.addition.TextPlainResponse";

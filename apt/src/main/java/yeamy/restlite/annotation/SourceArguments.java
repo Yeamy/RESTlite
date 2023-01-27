@@ -55,7 +55,7 @@ class SourceArguments implements Iterable<CharSequence> {
     }
 
     private enum Kind {
-        header, cookie, param, body, exist, fallback
+        header, cookie, param, body, inject, exist, fallback
     }
 
     public Impl addHeader(String name, String alias) {
@@ -78,6 +78,12 @@ class SourceArguments implements Iterable<CharSequence> {
 
     public Impl addBody(String name) {
         Impl impl = new Impl(Kind.body, "", name, name);
+        list.add(impl);
+        return impl;
+    }
+
+    public Impl addInject(String name) {
+        Impl impl = new Impl(Kind.inject, "", name, name);
         list.add(impl);
         return impl;
     }

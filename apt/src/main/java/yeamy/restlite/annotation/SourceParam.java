@@ -14,16 +14,18 @@ import static yeamy.restlite.annotation.SupportType.*;
  * @see SourceParamConstructor
  * @see SourceParamFail
  */
-abstract class SourceParamCreator {
+abstract class SourceParam {
     protected final ProcessEnvironment env;
     protected final TypeElement type;
+    protected final boolean isBody;
     private boolean throwable = false;
     private boolean closeable = false;
     private boolean closeThrow = false;
 
-    public SourceParamCreator(ProcessEnvironment env, TypeElement type) {
+    public SourceParam(ProcessEnvironment env, TypeElement type, boolean isBody) {
         this.env = env;
         this.type = type;
+        this.isBody = isBody;
     }
 
     protected void init(ExecutableElement method, boolean samePackage, List<? extends Element> elements) {
@@ -94,7 +96,8 @@ abstract class SourceParamCreator {
             case BYTE, CHAR, SHORT, INT, LONG, FLOAT, DOUBLE -> b.append("0");
             case BOOLEAN -> b.append("false");
             case DECLARED -> b.append(declaredArgument(servlet, param));
-            case ARRAY, default -> b.append("null");
+//            case ARRAY -> b.append("null");
+            default -> b.append("null");
         }
     }
 
@@ -181,6 +184,7 @@ abstract class SourceParamCreator {
     }
 
     private boolean doBody(SourceArguments args, VariableElement p, StringBuilder b) {
+        if (!isBody) return true;
         if (args.containsBody()) {
             args.addFallback("null");
             env.error("cannot read body twice");
@@ -268,10 +272,10 @@ abstract class SourceParamCreator {
             }
             case ARRAY:
                 switch (type) {
-                    case T_Bools:
+                    case T_Booleans:
                         b.append("_req.getBooleanParams(\"").append(name).append("\")");
                         return true;
-                    case T_Ints:
+                    case T_Integers:
                         b.append("_req.getIntParams(\"").append(name).append("\")");
                         return true;
                     case T_Longs:

@@ -8,10 +8,10 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-class SourceParamConstructor extends SourceParamCreator {
+class SourceParamConstructor extends SourceParam {
     private final List<? extends VariableElement> parameters;
 
-    public static SourceParamCreator body(ProcessEnvironment env, boolean samePackage, TypeElement type, String tag) {
+    public static SourceParam inject(ProcessEnvironment env, boolean samePackage, TypeElement type, String tag) {
         List<? extends Element> elements = type.getEnclosedElements();
         ExecutableElement constructor;
         List<? extends VariableElement> parameters;
@@ -34,7 +34,33 @@ class SourceParamConstructor extends SourceParamCreator {
                         : constructor.getParameters();
             }
         }
-        return new SourceParamConstructor(env, type, parameters, constructor, samePackage, elements);
+        return new SourceParamConstructor(env, type, parameters, constructor, samePackage, elements, false);
+    }
+
+    public static SourceParam body(ProcessEnvironment env, boolean samePackage, TypeElement type, String tag) {
+        List<? extends Element> elements = type.getEnclosedElements();
+        ExecutableElement constructor;
+        List<? extends VariableElement> parameters;
+        if (tag.length() > 0) {
+            constructor = findConstructor(elements, tag);
+            if (constructor == null) {
+                env.error("Not support body type " + type + " without annotation Creator");
+                return SourceParamFail.INSTANCE;
+            }
+            parameters = constructor.getParameters();
+        } else {
+            LinkedList<ExecutableElement> constructors = allConstructor(elements);
+            if (constructors.size() == 0) {
+                constructor = null;
+                parameters = Collections.emptyList();
+            } else {
+                constructor = findConstructor(constructors, samePackage);
+                parameters = constructor == null
+                        ? Collections.emptyList()
+                        : constructor.getParameters();
+            }
+        }
+        return new SourceParamConstructor(env, type, parameters, constructor, samePackage, elements, true);
     }
 
     private static ExecutableElement findConstructor(List<? extends Element> list, String tag) {
@@ -87,8 +113,9 @@ class SourceParamConstructor extends SourceParamCreator {
                                    List<? extends VariableElement> parameters,
                                    ExecutableElement constructor,
                                    boolean samePackage,
-                                   List<? extends Element> elements) {
-        super(env, type);
+                                   List<? extends Element> elements,
+                                   boolean isBody) {
+        super(env, type, isBody);
         this.parameters = parameters;
         init(constructor, samePackage, elements);
     }

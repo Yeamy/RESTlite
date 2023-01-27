@@ -152,7 +152,7 @@ class SourceServlet extends SourceClass {
                     .append(imports("jakarta.servlet.ServletConfig"))
                     .append(" config) throws ServletException { super.init(config);");
             for (SourceInject inject : injects) {
-                inject.create(b);
+                inject.createField(b);
             }
             b.append('}');
         }

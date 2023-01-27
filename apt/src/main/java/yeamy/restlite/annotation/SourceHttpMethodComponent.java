@@ -41,6 +41,7 @@ class SourceHttpMethodComponent {
             if (doRequest(a)
                     || doHeader(a)
                     || doCookie(a)
+                    || doInject(a)
                     || doBody(a)
                     || doParam(a)) {
                 continue;
@@ -180,7 +181,7 @@ class SourceHttpMethodComponent {
                 default -> {
                     body = ProcessEnvironment.getBody(p);
                     if (body == null) return false;
-                    SourceParamCreator creator = env.getBodyCreator(servlet, t, body);
+                    SourceParam creator = env.getBodyCreator(servlet, t, body);
                     if (creator instanceof SourceParamFail) {
                         addNoType(t.getKind());
                         env.error("Not support body type " + type + " without annotation Creator");
@@ -199,7 +200,7 @@ class SourceHttpMethodComponent {
             case T_String -> args.addBody(name)
                     .write("String ", name, " = _req.getBodyAsText(\"", env.charset(body.charset()), "\");");
             default -> {
-                SourceParamCreator creator = env.getBodyCreator(servlet, t, body);
+                SourceParam creator = env.getBodyCreator(servlet, t, body);
                 if (creator instanceof SourceParamFail) {
                     addNoType(t.getKind());
                     env.error("Not support body type " + type + " without annotation Creator");
@@ -207,6 +208,22 @@ class SourceHttpMethodComponent {
                     args.addBody(name).write(creator.toCharSequence(servlet, args, name));
                 }
             }
+        }
+        return true;
+    }
+
+    private boolean doInject(VariableElement p) {
+        TypeMirror t = p.asType();
+        String type = t.toString();
+        Inject inject = p.getAnnotation(Inject.class);
+        if (inject == null) return false;
+        String name = p.getSimpleName().toString();
+        SourceParam creator = env.getInjectParam(servlet, p, inject);
+        if (creator instanceof SourceParamFail) {
+            addNoType(t.getKind());
+            env.error("Not support body type " + type + " without annotation Creator");
+        } else {
+            args.addInject(name).write(creator.toCharSequence(servlet, args, name));
         }
         return true;
     }
@@ -275,9 +292,9 @@ class SourceHttpMethodComponent {
             }
             case ARRAY:
                 switch (type) {
-                    case T_Bools -> args.addParam(type, name, alias)
+                    case T_Booleans -> args.addParam(type, name, alias)
                             .write("boolean[] ", alias, " = _req.getBoolParams(\"", name, "\");");
-                    case T_Ints -> args.addParam(type, name, alias)
+                    case T_Integers -> args.addParam(type, name, alias)
                             .write("int[] ", alias, " = _req.getIntParams(\"", name, "\");");
                     case T_Longs -> args.addParam(type, name, alias)
                             .write("long[] ", alias, " = _req.getLongParams(\"", name, "\");");

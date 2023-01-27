@@ -26,7 +26,7 @@ class ProcessEnvironment {
     private final Types typeUtils;
     private final Elements elementUtils;
     private final Filer filer;
-    private final HashMap<String, SourceParamCreator> paramCreator = new HashMap<>();
+    private final HashMap<String, SourceParam> paramCreator = new HashMap<>();
     private final boolean responseAllType;
     private final String charset;
     private final SupportPatch supportPatch;
@@ -89,7 +89,7 @@ class ProcessEnvironment {
         return null;
     }
 
-    public SourceParamCreator getBodyCreator(SourceServlet servlet, TypeMirror t, Body body) {
+    public SourceParam getBodyCreator(SourceServlet servlet, TypeMirror t, Body body) {
         String className = body.creator();
         String tag = body.tag();
         TypeElement te = getTypeElement(t.toString());
@@ -101,8 +101,8 @@ class ProcessEnvironment {
         if (className.length() == 0) {
             Body a = te.getAnnotation(Body.class);
             if (a == null) {
-                String id = "c:" + te.getQualifiedName() + ":" + tag;
-                SourceParamCreator arg = paramCreator.get(id);
+                String id = "bc:" + te.getQualifiedName() + ":" + tag;
+                SourceParam arg = paramCreator.get(id);
                 if (arg == null) {
                     arg = SourceParamConstructor.body(this, samePackage, te, tag);
                     paramCreator.put(id, arg);
@@ -112,18 +112,63 @@ class ProcessEnvironment {
             className = a.creator().length() > 0 ? a.creator() : t.toString();
         }
         if (tag.length() > 0) {// by tag
-            String id = "t:" + className + ":" + tag;
-            SourceParamCreator creator = paramCreator.get(id);
+            String id = "bt:" + className + ":" + tag;
+            SourceParam creator = paramCreator.get(id);
             if (creator == null) {
                 creator = SourceParamFactory.body(this, samePackage, className, t, tag);
                 paramCreator.put(id, creator);
             }
             return creator;
         } else {// by type
-            String id = "f:" + className + ":" + t + ":" + (samePackage ? "" : servlet.getPackage());
-            SourceParamCreator creator = paramCreator.get(id);
+            String id = "bf:" + className + ":" + t + ":" + (samePackage ? "" : servlet.getPackage());
+            SourceParam creator = paramCreator.get(id);
             if (creator == null) {
                 creator = SourceParamFactory.body(this, samePackage, className, t);
+                paramCreator.put(id, creator);
+            }
+            return creator;
+        }
+    }
+
+    public SourceParam getInjectParam(SourceServlet servlet, VariableElement param, Inject inject) {
+        if (inject.singleton().equals(Singleton.yes)) {
+            return new SourceParamInject(this, param);
+        }
+        TypeMirror t = param.asType();
+        String className = inject.creator();
+        String tag = inject.tag();
+        TypeElement te = getTypeElement(t.toString());
+        boolean samePackage = false;
+        if (!t.getKind().isPrimitive()) {
+            String fpk = ((PackageElement) te.getEnclosingElement()).getQualifiedName().toString();
+            samePackage = fpk.equals(servlet.getPackage());
+        }
+        if (className.length() == 0) {
+            inject = te.getAnnotation(Inject.class);
+            if (inject == null) {
+                String id = "ic:" + te.getQualifiedName() + ":" + tag;
+                SourceParam creator = paramCreator.get(id);
+                if (creator == null) {
+                    creator = SourceParamConstructor.inject(this, samePackage, te, tag);
+                    paramCreator.put(id, creator);
+                }
+                return creator;
+            }
+            className = inject.creator().length() > 0 ? inject.creator() : t.toString();
+        }
+        if (tag.length() > 0) {// by tag
+            String id = "it:" + className + ":" + tag;
+            SourceParam creator = paramCreator.get(id);
+            if (creator == null) {
+                creator = SourceParamFactory.inject(this, samePackage, className, t, tag);
+                paramCreator.put(id, creator);
+            }
+            return creator;
+        } else {// by type
+            String id = "if:" + className + ":" + t + ":" + (samePackage ? "" : servlet.getPackage());
+            SourceParam creator = paramCreator.get(id);
+            if (creator == null) {
+                creator = SourceParamFactory.inject(this, samePackage, className, t);
                 paramCreator.put(id, creator);
             }
             return creator;
@@ -229,4 +274,5 @@ class ProcessEnvironment {
     public boolean responseAllType() {
         return responseAllType;
     }
+
 }
