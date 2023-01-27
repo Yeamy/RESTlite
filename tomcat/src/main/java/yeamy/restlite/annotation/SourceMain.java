@@ -6,10 +6,12 @@ import jakarta.servlet.annotation.WebInitParam;
 import jakarta.servlet.annotation.WebServlet;
 import yeamy.utils.TextUtils;
 
+import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
+import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -123,11 +125,17 @@ class SourceMain extends SourceClass {
         }
         if (servlets.size() > 0) {
             sb.append("Wrapper wrapper;");
+            Messager msg = env.getMessager();
             for (Element element : servlets) {
                 WebServlet ann = element.getAnnotation(WebServlet.class);
                 Set<String> urlPatterns = new HashSet<>();
                 Collections.addAll(urlPatterns, ann.value());
                 Collections.addAll(urlPatterns, ann.urlPatterns());
+                for (String url : urlPatterns) {
+                    if (url.indexOf('/', 1) > 0) {
+                        msg.printMessage(Diagnostic.Kind.WARNING, "Custom url may cause error: " + url);
+                    }
+                }
                 if (urlPatterns.size() == 0) continue;
                 String clz = imports((TypeElement) element);
                 String name = ann.name();
