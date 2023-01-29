@@ -4,12 +4,11 @@ RESTLite是基于Java语言的现代化WEB开发框架，其设计目标是创�
 
 ## 特点
 - 抛弃MVC架构，迎合前后端分离的趋势删除了View层，采用Resource+Method的设计理念，更符合RESTful的设计风格；
-- 采用APT生成代码而非动态代理；
+- 采用APT生成代码而非反射和动态代理；
 - 采用注解配置而非xml配置；
 
-## 示例
-*注意：  
-代码内包含的RESTful相关内容，此处不展开讲解。  
+## 如何使用
+注意：*代码内包含的RESTful相关内容，此处不展开讲解。  
 本框架并不遵循JAX-RS，如来自UrlPath的Param与来自UrlQuery的Param具有相同的地位。*
 ### 1.配置
 ```java
@@ -32,7 +31,6 @@ import yeamy.restlite.annotation.*;
 
 @Resource("apple")// RESTful注解，该资源名为apple
 public class ExampleMain {
-    @Inject InjectBean injectBean;// 添加(注入)单例
 
     /* 添加注解，声明其HTTP方法，支持GET, DELETE, PUT, PATCH, PATCH。
      * 其中PUT, PATCH, POST支持http body请求数据
@@ -54,13 +52,30 @@ public class ExampleMain {
 }
 ```
 ### 3.@Inject添加成员变量
-使用@Inject注解为@Resource资源对象添加成员变量，成员变量为RESTLite创建并缓存的单例，@Inject注解的创建顺序如下：
+```
+@Resource("apple")
+public class ExampleMain {
+    @Inject InjectBean injectBean;            // 添加(注入)单例
+
+    @GET
+    public String post2(@Inject InjectBean i, // 添加(注入)新建对象
+                        @Param String p) {
+        return "This is post2";
+    }
+}
+```
+**成员变量**  
+使用@Inject注解为@Resource资源对象添加成员变量，成员变量默认为RESTLite创建并缓存的单例，@Inject注解的创建顺序如下：
 1. 当成员变量的creator()不为空时，使用creator()提供的类，当tag()不为空时，查找带有对应@LinkTag注解的函数，否则查找静态无参函数、类变量或者无参构造函数。
 2. 当成员变量的类带有@Inject注解时，如果creator()不为空时，通过与成员变量相同的方法查找。
 3. 查找@InjectProvider注解提供的单例
-4. 查找类的当前类变量、静态无参函数、无参构造函数
+4. 查找类的公开当前类常量、公开静态无参函数、公开无参构造函数。
 
-注意：@Inject只在资源类有效，且静态函数和构造函数必须为无参函数。
+**请求参数**  
+使用@Inject注解为@Resource方法添加参数，参数默认为方法创建新对象，支持@Header，@Cookies，@Param作为参数；  
+若@Inject注解为单例，的创建顺序同上；  
+
+注意：@Inject只在资源类有效，且创建单例的静态函数或构造函数必须为无参函数。
 
 ### 4.tag() 与 @LinkTag.value() 对应
 @Body注解与@Inject的tag()，当tag()不为空时，creator()指定的类内必须存在与之相同参数的@LinkTag注解存在。如:
@@ -108,7 +123,7 @@ public class MyPermissionFilter extends SimplePermissionFilter {
 ```
 
 ### 8.内嵌Tomcat的支持
-
+添加@TomcatConfig注解配置Tomcat服务器参数
 ```java
 package example;
 import yeamy.restlite.annotation.Configuration;
@@ -153,7 +168,7 @@ java -jar abc.jar -tomcat tomcat.properties
 @Resource("apple")
 public class ExampleMain {
     @Inject(creator = "DemoClientImpl")// httpclient-apt默认生成Impl结尾的实现类
-    DemoClient client;// 实现httpclient-apt注解的接口类
+    DemoClient client;                 // 实现httpclient-apt注解的接口类
 }
 ```
 ### 10.对国际化的支持
