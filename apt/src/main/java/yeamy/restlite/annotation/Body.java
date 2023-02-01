@@ -9,7 +9,9 @@ import java.lang.annotation.Target;
  * declare the parameter(or the type of parameter) is http request body.<br>
  * <b>support parameter:</b> {@linkplain java.io.InputStream InputStream},
  * {@linkplain jakarta.servlet.ServletInputStream ServletInputStream}, byte[],
- * {@linkplain String String} or any declared type with this annotation.<br>
+ * {@linkplain String String}, {@linkplain jakarta.servlet.http.Part Part}, Part[],
+ * {@linkplain yeamy.restlite.HttpRequestFile HttpRequestFile}, HttpRequestFile[] or
+ * any declared type with this annotation.<br>
  * <b>Noted</b> that only POST, PUT, PATCH contains body
  * and each request body(InputStream) can read only once.
  *

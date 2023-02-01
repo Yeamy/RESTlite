@@ -1,13 +1,16 @@
 package yeamy.restlite;
 
+import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.Part;
 import yeamy.utils.StreamUtils;
 import yeamy.utils.TextUtils;
 
 import java.io.IOException;
+import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
@@ -22,6 +25,7 @@ public class RESTfulRequest implements Serializable {
         return (RESTfulRequest) r.getAttribute(REQUEST);
     }
 
+    @Serial
     private static final long serialVersionUID = -7894023380274904092L;
     private HttpServletRequest req;
     private String resource = "", serviceName;
@@ -155,13 +159,19 @@ public class RESTfulRequest implements Serializable {
         if (fields == null) {
             return null;
         }
-        HttpRequestFile[] array = new HttpRequestFile[fields.size()];
-        fields.values().toArray(array);
-        return array;
+        return fields.values().toArray(HttpRequestFile[]::new);
     }
 
     public HttpRequestFile getFile(String name) {
         return fields == null ? null : fields.get(name);
+    }
+
+    public Part getPart(String name) throws ServletException, IOException {
+        return req.getPart(name);
+    }
+
+    public Part[] getParts() throws ServletException, IOException {
+        return req.getParts().toArray(Part[]::new);
     }
 
     public String getContentType() {

@@ -7,18 +7,13 @@ import yeamy.utils.StreamUtils;
 import java.io.*;
 
 /**
- * MultiPart
+ * MultiPart File
  *
  * @author Yeamy
  */
-public class HttpRequestFile implements Serializable {
+public record HttpRequestFile(Part part) implements Serializable {
     @Serial
     private static final long serialVersionUID = -3268287626476820927L;
-    private final Part part;
-
-    public HttpRequestFile(Part part) {
-        this.part = part;
-    }
 
     /**
      * The content type passed by the browser or null if not defined.

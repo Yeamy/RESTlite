@@ -11,6 +11,8 @@ class SupportType {
     public static final String T_Decimal = "java.math.BigDecimal";
     public static final String T_Decimals = T_Decimal + "[]";
     public static final String T_String = "java.lang.String";
+    public static final String T_Part = "jakarta.servlet.http.Part";
+    public static final String T_Parts = T_Part + "[]";
     public static final String T_InputStream = "java.io.InputStream";
     public static final String T_Bytes = "byte[]";
     public static final String T_Booleans = "boolean[]";

@@ -198,9 +198,13 @@ class SourceHttpMethodComponent {
         TypeMirror t = p.asType();
         String type = t.toString();
         Body body = p.getAnnotation(Body.class);
-        if ((body == null) || TextUtils.in(type, T_File, T_Files, T_InputStream, T_ServletInputStream)) {
+        if ((body == null) || TextUtils.in(type, T_Part, T_Parts, T_File, T_Files, T_InputStream, T_ServletInputStream)) {
             String name = p.getSimpleName().toString();
             switch (type) {
+                case T_Part -> args.addBody(name, false, false, false)
+                        .write(servlet.imports(T_File), " ", name, " = _req.getPart(\"", name, "\");");
+                case T_Parts -> args.addBody(name, false, false, false)
+                        .write(servlet.imports(T_File), "[] ", name, " = _req.getParts();");
                 case T_File -> args.addBody(name, false, false, false)
                         .write(servlet.imports(T_File), " ", name, " = _req.getFile(\"", name, "\");");
                 case T_Files -> args.addBody(name, false, false, false)

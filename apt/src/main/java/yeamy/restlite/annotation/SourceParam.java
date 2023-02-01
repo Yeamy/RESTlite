@@ -193,8 +193,10 @@ abstract class SourceParam {
         Body body = p.getAnnotation(Body.class);
         TypeMirror t = p.asType();
         String type = t.toString();
-        if ((body == null) || TextUtils.in(type, T_File, T_Files, T_InputStream, T_ServletInputStream)) {
+        if ((body == null) || TextUtils.in(type, T_Part, T_Parts, T_File, T_Files, T_InputStream, T_ServletInputStream)) {
             switch (type) {
+                case T_Part -> b.append("_req.getPart(\"").append(p.getSimpleName()).append("\")");
+                case T_Parts -> b.append("_req.getParts()");
                 case T_File -> b.append("_req.getFile(\"").append(p.getSimpleName()).append("\")");
                 case T_Files -> b.append("_req.getFiles()");
                 case T_InputStream, T_ServletInputStream -> b.append("_req.getBody()");
