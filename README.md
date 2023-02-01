@@ -2,7 +2,7 @@
 
 RESTLite是基于Java语言的现代化WEB开发框架，其设计目标是创建一个简单易用、功能强大、轻量可扩展的WEB框架。
 
-## 特点
+## 有何不同
 - 抛弃MVC架构，迎合前后端分离的趋势删除了View层，采用Resource+Method的设计理念，更符合RESTful的设计风格；
 - 采用APT生成代码而非反射和动态代理；
 - 采用注解配置而非xml配置；
@@ -52,15 +52,15 @@ public class ExampleMain {
 }
 ```
 ### 3.@Inject添加成员变量
-```
+```java
 @Resource("apple")
 public class ExampleMain {
     @Inject InjectBean injectBean;            // 添加(注入)单例
 
     @GET
-    public String post2(@Inject InjectBean i, // 添加(注入)新建对象
+    public String get(@Inject InjectBean i, // 添加(注入)新建对象
                         @Param String p) {
-        return "This is post2";
+        return "This is get";
     }
 }
 ```
@@ -73,7 +73,7 @@ public class ExampleMain {
 
 **请求参数**  
 使用@Inject注解为@Resource方法添加参数，参数默认为方法创建新对象，支持@Header，@Cookies，@Param作为参数；  
-若@Inject注解为单例，的创建顺序同上；  
+若@Inject(singleton = true)注解为单例，其创建方式与成员变量相同；  
 
 注意：@Inject只在资源类有效，且创建单例的静态函数或构造函数必须为无参函数。
 
