@@ -287,21 +287,21 @@ class SourceHttpMethodComponent {
         }
         switch (t.getKind()) {
             case INT: {
-                String[] vs = "".equals(fallback.trim())
+                String[] vs = "".equals(fallback)
                         ? new String[]{"int ", alias, " = _req.getIntParam(\"", name, "\");"}
                         : new String[]{"int ", alias, " = _req.getIntParam(\"", name, "\", ", fallback, ");"};
                 args.addParam(type, name, alias).write(vs);
                 break;
             }
             case LONG: {
-                String[] vs = "".equals(fallback.trim())
+                String[] vs = "".equals(fallback)
                         ? new String[]{"long ", alias, " = _req.getLongParam(\"", name, "\");"}
                         : new String[]{"long ", alias, " = _req.getLongParam(\"", name, "\", ", fallback, ");"};
                 args.addParam(type, name, alias).write(vs);
                 break;
             }
             case BOOLEAN: {
-                String[] vs = "".equals(fallback.trim())
+                String[] vs = "".equals(fallback)
                         ? new String[]{"boolean ", alias, " = _req.getBoolParam(\"", name, "\");"}
                         : new String[]{"boolean ", alias, " = _req.getBoolParam(\"", name, "\", ", fallback, ");"};
                 args.addParam(type, name, alias).write(vs);
@@ -309,13 +309,13 @@ class SourceHttpMethodComponent {
             }
             case DECLARED: {
                 if (T_String.equals(type)) {
-                    String[] vs = "".equals(fallback.trim())
+                    String[] vs = "".equals(fallback)
                             ? new String[]{"String ", alias, " = _req.getParameter(\"", name, "\");"}
-                            : new String[]{"String ", alias, " = _req.getParameter(\"", name, "\", \"", fallback, "\");"};
+                            : new String[]{"String ", alias, " = _req.getParameter(\"", name, "\", \"", SourceClass.convStr(fallback).toString(), "\");"};
                     args.addParam(type, name, alias).write(vs);
                 } else if (T_Decimal.equals(type)) {
                     String clz = servlet.imports(T_Decimal);
-                    String[] vs = "".equals(fallback.trim())
+                    String[] vs = "".equals(fallback)
                             ? new String[]{clz, " ", alias, " = _req.getDecimalParam(\"", name, "\");"}
                             : new String[]{clz, " ", alias, " = _req.getDecimalParam(\"", name, "\", new " + clz
                             + "(\"" + fallback, "\");"};

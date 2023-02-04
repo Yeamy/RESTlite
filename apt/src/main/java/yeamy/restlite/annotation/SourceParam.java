@@ -232,7 +232,7 @@ abstract class SourceParam {
             case LONG:
                 b.append("_req.getLongParam(\"").append(name);
                 if (!"".equals(fallback)) {
-                    b.append("\", ").append(fallback).append(")");
+                    b.append("\", ").append(Long.valueOf(fallback)).append(")");
                 } else {
                     b.append("\")");
                 }
@@ -240,7 +240,7 @@ abstract class SourceParam {
             case INT:
                 b.append("_req.getIntParam(\"").append(name);
                 if (!"".equals(fallback)) {
-                    b.append("\", ").append(fallback).append(")");
+                    b.append("\", ").append(Integer.valueOf(fallback)).append(")");
                 } else {
                     b.append("\")");
                 }
@@ -257,15 +257,15 @@ abstract class SourceParam {
             case DECLARED: {
                 if (T_String.equals(type)) {
                     b.append("_req.getParameter(\"").append(name);
-                    if (!"".equals(fallback.trim())) {
-                        b.append("\", \"").append(fallback).append("\")");
+                    if (!"".equals(fallback)) {
+                        b.append("\", \"").append(SourceClass.convStr(fallback)).append("\")");
                     } else {
                         b.append("\")");
                     }
                     return true;
                 } else if (T_Decimal.equals(type)) {
                     b.append("_req.getDecimalParam(\"").append(name).append('"');
-                    if (!"".equals(fallback.trim())) {
+                    if (!"".equals(fallback)) {
                         b.append("\", new BigDecimal(\"").append(fallback).append("\")");
                     }
                     b.append(')');
