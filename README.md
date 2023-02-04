@@ -6,6 +6,7 @@ RESTLite是基于Java语言的现代化WEB开发框架，其设计目标是创�
 - 抛弃MVC架构，迎合前后端分离的趋势删除了View层，采用Resource+Method的设计理念，更符合RESTful的设计风格；
 - 采用APT生成代码而非反射和动态代理；
 - 采用注解配置而非xml配置；
+- 内嵌Tomcat支持properties文件替换jar包内配置；
 
 ## 如何使用
 注意：*代码内包含的RESTful相关内容，此处不展开讲解。  
@@ -167,6 +168,7 @@ java -jar abc.jar -tomcat tomcat.properties
 ```java
 @Resource("apple")
 public class ExampleMain {
+    // @Inject DemoClientImpl client;  // 直接使用生成类
     @Inject(creator = "DemoClientImpl")// httpclient-apt默认生成Impl结尾的实现类
     DemoClient client;                 // 实现httpclient-apt注解的接口类
 }

@@ -2,9 +2,12 @@ plugins {
     id 'java-library'
 }
 sourceCompatibility = JavaVersion.VERSION_17
+var $groupId = 'io.github.yeamy'
+var $artifactId = 'restlite-tomcat'
+var $version = '1.0-RC1'
 
-group 'io.github.yeamy'
-version '1.0'
+group $groupId
+version $version
 
 repositories {
     mavenCentral()
@@ -21,7 +24,92 @@ dependencies {
 //    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
 }
 
-test {
-    useJUnitPlatform()
+//test {
+//    useJUnitPlatform()
+//}
+
+apply plugin: 'maven-publish'
+
+jar {// package code
+    archiveFileName = 'restlite-tomcat.jar'
 }
-//restlite-
+task generateSourceJar(type: Jar) {
+    archiveClassifier.set('sources')
+    from sourceSets.main.java.srcDirs
+    archiveFileName = 'lib-sources.jar'
+}
+javadoc {// create document
+    source = sourceSets.main.java.srcDirs
+    options {
+        encoding "UTF-8"
+        charSet 'UTF-8'
+        author true
+        version true
+        links "http://docs.oracle.com/javase/17/docs/api"
+    }
+}
+task generateJavadoc(type: Jar) { // package document as jar
+    group = 'jar'
+    archiveFileName = 'lib-javadoc.jar'
+    archiveClassifier.set('javadoc')
+    from "$rootDir/javadoc"
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId $groupId
+            artifactId $artifactId
+            version $version
+            pom {
+                name = $artifactId
+                description = 'Tomcat embed plugin for RESTlite.'
+                url = 'https://github.com/Yeamy/RESTlite'
+                inceptionYear = '2023'
+                scm {
+                    url = 'https://github.com/Yeamy/RESTlite'
+                    connection = 'scm:git@https://github.com/Yeamy/RESTlite.git'
+                    developerConnection = 'scm:git@https://github.com/Yeamy/RESTlite.git'
+                }
+                licenses {
+                    license {
+                        name = 'MIT'
+                        url = 'https://mit-license.org/'
+                        distribution = 'repo'
+                        comments = 'A business-friendly OSS license'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'yeamy0754'
+                        name = 'Yeaming'
+                        email = 'yeamy0754@hotmail.com'
+                        url = 'https://github.com/Yeamy'
+                    }
+                }
+                issueManagement {
+                    system = 'Github'
+                    url = 'https://github.com/Yeamy/RESTlite'
+                }
+            }
+            artifact generateSourceJar
+            artifact jar
+            artifact generateJavadoc
+        }
+    }
+
+    repositories {
+        maven {
+            url = 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
+            credentials {
+                username ossrhUsername
+                password ossrhPassword
+            }
+        }
+    }
+}
+
+apply plugin: 'signing'
+signing {
+    sign publishing.publications.maven
+}

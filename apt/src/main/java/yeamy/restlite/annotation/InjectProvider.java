@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 /**
  * declare the field/method/constructor are inject provider.<br>
- * Noted that must contains modifies public static.
+ * Noted that the element must contain modifies public static.
  */
 @Target({ElementType.FIELD, ElementType.METHOD, ElementType.CONSTRUCTOR})
 @Retention(RetentionPolicy.SOURCE)

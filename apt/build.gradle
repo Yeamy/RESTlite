@@ -2,9 +2,12 @@ plugins {
     id 'java-library'
 }
 sourceCompatibility = JavaVersion.VERSION_17
+var $groupId = 'io.github.yeamy'
+var $artifactId = 'restlite-apt'
+var $version = '1.0-RC1'
 
-group 'io.github.yeamy'
-var $version = '1.0-SNAPSHOT'
+group $groupId
+version $version
 
 repositories {
     mavenCentral()
@@ -37,7 +40,7 @@ javadoc {// create document
         charSet 'UTF-8'
         author true
         version true
-        links "http://docs.oracle.com/javase/8/docs/api"
+        links "http://docs.oracle.com/javase/17/docs/api"
     }
 }
 task generateJavadoc(type: Jar) { // package document as jar
@@ -50,14 +53,14 @@ task generateJavadoc(type: Jar) { // package document as jar
 publishing {
     publications {
         maven(MavenPublication) {
-            groupId 'io.github.yeamy'
-            artifactId 'restlite-apt'
+            groupId $groupId
+            artifactId $artifactId
             version $version
             pom {
-                name = 'restlite-apt'
+                name = $artifactId
                 description = 'An apt framework for RESTlite, make it easy to create services.'
                 url = 'https://github.com/Yeamy/RESTlite'
-                inceptionYear = '2022'
+                inceptionYear = '2023'
                 scm {
                     url = 'https://github.com/Yeamy/RESTlite'
                     connection = 'scm:git@https://github.com/Yeamy/RESTlite.git'

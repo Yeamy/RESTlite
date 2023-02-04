@@ -2,9 +2,11 @@ package example;
 
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebFilter;
+import yeamy.restlite.annotation.Position;
 
 import java.io.IOException;
 
+@Position(4)
 @WebFilter("/*")
 public class TestFilter implements Filter {
 
@@ -14,4 +16,3 @@ public class TestFilter implements Filter {
         chain.doFilter(request, response);
     }
 }
-

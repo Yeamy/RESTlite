@@ -2,9 +2,11 @@ plugins {
     id 'java-library'
 }
 sourceCompatibility = JavaVersion.VERSION_17
-var $version = '1.0'
+var $groupId = 'io.github.yeamy'
+var $artifactId = 'restlite-sentinel'
+var $version = '1.0-RC1'
 
-group 'io.github.yeamy'
+group $groupId
 version $version
 
 repositories {
@@ -42,7 +44,7 @@ javadoc {// create document
         charSet 'UTF-8'
         author true
         version true
-        links "http://docs.oracle.com/javase/8/docs/api"
+        links "http://docs.oracle.com/javase/17/docs/api"
     }
 }
 task generateJavadoc(type: Jar) { // package document as jar
@@ -56,14 +58,14 @@ task generateJavadoc(type: Jar) { // package document as jar
 publishing {
     publications {
         maven(MavenPublication) {
-            groupId 'io.github.yeamy'
-            artifactId 'restlite-sentinel'
+            groupId $groupId
+            artifactId $artifactId
             version $version
             pom {
-                name = 'restlite-sentinel'
+                name = $artifactId
                 description = 'Sentinel plugin for RESTlite.'
                 url = 'https://github.com/Yeamy/RESTlite'
-                inceptionYear = '2022'
+                inceptionYear = '2023'
                 scm {
                     url = 'https://github.com/Yeamy/RESTlite'
                     connection = 'scm:git@https://github.com/Yeamy/RESTlite.git'

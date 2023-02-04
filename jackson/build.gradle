@@ -2,9 +2,12 @@ plugins {
     id 'java-library'
 }
 sourceCompatibility = JavaVersion.VERSION_17
+var $groupId = 'io.github.yeamy'
+var $artifactId = 'restlite-jackson'
+var $version = '1.0-RC1'
 
-group 'io.github.yeamy'
-var $version = '1.0-SNAPSHOT'
+group $groupId
+version $version
 
 repositories {
     mavenCentral()
@@ -27,13 +30,11 @@ apply plugin: 'maven-publish'
 
 jar {// package code
     archiveFileName = 'restlite-jackson.jar'
-//    archiveFileName = 'jackson-' + version +'.jar'
 }
 task generateSourceJar(type: Jar) {
     archiveClassifier.set('sources')
     from sourceSets.main.java.srcDirs
     archiveFileName = 'lib-sources.jar'
-//    archiveFileName = 'jackson-' + version + '-sources.jar'
 }
 javadoc {// create document
     source = sourceSets.main.java.srcDirs
@@ -42,13 +43,12 @@ javadoc {// create document
         charSet 'UTF-8'
         author true
         version true
-        links "http://docs.oracle.com/javase/8/docs/api"
+        links "http://docs.oracle.com/javase/17/docs/api"
     }
 }
 task generateJavadoc(type: Jar) { // package document as jar
     group = 'jar'
     archiveFileName = 'lib-javadoc.jar'
-//    archiveFileName = 'jackson-' + version + '-javadoc.jar'
     archiveClassifier.set('javadoc')
     from "$rootDir/javadoc"
 }
@@ -56,14 +56,14 @@ task generateJavadoc(type: Jar) { // package document as jar
 publishing {
     publications {
         maven(MavenPublication) {
-            groupId 'io.github.yeamy'
-            artifactId 'restlite-jackson'
+            groupId $groupId
+            artifactId $artifactId
             version $version
             pom {
-                name = 'restlite-jackson'
+                name = $artifactId
                 description = 'Gson plugin supported.'
                 url = 'https://github.com/Yeamy/RESTlite'
-                inceptionYear = '2022'
+                inceptionYear = '2023'
                 scm {
                     url = 'https://github.com/Yeamy/RESTlite'
                     connection = 'scm:git@https://github.com/Yeamy/RESTlite.git'
