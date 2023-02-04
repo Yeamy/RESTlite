@@ -118,7 +118,7 @@ class SourceInject {
 
     private String create(Inject inject) {
         boolean success = false;
-        String creator = inject.creator();
+        String creator = env.creator(inject);
         String key = inject.singleton().equals(Singleton.no)
                 ? null
                 : element.asType().toString();
@@ -132,7 +132,7 @@ class SourceInject {
             if (key == null && !inject2.singleton().equals(Singleton.no)) {
                 key = element.asType().toString() + ':' + inject2.tag();
             }
-            return createByCreator(inject2.creator(), inject2.tag(), key);
+            return createByCreator(env.creator(inject2), inject2.tag(), key);
         }
         SourceInjectProvider p = env.getInject(typeName);
         if (p != null) {

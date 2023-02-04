@@ -15,7 +15,7 @@ import yeamy.restlite.annotation.TomcatConfig;
         keyStoreType = "PKCS12",
         keyStoreFile = "!a.pfx",
         keyStorePass = "1234")})
-@Configuration(response = "example.MyResponse",
+@Configuration(response = MyResponse.class,
         supportPatch = SupportPatch.tomcat)
 public class Config {
     public static final Gson gson = new GsonBuilder()

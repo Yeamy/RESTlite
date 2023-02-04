@@ -1,5 +1,6 @@
 package yeamy.restlite.annotation;
 
+import yeamy.restlite.HttpResponse;
 import yeamy.restlite.RESTfulRequest;
 
 import java.lang.annotation.ElementType;
@@ -54,7 +55,7 @@ public @interface Configuration {
      * </pre>
      * @see #responseAllType()
      */
-    String response();
+    Class<? extends HttpResponse> response();
 
     /**
      * response() serialize all return type, default true.<br>
