@@ -19,7 +19,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.SOURCE)
 public @interface Cookies {
     /**
-     * name of Cookies if same with parameter
+     * name of Cookies, keep empty if same with parameter
      */
     String value() default "";
 }
