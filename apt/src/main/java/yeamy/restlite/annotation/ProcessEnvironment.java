@@ -308,7 +308,9 @@ class ProcessEnvironment {
     }
 
     public void addInject(SourceInjectProvider inject) {
-        injects.put(inject.type, inject);
+        for(String type : inject.types) {
+            injects.put(type, inject);
+        }
     }
 
     public SourceInjectProvider getInject(String type) {

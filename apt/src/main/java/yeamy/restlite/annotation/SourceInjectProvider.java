@@ -1,20 +1,33 @@
 package yeamy.restlite.annotation;
 
 import javax.lang.model.element.*;
+import javax.lang.model.type.MirroredTypesException;
+import javax.lang.model.type.TypeMirror;
+import java.util.ArrayList;
 import java.util.Set;
 
 class SourceInjectProvider {
     public final TypeElement importType;
-    public final String type;
+    public final ArrayList<String> types = new ArrayList<>();
     private final Object[] content;
 
     public SourceInjectProvider(ProcessEnvironment env, Element element) {
         this.importType = (TypeElement) element.getEnclosingElement();
         ElementKind kind = element.getKind();
         if (kind == ElementKind.FIELD) {
-            this.type = element.asType().toString();
+            this.types.add(element.asType().toString());
         } else {
-            this.type = ((ExecutableElement) element).getReturnType().toString();
+            this.types.add(((ExecutableElement) element).getReturnType().toString());
+        }
+        InjectProvider ann = element.getAnnotation(InjectProvider.class);
+        try {
+            for (Class<?> t : ann.provideFor()) {
+                this.types.add(t.getName());
+            }
+        } catch (MirroredTypesException e) {
+            for (TypeMirror t : e.getTypeMirrors()) {
+                this.types.add(t.toString());
+            }
         }
         if (element instanceof ExecutableElement
                 && ((ExecutableElement) element).getParameters().size() > 0) {

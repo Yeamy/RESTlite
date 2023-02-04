@@ -12,4 +12,8 @@ import java.lang.annotation.Target;
 @Target({ElementType.FIELD, ElementType.METHOD, ElementType.CONSTRUCTOR})
 @Retention(RetentionPolicy.SOURCE)
 public @interface InjectProvider {
+    /**
+     * Class name for Provider to create, default empty using current class.
+     */
+    Class<?>[] provideFor() default {};
 }
