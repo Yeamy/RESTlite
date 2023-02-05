@@ -1,5 +1,4 @@
 # RESTLite 原生RESTful开发框架
-===================================  
 中文 | [English](README-EN.md)
 
 RESTLite是基于Java语言的现代化WEB开发框架，其设计目标是创建一个简单易用、功能强大、轻量可扩展的WEB框架。
