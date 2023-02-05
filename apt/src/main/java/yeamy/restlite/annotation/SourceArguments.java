@@ -40,8 +40,8 @@ class SourceArguments {
 
         @Override
         public boolean equals(Object obj) {
-            if (obj instanceof Impl n) {
-                return n.kind == kind && n.hName.equals(hName);
+            if (obj instanceof Impl impl) {
+                return impl.kind == kind && impl.hName.equals(hName);
             }
             return false;
         }

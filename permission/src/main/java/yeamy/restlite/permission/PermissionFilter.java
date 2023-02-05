@@ -5,7 +5,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import yeamy.restlite.RESTfulRequest;
 
 import java.io.IOException;
-import java.io.Writer;
 
 /**
  * @see SimplePermissionFilter
@@ -39,8 +38,7 @@ public abstract class PermissionFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         Object a = request.getAttribute(RESTfulRequest.REQUEST);
-        if (a instanceof RESTfulRequest) {
-            RESTfulRequest req = (RESTfulRequest) a;
+        if (a instanceof RESTfulRequest req) {
             Account account = manager.getAccount(getAccount(req));
             if (manager.isAllow(account, req.getResource(), req.getMethod(), req.getParams().keySet())) {
                 chain.doFilter(request, response);

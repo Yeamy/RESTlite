@@ -52,8 +52,7 @@ public class TomcatUtils {
                 || properties.containsKey("maxConnections")
                 || properties.containsKey("acceptCount")) {
             ProtocolHandler handler = tomcat.getConnector().getProtocolHandler();
-            if (handler instanceof AbstractProtocol) {
-                AbstractProtocol<?> protocol = (AbstractProtocol<?>) handler;
+            if (handler instanceof AbstractProtocol<?> protocol) {
                 int minSpareThreads = getInt(properties, "minSpareThreads", 0);
                 if (minSpareThreads > 0) {
                     protocol.setMinSpareThreads(minSpareThreads);

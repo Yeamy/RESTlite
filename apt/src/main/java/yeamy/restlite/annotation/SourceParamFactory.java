@@ -98,9 +98,9 @@ class SourceParamFactory extends SourceParam {
                     TypeKind rtk = rt.getKind();
                     if (rtk == TypeKind.TYPEVAR) {
                         Element e = env.asElement(rt);
-                        if (e instanceof TypeParameterElement) {
+                        if (e instanceof TypeParameterElement ee) {
                             String typeVar = "java.lang.Class<" + e + ">";
-                            List<? extends TypeMirror> bounds = ((TypeParameterElement) e).getBounds();
+                            List<? extends TypeMirror> bounds = ee.getBounds();
                             for (TypeMirror bound : bounds) {
                                 if (env.isAssignable(child, bound) && checkParam(method, typeVar)) {
                                     methods.add(method);
