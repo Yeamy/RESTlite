@@ -29,13 +29,11 @@ apply plugin: 'maven-publish'
 
 jar {// package code
     archiveFileName = 'restlite-core.jar'
-//    archiveFileName = 'core-' + version +'.jar'
 }
 task generateSourceJar(type: Jar) {
     archiveClassifier.set('sources')
     from sourceSets.main.java.srcDirs
-    archiveFileName = 'lib-sources.jar'
-//    archiveFileName = 'core-' + version + '-sources.jar'
+    archiveFileName = 'restlite-core-sources.jar'
 }
 javadoc {// create document
     source = sourceSets.main.java.srcDirs

@@ -22,9 +22,9 @@ dependencies {
 //    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
 }
 
-test {
-    useJUnitPlatform()
-}
+//test {
+//    useJUnitPlatform()
+//}
 
 apply plugin: 'maven-publish'
 
@@ -34,7 +34,7 @@ jar {// package code
 task generateSourceJar(type: Jar) {
     archiveClassifier.set('sources')
     from sourceSets.main.java.srcDirs
-    archiveFileName = 'lib-sources.jar'
+    archiveFileName = 'restlite-jackson-sources.jar'
 }
 javadoc {// create document
     source = sourceSets.main.java.srcDirs
