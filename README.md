@@ -61,7 +61,7 @@ public class ExampleMain {
 
     @GET
     public String get(@Inject InjectBean i, // 添加(注入)新建对象
-                        @Param String p) {
+                      @Param String p) {
         return "This is get";
     }
 }
@@ -82,12 +82,11 @@ public class ExampleMain {
 ### 4.tag() 与 @LinkTag.value() 对应
 @Body注解与@Inject的tag()，当tag()不为空时，creator()指定的类内必须存在与之相同参数的@LinkTag注解存在。如:
 ```java
-@Inject(creator=a.b.B.class, tag="xx")
+@Inject(creator=B.class, tag="xx")
 public class A {
 }
 ```
 ```java
-package a.b;
 public class B {
     @LinkTag("xx")
     public static final A XX = new A();
@@ -104,6 +103,7 @@ RESTLite提供了GSON跟Jackson两套解决方案，通过选择添加`restlite-
 RESTLite提供了对sentinel的支持方案，通过添加`restlite-sentinel`依赖实现。  
 该依赖包修改自sentinel对javax-servlet的支持包，并保留了CommonTotalFilter。
 ```java
+import jakarta.servlet.annotation.WebFilter;
 import yeamy.restlite.sentinel.CommonFilter;
 
 @WebFilter(urlPatterns = "/*",
@@ -113,7 +113,7 @@ public class SentinelFilter extends CommonFilter {
 }
 ```
 ### 7.对权限管理的支持
-由于Shiro暂未升级到Jakarta-Servlet，且对RESTful支持并不完美。RESTLite提供了`restlite-permission`依赖，实现对权限管理的支持。  
+由于Shiro暂未升级到Jakarta-Servlet，且对RESTful支持并不完善。RESTLite提供了`restlite-permission`依赖，实现对权限管理的支持。  
 
 ```java
 import yeamy.restlite.permission.SimplePermissionFilter;
@@ -141,7 +141,7 @@ import yeamy.restlite.annotation.TomcatConfig;
                 keyStoreType = "PKCS12", // 证书类型
                 keyStoreFile = "!a.pfx", // 感叹号开头表示jar包内的证书
                 keyStorePass = "1234")}) // 证书密码
-@Configuration(response = "yeamy.restlite.addition.GsonResponse")
+@Configuration(response = GsonResponse.class)
 public class Config {
 }
 ```
