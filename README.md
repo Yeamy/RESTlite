@@ -14,14 +14,15 @@ RESTLite是基于Java语言的现代化WEB开发框架，其设计目标是创�
 ### 1.配置
 ```java
 package example;
+import yeamy.restlite.addition.GsonResponse;
 import yeamy.restlite.annotation.Configuration;
 import yeamy.restlite.annotation.Connector;
 import yeamy.restlite.annotation.TomcatConfig;
 
 @TomcatConfig(connector = @Connector(port = 80))// 需要内嵌tomcat时，添加此配置
-@Configuration(response = "yeamy.restlite.addition.GsonResponse",// 配置默认HttpResponse类
+@Configuration(response = GsonResponse.class,   // 配置默认HttpResponse类
         responseAllType = false, // int等基本类型,String,BigDecimal,InputStream不通过response()序列化
-        supportPatch = SupportPatch.tomcat)// 允许http PATCH方法，PUT, PATCH, POST支持body
+        supportPatch = SupportPatch.tomcat)     // 允许http PATCH方法，PUT, PATCH, POST支持body
 public class Config {
 }
 ```
@@ -81,7 +82,7 @@ public class ExampleMain {
 ### 4.tag() 与 @LinkTag.value() 对应
 @Body注解与@Inject的tag()，当tag()不为空时，creator()指定的类内必须存在与之相同参数的@LinkTag注解存在。如:
 ```java
-@Inject(creator="a.b.B", tag="xx")
+@Inject(creator=a.b.B.class, tag="xx")
 public class A {
 }
 ```
@@ -164,13 +165,13 @@ java -jar abc.jar -tomcat tomcat.properties
 ```
 
 ### 9.HTTP客户端
-使用`io.github.yeamy:httpclient-apt-gson`或者`io.github.yeamy:httpclient-apt-jackson`依赖，配合@Inject。
+使用`io.github.yeamy:httpclient-apt-gson`或者`io.github.yeamy:httpclient-apt-jackson`依赖，配合@Inject。  
+版本号 >= 1.0.1
 ```java
 @Resource("apple")
 public class ExampleMain {
-    // @Inject DemoClientImpl client;  // 直接使用生成类
-    @Inject(creator = "DemoClientImpl")// httpclient-apt默认生成Impl结尾的实现类
-    DemoClient client;                 // 实现httpclient-apt注解的接口类
+    @Inject              // httpclient-apt默认生成Impl结尾的实现类
+    DemoClient client;   // 实现httpclient-apt注解的接口类
 }
 ```
 ### 10.对国际化的支持
