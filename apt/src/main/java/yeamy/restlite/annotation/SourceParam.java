@@ -266,7 +266,7 @@ abstract class SourceParam {
                 } else if (T_Decimal.equals(type)) {
                     b.append("_req.getDecimalParam(\"").append(name).append('"');
                     if (!"".equals(fallback)) {
-                        b.append("\", new BigDecimal(\"").append(fallback).append("\")");
+                        b.append("\", BigDecimal.valueOf(\"").append(fallback).append("\")");
                     }
                     b.append(')');
                     return true;
