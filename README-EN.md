@@ -70,10 +70,10 @@ note: @Inject only work in @Resource, and constructor/static-method of singleton
 
 **For field:**  
 create field of @Resource with @Inject, create singleton by default:
-1. param's creator() not empty, if tag() not empty lookup the math @LinkTag in target class; else if tag() is empty lookup static no-param-method, static field, none-parameter-constructor.
+1. param's creator() not empty, if tag() not empty lookup the math @LinkTag in target class; else if tag() is empty lookup static no-param-method, static field, constructor without param.
 2. lookup type's @Inject, if creator() is not empty, follow step as upside.
 3. lookup @InjectProvider.
-4. lookup public static field, public static none-parameter-method, public none-parameter-constructor.
+4. lookup public static field, public static no-parameter-method, public none-parameter-constructor.
 
 **For parameter:**  
 Parameter with @Inject in http-method(annotation with @GET, @POST...), create new instance by default, support parameter with @Header，@Cookies，@Param;  

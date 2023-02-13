@@ -8,9 +8,7 @@ import yeamy.utils.TextUtils;
 
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.PackageElement;
-import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.*;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 import java.io.IOException;
@@ -23,12 +21,14 @@ import java.util.TreeSet;
 class SourceMain extends SourceClass {
     private final ProcessingEnvironment env;
     private final TomcatConfig conf;
+    private final Set<? extends Element> methods;
     private final Set<PositionBean> listeners = new TreeSet<>();
     private final Set<PositionBean> filters = new TreeSet<>();
     private final Set<Element> servlets = new HashSet<>();
     private final String name;
 
-    public SourceMain(ProcessingEnvironment env, Element element, TomcatConfig conf) {
+    public SourceMain(ProcessingEnvironment env, Element element, Set<? extends Element> methods,
+                      TomcatConfig conf) {
         this.env = env;
         String main = conf.main();
         if (main.length() == 0) {
@@ -40,6 +40,7 @@ class SourceMain extends SourceClass {
             this.pkg = main.substring(0, b);
             this.name = main.substring(b);
         }
+        this.methods = methods;
         this.conf = conf;
         imports("org.apache.catalina.Context");
         imports("org.apache.catalina.LifecycleException");
@@ -85,6 +86,7 @@ class SourceMain extends SourceClass {
 
     private void createContent(StringBuilder sb) {
         sb.append("private static final Tomcat tomcat=new Tomcat();");
+        // load listener, filter, servlet
         sb.append("private static void load(Context context) {");
         if (listeners.size() > 0) {
             sb.append("context.setApplicationEventListeners(new Object[]{");
@@ -123,9 +125,9 @@ class SourceMain extends SourceClass {
                 sb.append("context.addFilterDef(fd);context.addFilterMap(fm);");
             }
         }
+        Messager msg = env.getMessager();
         if (servlets.size() > 0) {
             sb.append("Wrapper wrapper;");
-            Messager msg = env.getMessager();
             for (Element element : servlets) {
                 WebServlet ann = element.getAnnotation(WebServlet.class);
                 Set<String> urlPatterns = new HashSet<>();
@@ -155,6 +157,7 @@ class SourceMain extends SourceClass {
             }
         }
         sb.append('}');
+        // createProperties
         sb.append("private static Properties createProperties(){Properties properties=new Properties();");
         if (TextUtils.isNotEmpty(conf.hostName())) {
             setProperty(sb, "hostName", conf.hostName());
@@ -197,11 +200,31 @@ class SourceMain extends SourceClass {
             i++;
         }
         sb.append("return properties;}");
+        // run before tomcat
+        if (methods.size() > 0) {
+            sb.append("private static void runBeforeTomcat(){");
+            for (Element e : methods) {
+                Set<Modifier> modifiers = e.getModifiers();
+                if (!modifiers.contains(Modifier.PUBLIC) || !modifiers.contains(Modifier.STATIC)) {
+                    msg.printMessage(Diagnostic.Kind.WARNING, "Methods run before Tomcat must be public static: "
+                            + e.asType().toString() + "." + e.getSimpleName());
+                } else if (((ExecutableElement) e).getParameters().size() > 0) {
+                    msg.printMessage(Diagnostic.Kind.WARNING, "Methods run before Tomcat must have no param: "
+                            + e.asType().toString() + "." + e.getSimpleName());
+                } else {
+                    sb.append(imports(e.asType().toString())).append(".")
+                            .append(e.getSimpleName()).append("();");
+                }
+            }
+            sb.append('}');
+        }
+        // main
         sb.append("public static void main(String[] args) {Runtime.getRuntime().addShutdownHook(new Thread(() -> {" +
                 "try {tomcat.stop();tomcat.destroy();} catch (LifecycleException e) {e.printStackTrace();}}));" +
-                "try {Properties properties = getProperties(args);if(properties==null){properties=createProperties();}" +
-                "Context context = addContext(properties, tomcat);addConnectors(properties, tomcat);load(context);" +
-                "tomcat.start();tomcat.getServer().await();} catch (Exception e) {e.printStackTrace();}}");
+                "try {runBeforeTomcat();Properties properties = getProperties(args);" +
+                "if(properties==null){properties=createProperties();}Context context = addContext(properties, tomcat);" +
+                "addConnectors(properties, tomcat);load(context);tomcat.start();tomcat.getServer().await();}" +
+                "catch (Exception e) {e.printStackTrace();}}");
     }
 
     private static void setProperty(StringBuilder b, String key, Object value) {

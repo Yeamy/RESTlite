@@ -51,7 +51,9 @@ public class MainAnnotationProcessor extends AbstractProcessor {
             Set<? extends Element> conf = roundEnv.getElementsAnnotatedWith(Configuration.class);
             for (Element element : conf) {
                 for (Element e : roundEnv.getElementsAnnotatedWith(TomcatConfig.class)) {
-                    source = new SourceMain(processingEnv, element, e.getAnnotation(TomcatConfig.class));
+                    source = new SourceMain(processingEnv, element,
+                            roundEnv.getElementsAnnotatedWith(RunBeforeTomcat.class),
+                            e.getAnnotation(TomcatConfig.class));
                     break;
                 }
                 break;
