@@ -34,7 +34,7 @@ public @interface Inject {
      * class name of creator.<br>
      * <br>
      * <b>1.Lookup</b> field's creator() -> type's creator() -> @InjectProvider -> type's constructor<br>
-     * <b>2.Lookup</b> tag() -> type's static field, method, none param public constructor -> null
+     * <b>2.Lookup</b> tag() -> type's static field, method, no param public constructor -> null
      *
      * @see #tag()
      */

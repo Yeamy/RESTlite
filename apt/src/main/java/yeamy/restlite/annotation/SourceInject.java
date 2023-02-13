@@ -154,7 +154,7 @@ class SourceInject {
             } else if (findConstructor(type) != null) {
                 return success(key, "new " + servlet.imports(type) + "()");
             } else {
-                env.error("Cannot find none params constructor of type: " + type);
+                env.error("Cannot find constructor without parameter in type: " + type);
                 return "null;/* Cannot find constructor */";
             }
         }

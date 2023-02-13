@@ -219,7 +219,7 @@ class ProcessEnvironment {
         }
     }
 
-    public String getFileName(String pkg, String name) throws IOException {
+    public String getFileName(String pkg, String name) {
         int i = 0;
         String name2 = name;
         while (true) {
