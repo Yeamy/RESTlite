@@ -31,7 +31,7 @@ class SourceWebFilter extends SourceClass {
                 .append(className).append(" extends ").append("DispatchFilter");
         sb.append(" {}");
         try {
-            env.createSourceFile(pkg, className, sb);
+            createSourceFile(env.processingEnv, pkg + '.' + className, sb);
         } catch (Exception e) {
             e.printStackTrace();
         }

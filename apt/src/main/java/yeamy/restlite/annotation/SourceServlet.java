@@ -95,7 +95,7 @@ class SourceServlet extends SourceClass {
             }
         }
         sb.append(this.b);
-        env.createSourceFile(pkg, name, sb);
+        createSourceFile(env.processingEnv, name, sb);
     }
 
     private void createBody(String impl, String name) {

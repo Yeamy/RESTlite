@@ -10,9 +10,7 @@ import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.*;
 import javax.tools.Diagnostic;
-import javax.tools.JavaFileObject;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -77,11 +75,7 @@ class SourceMain extends SourceClass {
             sb.append("import ").append(clz).append(';');
         }
         sb.append("public class ").append(name).append('{').append(content).append('}');
-        JavaFileObject f = env.getFiler().createSourceFile(file);
-        try (OutputStream os = f.openOutputStream()) {
-            os.write(sb.toString().getBytes());
-            os.flush();
-        }
+        createSourceFile(env, file, sb);
     }
 
     private void createContent(StringBuilder sb) {

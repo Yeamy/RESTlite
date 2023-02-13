@@ -2,7 +2,6 @@ package yeamy.restlite.annotation;
 
 import yeamy.utils.TextUtils;
 
-import javax.annotation.processing.Filer;
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.*;
@@ -12,10 +11,8 @@ import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
 import javax.tools.Diagnostic.Kind;
-import javax.tools.JavaFileObject;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -23,10 +20,10 @@ import java.util.Map;
 import java.util.TreeMap;
 
 class ProcessEnvironment {
+    final ProcessingEnvironment processingEnv;
     private final Messager messager;
     private final Types typeUtils;
     private final Elements elementUtils;
-    private final Filer filer;
     private final HashMap<String, SourceParam> paramCreator = new HashMap<>();
     private final boolean responseAllType;
     private final String charset;
@@ -37,10 +34,10 @@ class ProcessEnvironment {
     private final HashMap<String, SourceInjectProvider> injects = new HashMap<>();
 
     public ProcessEnvironment(ProcessingEnvironment env, Element init) {
+        processingEnv = env;
         messager = env.getMessager();
         typeUtils = env.getTypeUtils();
         elementUtils = env.getElementUtils();
-        filer = env.getFiler();
         PackageElement element = (PackageElement) init.getEnclosingElement();
         pkg = element.getQualifiedName().toString();
         Configuration ann = init.getAnnotation(Configuration.class);
@@ -228,15 +225,6 @@ class ProcessEnvironment {
                 return name2;
             }
             name2 = name + i++;
-        }
-    }
-
-    public void createSourceFile(String pkg, String name, CharSequence sb) throws IOException {
-        String file = pkg + '.' + name;
-        JavaFileObject f = filer.createSourceFile(file);
-        try (OutputStream os = f.openOutputStream()) {
-            os.write(sb.toString().getBytes());
-            os.flush();
         }
     }
 

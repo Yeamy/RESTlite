@@ -66,7 +66,7 @@ class SourceWebListener extends SourceClass {
                 .append(embed)
                 .append(";}}");
         try {
-            env.createSourceFile(pkg, className, sb);
+            createSourceFile(env.processingEnv, pkg + '.' + className, sb);
         } catch (Exception e) {
             e.printStackTrace();
         }

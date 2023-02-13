@@ -2,8 +2,11 @@ package yeamy.restlite.annotation;
 
 import yeamy.utils.TextUtils;
 
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.TypeElement;
+import javax.tools.JavaFileObject;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.HashMap;
 
 /**
@@ -46,6 +49,14 @@ abstract class SourceClass {
     }
 
     public abstract void create() throws IOException;
+
+    protected static void createSourceFile(ProcessingEnvironment env, String file, CharSequence txt) throws IOException {
+        JavaFileObject f = env.getFiler().createSourceFile(file);
+        try (OutputStream os = f.openOutputStream()) {
+            os.write(txt.toString().getBytes());
+            os.flush();
+        }
+    }
 
     public static CharSequence convStr(CharSequence str) {
         StringBuilder sb = new StringBuilder(str);
