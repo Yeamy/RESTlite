@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializer;
 import yeamy.restlite.RESTfulRequest;
+import yeamy.restlite.annotation.LinkTag;
 
 import java.math.BigDecimal;
 import java.sql.Date;
@@ -38,6 +39,7 @@ public class GsonParser {
     /**
      * deserializes request body as JSON into an object of the specified class.
      */
+    @LinkTag("deserializes")
     public static <T> T parse(RESTfulRequest request, Class<T> clz) {
         return gson.fromJson(request.getBodyAsText(), clz);
     }
