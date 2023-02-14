@@ -13,6 +13,6 @@ public @interface LinkTag {
 	/**
 	 * tag the field/method/constructor
 	 */
-	String[] value() default {};
+	String[] value();
 
 }
