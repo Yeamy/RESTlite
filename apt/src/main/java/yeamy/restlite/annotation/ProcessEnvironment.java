@@ -103,7 +103,7 @@ class ProcessEnvironment {
         boolean samePackage = false;
         if (!t.getKind().isPrimitive()) {
             String fpk = ((PackageElement) te.getEnclosingElement()).getQualifiedName().toString();
-            samePackage = fpk.equals(servlet.getPackage());
+            samePackage = fpk.equals(servlet.pkg);
         }
         if (className.length() == 0) {
             body = te.getAnnotation(Body.class);
@@ -128,7 +128,7 @@ class ProcessEnvironment {
             }
             return creator;
         } else {// by type
-            String id = "bf:" + className + ":" + t + ":" + (samePackage ? "" : servlet.getPackage());
+            String id = "bf:" + className + ":" + t + ":" + (samePackage ? "" : servlet.pkg);
             SourceParam creator = paramCreator.get(id);
             if (creator == null) {
                 creator = SourceParamFactory.body(this, samePackage, className, t);
@@ -149,7 +149,7 @@ class ProcessEnvironment {
         boolean samePackage = false;
         if (!t.getKind().isPrimitive()) {
             String fpk = ((PackageElement) te.getEnclosingElement()).getQualifiedName().toString();
-            samePackage = fpk.equals(servlet.getPackage());
+            samePackage = fpk.equals(servlet.pkg);
         }
         if (className.length() == 0) {
             inject = te.getAnnotation(Inject.class);
@@ -174,7 +174,7 @@ class ProcessEnvironment {
             }
             return creator;
         } else {// by type
-            String id = "if:" + className + ":" + t + ":" + (samePackage ? "" : servlet.getPackage());
+            String id = "if:" + className + ":" + t + ":" + (samePackage ? "" : servlet.pkg);
             SourceParam creator = paramCreator.get(id);
             if (creator == null) {
                 creator = SourceParamFactory.inject(this, samePackage, className, t);
@@ -237,20 +237,6 @@ class ProcessEnvironment {
 
     public String getPackage() {
         return pkg;
-    }
-
-    private static final String[] JAVA_LANG_TYPE = {"byte", "char", "short", "int", "long", "float", "double"};
-
-    public boolean needImport(String clz) {
-        int e = clz.lastIndexOf('.');
-        if (e == -1) {
-            return TextUtils.notIn(clz, JAVA_LANG_TYPE);
-        }
-        String srcPkg = clz.substring(0, e);
-        if (srcPkg.equals("java.lang")) {
-            return false;
-        }
-        return !srcPkg.equals(pkg);
     }
 
     public String getResponse() {

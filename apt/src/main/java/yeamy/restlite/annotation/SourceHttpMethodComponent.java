@@ -402,8 +402,8 @@ class SourceHttpMethodComponent {
 
     private ExecutableElement getConstructor(ProcessEnvironment env, SourceServlet servlet,
                                              TypeElement resp, TypeMirror rt) {
-        String fpk = ((PackageElement) resp.getEnclosingElement()).getQualifiedName().toString();
-        boolean samePackage = fpk.equals(servlet.getPackage());
+        String pkg = ((PackageElement) resp.getEnclosingElement()).getQualifiedName().toString();
+        boolean samePackage = pkg.equals(servlet.pkg);
         for (Element li : resp.getEnclosedElements()) {
             if (li.getKind() == ElementKind.CONSTRUCTOR
                     && (samePackage || li.getModifiers().contains(Modifier.PUBLIC))) {

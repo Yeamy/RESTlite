@@ -144,7 +144,7 @@ class SourceParamFactory extends SourceParam {
             if (e instanceof TypeParameterElement) {
                 String typeVar = "java.lang.Class<" + e + ">";
                 if (param.asType().toString().equals(typeVar)) {
-                    return servlet.imports(childType.toString()) + ".class";
+                    return servlet.imports(childType) + ".class";
                 }
             }
         }
@@ -153,7 +153,7 @@ class SourceParamFactory extends SourceParam {
 
     @Override
     public CharSequence toCharSequence(SourceServlet servlet, SourceArguments args, String name) {
-        StringBuilder b = new StringBuilder(servlet.imports(childType.toString())).append(" ").append(name);
+        StringBuilder b = new StringBuilder(servlet.imports(childType)).append(" ").append(name);
         b.append(" = ").append(servlet.imports(type)).append('.').append(method.getSimpleName()).append("(");
         appendParam(method.getParameters(), servlet, args, b);
         b.append(");");

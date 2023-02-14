@@ -9,6 +9,7 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
 import java.util.HashSet;
@@ -51,9 +52,10 @@ public class MainAnnotationProcessor extends AbstractProcessor {
             Set<? extends Element> conf = roundEnv.getElementsAnnotatedWith(Configuration.class);
             for (Element element : conf) {
                 for (Element e : roundEnv.getElementsAnnotatedWith(TomcatConfig.class)) {
-                    source = new SourceMain(processingEnv, element,
-                            roundEnv.getElementsAnnotatedWith(RunBeforeTomcat.class),
-                            e.getAnnotation(TomcatConfig.class));
+                    TomcatConfig config = e.getAnnotation(TomcatConfig.class);
+                    String[] clz = getMainClassName(config, element);
+                    source = new SourceMain(processingEnv, config, clz[0], clz[1],
+                            roundEnv.getElementsAnnotatedWith(RunBeforeTomcat.class));
                     break;
                 }
                 break;
@@ -70,4 +72,16 @@ public class MainAnnotationProcessor extends AbstractProcessor {
         return false;
     }
 
+    public static String[] getMainClassName(TomcatConfig config, Element element) {
+        String main = config.main();
+        if (main.length() == 0) {
+            return new String[]{
+                    ((PackageElement) element.getEnclosingElement()).getQualifiedName().toString(),
+                    "Main"};
+        } else {
+            int b = main.lastIndexOf('.');
+            if (b == -1) b = 0;
+            return new String[]{main.substring(0, b), main.substring(b)};
+        }
+    }
 }

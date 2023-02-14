@@ -19,26 +19,18 @@ import java.util.TreeSet;
 class SourceMain extends SourceClass {
     private final ProcessingEnvironment env;
     private final TomcatConfig conf;
-    private final Set<? extends Element> methods;
+    private final Set<? extends Element> methodsBeforeTomcat;
     private final Set<PositionBean> listeners = new TreeSet<>();
     private final Set<PositionBean> filters = new TreeSet<>();
     private final Set<Element> servlets = new HashSet<>();
     private final String name;
 
-    public SourceMain(ProcessingEnvironment env, Element element, Set<? extends Element> methods,
-                      TomcatConfig conf) {
+    public SourceMain(ProcessingEnvironment env, TomcatConfig conf, String pkg, String name,
+                      Set<? extends Element> methodsBeforeTomcat) {
+        super(pkg);
         this.env = env;
-        String main = conf.main();
-        if (main.length() == 0) {
-            this.pkg = ((PackageElement) element.getEnclosingElement()).getQualifiedName().toString();
-            this.name = "Main";
-        } else {
-            int b = main.lastIndexOf('.');
-            if (b == -1) b = 0;
-            this.pkg = main.substring(0, b);
-            this.name = main.substring(b);
-        }
-        this.methods = methods;
+        this.name = name;
+        this.methodsBeforeTomcat = methodsBeforeTomcat;
         this.conf = conf;
         imports("org.apache.catalina.Context");
         imports("org.apache.catalina.LifecycleException");
@@ -63,19 +55,12 @@ class SourceMain extends SourceClass {
 
     @Override
     public void create() throws IOException {
-        String file = pkg + '.' + name;
-        StringBuilder sb = new StringBuilder();
-        if (pkg.length() > 0) {
-            sb.append("package ").append(pkg).append(';');
-        }
-        sb.append("import static yeamy.restlite.tomcat.TomcatUtils.*;");
         StringBuilder content = new StringBuilder();
+        content.append("import static yeamy.restlite.tomcat.TomcatUtils.*;");
+        content.append("public class ").append(name).append('{');
         createContent(content);
-        for (String clz : imports.values()) {
-            sb.append("import ").append(clz).append(';');
-        }
-        sb.append("public class ").append(name).append('{').append(content).append('}');
-        createSourceFile(env, file, sb);
+        content.append('}');
+        createSourceFile(env, pkg + '.' + name, content);
     }
 
     private void createContent(StringBuilder sb) {
@@ -195,9 +180,9 @@ class SourceMain extends SourceClass {
         }
         sb.append("return properties;}");
         // run before tomcat
-        if (methods.size() > 0) {
+        if (methodsBeforeTomcat.size() > 0) {
             sb.append("private static void runBeforeTomcat(){");
-            for (Element e : methods) {
+            for (Element e : methodsBeforeTomcat) {
                 Set<Modifier> modifiers = e.getModifiers();
                 if (!modifiers.contains(Modifier.PUBLIC) || !modifiers.contains(Modifier.STATIC)) {
                     msg.printMessage(Diagnostic.Kind.WARNING, "Methods run before Tomcat must be public static: "
@@ -206,19 +191,31 @@ class SourceMain extends SourceClass {
                     msg.printMessage(Diagnostic.Kind.WARNING, "Methods run before Tomcat must have no param: "
                             + e.asType().toString() + "." + e.getSimpleName());
                 } else {
-                    sb.append(imports(e.asType().toString())).append(".")
+                    sb.append(imports(e.asType())).append(".")
                             .append(e.getSimpleName()).append("();");
                 }
             }
             sb.append('}');
         }
         // main
-        sb.append("public static void main(String[] args) {Runtime.getRuntime().addShutdownHook(new Thread(() -> {" +
-                "try {tomcat.stop();tomcat.destroy();} catch (LifecycleException e) {e.printStackTrace();}}));" +
-                "try {runBeforeTomcat();Properties properties = getProperties(args);" +
-                "if(properties==null){properties=createProperties();}Context context = addContext(properties, tomcat);" +
-                "addConnectors(properties, tomcat);load(context);tomcat.start();tomcat.getServer().await();}" +
-                "catch (Exception e) {e.printStackTrace();}}");
+        sb.append("""
+                public static void main(String[] args) {
+                Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                try {
+                    tomcat.stop();
+                    tomcat.destroy();
+                } catch (LifecycleException e) {e.printStackTrace();}}));
+                try {
+                    runBeforeTomcat();
+                    Properties properties = getProperties(args);
+                    if(properties==null){properties=createProperties();}
+                    Context context = addContext(properties, tomcat);
+                    addConnectors(properties, tomcat);
+                    load(context);tomcat.start();
+                    tomcat.getServer().await();
+                }catch (Exception e) {e.printStackTrace();}
+                }
+                """);
     }
 
     private static void setProperty(StringBuilder b, String key, Object value) {

@@ -6,7 +6,6 @@ import javax.lang.model.element.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.TreeSet;
 
 class SourceServlet extends SourceClass {
     final ProcessEnvironment env;
@@ -19,13 +18,13 @@ class SourceServlet extends SourceClass {
     private boolean asyncSupported = false;
 
     public SourceServlet(ProcessEnvironment env, TypeElement element) {
+        super(((PackageElement) element.getEnclosingElement()).getQualifiedName().toString());
         this.env = env;
         this.element = element;
         this.resource = element.getAnnotation(Resource.class);
         if (getResource().contains("/")) {
             throw new RuntimeException("Cannot create servlet with illegal resource in class:" + element.asType());
         }
-        this.pkg = ((PackageElement) element.getEnclosingElement()).getQualifiedName().toString();
         SourceMethodOnError error = null;
         for (Element li : element.getEnclosedElements()) {
             ElementKind kind = li.getKind();
@@ -86,16 +85,7 @@ class SourceServlet extends SourceClass {
         String impl = element.getSimpleName().toString();
         String name = env.getFileName(pkg, impl + "Servlet");
         createBody(impl, name);
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("package ").append(pkg).append(';');
-        for (String p : new TreeSet<>(imports.values())) {
-            if (env.needImport(p)) {
-                sb.append("import ").append(p).append(';');
-            }
-        }
-        sb.append(this.b);
-        createSourceFile(env.processingEnv, name, sb);
+        createSourceFile(env.processingEnv, name, b);
     }
 
     private void createBody(String impl, String name) {

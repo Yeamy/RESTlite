@@ -111,7 +111,7 @@ class SourceInject {
     }
 
     public void createParameter(StringBuilder b) {
-        String typeName = servlet.imports(element.asType().toString());
+        String typeName = servlet.imports(element.asType());
         String value = create(element.getAnnotation(Inject.class));// singleton never false
         b.append(typeName).append(' ').append(simpleName).append('=').append(value).append(';');
     }

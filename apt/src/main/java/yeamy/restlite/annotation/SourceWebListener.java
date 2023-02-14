@@ -8,40 +8,28 @@ class SourceWebListener extends SourceClass {
     private final boolean embed;
     private final String className, parentName;
 
-    SourceWebListener(ProcessEnvironment env, boolean embed) throws IOException {
+    SourceWebListener(ProcessEnvironment env, boolean embed) {
+        super(env.getPackage());
         this.env = env;
         this.embed = embed;
-        this.pkg = env.getPackage();
         this.className = env.getFileName(pkg, "RESTliteWebListener");
-        String parent;
-        switch (env.supportPatch()) {
-            case tomcat:
-                parent = "yeamy.restlite.addition.TomcatListener";
-                parentName = "TomcatListener";
-                break;
-            case undefined:
-            default:
-                parent = "yeamy.restlite.RESTfulListener";
-                parentName = "RESTfulListener";
+        if (SupportPatch.tomcat.equals(env.supportPatch())) {
+            parentName = imports("yeamy.restlite.addition.TomcatListener");
+        } else {
+            parentName = imports("yeamy.restlite.RESTfulListener");
         }
-        imports.put(parentName, parent);
         imports("jakarta.servlet.annotation.WebListener");
         imports("yeamy.restlite.RESTfulRequest");
     }
 
     @Override
     public void create() throws IOException {
-        StringBuilder sb = new StringBuilder("package ").append(pkg).append(';');
-        if (embed) imports("yeamy.restlite.annotation.Position");
-        for (String clz : imports.values()) {
-            sb.append("import ").append(clz).append(';');
-        }
+        StringBuilder sb = new StringBuilder();
         if (embed) {
             sb.append('@').append(imports("yeamy.restlite.annotation.Position")).append("(1)");
         }
         sb.append("@WebListener(\"*\") public class ").append(className).append(" extends ")
                 .append(parentName).append(" {");
-        imports("yeamy.restlite.RESTfulRequest");
         sb.append("@Override public String createServerName(RESTfulRequest r) {switch (super.createServerName(r)) {");
         for (Map.Entry<String, Map<String, String>> resMeth : env.serverNames()) {
             sb.append("case \"").append(resMeth.getKey()).append("\":");// key = resource + ':' + httpMethod
