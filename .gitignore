@@ -9,3 +9,4 @@ apt/build/
 sentinel/build/
 example/build/
 tomcat/build
+nacos/build/

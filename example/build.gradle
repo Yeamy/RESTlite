@@ -21,6 +21,7 @@ dependencies {
 //    implementation project(':jackson')
     implementation project(':gson')
     implementation project(':tomcat')
+    implementation project(':nacos')
 
     annotationProcessor project(':apt')
     annotationProcessor project(':tomcat')
