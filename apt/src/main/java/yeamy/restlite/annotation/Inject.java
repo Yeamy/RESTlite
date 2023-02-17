@@ -38,7 +38,7 @@ public @interface Inject {
      *
      * @see #tag()
      */
-    Class<?> creator() default Object.class;
+    Class<?> creator() default void.class;
 
     /**
      * tag the constructor/creator-method, suggest to use if more than one

@@ -187,7 +187,7 @@ class ProcessEnvironment {
     public String creator(Body body) {
         try {
             Class<?> clz = body.creator();
-            if (clz.equals(Object.class)) {
+            if (clz.equals(void.class)) {
                 return "";
             }
             return elementUtils.getTypeElement(clz.getName()).getQualifiedName().toString();
@@ -203,7 +203,7 @@ class ProcessEnvironment {
     public String creator(Inject inject) {
         try {
             Class<?> clz = inject.creator();
-            if (clz.equals(Object.class)) {
+            if (clz.equals(void.class)) {
                 return "";
             }
             return elementUtils.getTypeElement(clz.getName()).getQualifiedName().toString();
