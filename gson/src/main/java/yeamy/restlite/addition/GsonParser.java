@@ -10,9 +10,7 @@ import yeamy.restlite.annotation.LinkTag;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.sql.Date;
 import java.sql.Time;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 /**
@@ -21,7 +19,6 @@ import java.text.SimpleDateFormat;
 public class GsonParser {
     private static final ThreadLocal<Gson> gsonLocal = new ThreadLocal<>();
     private static volatile GsonBuilder gsonBuilder = new GsonBuilder()
-            .setDateFormat("yyyy-MM-dd HH:mm:ss X")
             .registerTypeAdapter(BigDecimal.class, new TypeAdapter<BigDecimal>() {
                 @Override
                 public void write(JsonWriter out, BigDecimal value) throws IOException {
@@ -33,37 +30,54 @@ public class GsonParser {
                     return new BigDecimal(in.nextString());
                 }
             })
-            .registerTypeAdapter(Date.class, new TypeAdapter<Date>() {
-                final SimpleDateFormat DF = new SimpleDateFormat("yyyy-MM-dd");
-
+            .registerTypeAdapter(java.util.Date.class, new TypeAdapter<java.util.Date>() {
+                final SimpleDateFormat SF = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 @Override
-                public void write(JsonWriter out, Date src) throws IOException {
-                    out.value(DF.format(src));
+                public void write(JsonWriter out, java.util.Date value) throws IOException {
+                    out.value(SF.format(value));
                 }
 
                 @Override
-                public Date read(JsonReader in) throws IOException {
+                public java.util.Date read(JsonReader in) throws IOException {
                     try {
-                        return new Date(DF.parse(in.nextString()).getTime());
-                    } catch (ParseException e) {
-                        throw new RuntimeException(e);
+                        return SF.parse(in.nextString());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        return null;
+                    }
+                }
+            })
+            .registerTypeAdapter(java.sql.Date.class, new TypeAdapter<java.sql.Date>() {
+                final SimpleDateFormat DF = new SimpleDateFormat("yyyy-MM-dd");
+                @Override
+                public void write(JsonWriter out, java.sql.Date value) throws IOException {
+                    out.value(DF.format(value));
+                }
+
+                @Override
+                public java.sql.Date read(JsonReader in) throws IOException {
+                    try {
+                        return new java.sql.Date(DF.parse(in.nextString()).getTime());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        return null;
                     }
                 }
             })
             .registerTypeAdapter(Time.class, new TypeAdapter<Time>() {
                 final SimpleDateFormat TF = new SimpleDateFormat("HH:mm:ss");
-
                 @Override
-                public void write(JsonWriter out, Time src) throws IOException {
-                    out.value(TF.format(src));
+                public void write(JsonWriter out, Time value) throws IOException {
+                    out.value(TF.format(value));
                 }
 
                 @Override
                 public Time read(JsonReader in) throws IOException {
                     try {
                         return new Time(TF.parse(in.nextString()).getTime());
-                    } catch (ParseException e) {
-                        throw new RuntimeException(e);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        return null;
                     }
                 }
             });
