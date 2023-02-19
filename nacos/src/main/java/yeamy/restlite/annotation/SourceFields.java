@@ -2,7 +2,7 @@ package yeamy.restlite.annotation;
 
 import java.util.HashMap;
 
-public class SourceFields {
+class SourceFields {
     public final HashMap<NacosField, NacosField> map = new HashMap<>();
 
     public NacosField get(String dataId, String group) {
