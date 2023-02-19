@@ -16,7 +16,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 /**
- * jackson with date format yyyy-MM-dd HH:mm:ss X
+ * jackson with date format yyyy-MM-dd HH:mm:ss
  */
 public class JacksonParser {
     private static volatile ObjectMapper mapper = new ObjectMapper().registerModule(new DateFormatModule());

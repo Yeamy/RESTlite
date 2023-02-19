@@ -17,7 +17,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 /**
- * gson with date format yyyy-MM-dd HH:mm:ss X
+ * gson with date format yyyy-MM-dd HH:mm:ss
  */
 public class GsonParser {
     private static final FastDateFormat TF = FastDateFormat.getInstance("HH:mm:ss", TimeZone.getDefault(), Locale.getDefault());

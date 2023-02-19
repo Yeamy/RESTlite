@@ -109,7 +109,7 @@ public class B {
 To support JSON with `restlite-gson` or `restlite-jackson`.  
 - Deserialization request body with @GsonBody or @JacksonBody,  
 - Response JSON with @GsonResponse or @JacksonResponse (return by method or configure the default response with @Configuration)  
-- Default time format is “yyyy-MM-dd HH:mm:ss X” of class GsonParser/JacksonParser, support to replace GSON/Jackson instance.
+- Default time format is “yyyy-MM-dd HH:mm:ss” of class GsonParser/JacksonParser, support to replace GSON/Jackson instance.
 
 ### 6.Support of sentinel
 To support sentinel with `restlite-sentinel`.  

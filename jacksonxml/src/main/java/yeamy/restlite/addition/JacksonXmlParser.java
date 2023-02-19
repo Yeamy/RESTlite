@@ -21,7 +21,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 /**
- * jackson with date format yyyy-MM-dd HH:mm:ss X
+ * jackson with date format yyyy-MM-dd HH:mm:ss
  */
 public class JacksonXmlParser {
     private static volatile XmlMapper mapper = (XmlMapper) new XmlMapper().registerModule(new DateFormatModule());

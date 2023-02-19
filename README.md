@@ -110,7 +110,7 @@ public class B {
 RESTLite提供了GSON跟Jackson两套解决方案，通过选择添加`restlite-gson`或者`restlite-jackson`依赖实现。  
 - 分别提供解析request body为JSON格式的@GsonBody和@JacksonBody注解，  
 - 返回JSON格式的GsonResponse和@JacksonResponse（可以作为函数返回值，或者在@Configuration声明为默认返回值）  
-- 默认时间格式为“yyyy-MM-dd HH:mm:ss X”的GsonParser和JacksonParser类，支持替换为自定义的GSON/Jackson实体。
+- 默认时间格式为“yyyy-MM-dd HH:mm:ss”的GsonParser和JacksonParser类，支持替换为自定义的GSON/Jackson实体。
 
 ### 6.对sentinel的支持
 RESTLite提供了对sentinel的支持方案，通过添加`restlite-sentinel`依赖实现。  

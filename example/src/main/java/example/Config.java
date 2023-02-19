@@ -19,5 +19,5 @@ import yeamy.restlite.annotation.TomcatConfig;
         supportPatch = SupportPatch.tomcat)
 public class Config {
     public static final Gson gson = new GsonBuilder()
-            .setDateFormat("yyyy-MM-dd HH:mm:ss Z").create();
+            .setDateFormat("yyyy-MM-dd HH:mm:ss").create();
 }
