@@ -11,10 +11,7 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.*;
 import javax.tools.Diagnostic;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 class SourceMain extends SourceClass {
     private final ProcessingEnvironment env;
@@ -181,18 +178,29 @@ class SourceMain extends SourceClass {
         sb.append("return properties;}");
         // run before tomcat
         if (methodsBeforeTomcat.size() > 0) {
-            sb.append("private static void runBeforeTomcat(){");
+            sb.append("private static void runBeforeTomcat(String[] args){");
             for (Element e : methodsBeforeTomcat) {
                 Set<Modifier> modifiers = e.getModifiers();
                 if (!modifiers.contains(Modifier.PUBLIC) || !modifiers.contains(Modifier.STATIC)) {
                     msg.printMessage(Diagnostic.Kind.WARNING, "Methods run before Tomcat must be public static: "
                             + e.asType().toString() + "." + e.getSimpleName());
-                } else if (((ExecutableElement) e).getParameters().size() > 0) {
-                    msg.printMessage(Diagnostic.Kind.WARNING, "Methods run before Tomcat must have no param: "
-                            + e.asType().toString() + "." + e.getSimpleName());
                 } else {
-                    sb.append(imports(e.asType())).append(".")
-                            .append(e.getSimpleName()).append("();");
+                    List<? extends VariableElement> params = ((ExecutableElement) e).getParameters();
+                    switch (params.size()) {
+                        case 0:
+                            sb.append(imports(e.asType())).append(".").append(e.getSimpleName()).append("();");
+                            break;
+                        case 1:
+                            VariableElement ve = params.get(0);
+                            if ("java.lang.String[]".equals(ve.asType().toString())) {
+                                sb.append(imports(e.asType())).append(".").append(e.getSimpleName()).append("(args);");
+                                break;
+                            }
+                        default:
+                            msg.printMessage(Diagnostic.Kind.WARNING,
+                                    "Methods run before Tomcat must have one param String[] or no param: "
+                                    + e.asType().toString() + "." + e.getSimpleName());
+                    }
                 }
             }
             sb.append('}');
@@ -206,7 +214,7 @@ class SourceMain extends SourceClass {
                     tomcat.destroy();
                 } catch (LifecycleException e) {e.printStackTrace();}}));
                 try {
-                    runBeforeTomcat();
+                    runBeforeTomcat(args);
                     Properties properties = getProperties(args);
                     if(properties==null){properties=createProperties();}
                     Context context = addContext(properties, tomcat);
