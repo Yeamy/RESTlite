@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import org.apache.commons.lang3.time.FastDateFormat;
 import yeamy.restlite.RESTfulRequest;
 import yeamy.restlite.annotation.LinkTag;
 
@@ -12,13 +13,17 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Time;
 import java.text.SimpleDateFormat;
+import java.util.Locale;
+import java.util.TimeZone;
 
 /**
  * gson with date format yyyy-MM-dd HH:mm:ss X
  */
 public class GsonParser {
-    private static final ThreadLocal<Gson> gsonLocal = new ThreadLocal<>();
-    private static volatile GsonBuilder gsonBuilder = new GsonBuilder()
+    private static final FastDateFormat TF = FastDateFormat.getInstance("HH:mm:ss", TimeZone.getDefault(), Locale.getDefault());
+    private static final FastDateFormat DF = FastDateFormat.getInstance("yyyy-MM-dd", TimeZone.getDefault(), Locale.getDefault());
+    private static final FastDateFormat SF = FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss", TimeZone.getDefault(), Locale.getDefault());
+    private static volatile Gson gson = new GsonBuilder()
             .registerTypeAdapter(BigDecimal.class, new TypeAdapter<BigDecimal>() {
                 @Override
                 public void write(JsonWriter out, BigDecimal value) throws IOException {
@@ -31,7 +36,6 @@ public class GsonParser {
                 }
             })
             .registerTypeAdapter(java.util.Date.class, new TypeAdapter<java.util.Date>() {
-                final SimpleDateFormat SF = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 @Override
                 public void write(JsonWriter out, java.util.Date value) throws IOException {
                     out.value(SF.format(value));
@@ -48,7 +52,6 @@ public class GsonParser {
                 }
             })
             .registerTypeAdapter(java.sql.Date.class, new TypeAdapter<java.sql.Date>() {
-                final SimpleDateFormat DF = new SimpleDateFormat("yyyy-MM-dd");
                 @Override
                 public void write(JsonWriter out, java.sql.Date value) throws IOException {
                     out.value(DF.format(value));
@@ -65,7 +68,6 @@ public class GsonParser {
                 }
             })
             .registerTypeAdapter(Time.class, new TypeAdapter<Time>() {
-                final SimpleDateFormat TF = new SimpleDateFormat("HH:mm:ss");
                 @Override
                 public void write(JsonWriter out, Time value) throws IOException {
                     out.value(TF.format(value));
@@ -80,21 +82,13 @@ public class GsonParser {
                         return null;
                     }
                 }
-            });
-
-    public static Gson getGson() {
-        Gson gson = gsonLocal.get();
-        if (gson == null) {
-            gsonLocal.set(gson = gsonBuilder.create());
-        }
-        return gson;
-    }
+            }).create();
 
     /**
      * replace the gson
      */
-    public static void setGsonBuilder(GsonBuilder gsonBuilder) {
-        GsonParser.gsonBuilder = gsonBuilder;
+    public static void setGson(Gson gson) {
+        GsonParser.gson = gson;
     }
 
     /**
@@ -102,13 +96,13 @@ public class GsonParser {
      */
     @LinkTag("deserializes")
     public static <T> T parse(RESTfulRequest request, Class<T> clz) {
-        return getGson().fromJson(request.getBodyAsText(), clz);
+        return gson.fromJson(request.getBodyAsText(), clz);
     }
 
     /**
      * serializes the given object to JSON
      */
     public static String toJSON(Object data) {
-        return getGson().toJson(data);
+        return gson.toJson(data);
     }
 }
