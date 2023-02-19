@@ -84,6 +84,15 @@ public record HttpRequestFile(Part part) implements Serializable {
     }
 
     /**
+     * save to OutputStream
+     */
+    public boolean save(OutputStream os) throws IOException {
+        try (InputStream is = part.getInputStream()) {
+            return StreamUtils.write(os, is);
+        }
+    }
+
+    /**
      * save to local disk (as a file)
      */
     public boolean save(String file) throws IOException {
