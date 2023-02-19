@@ -26,12 +26,12 @@ dependencies {
 apply plugin: 'maven-publish'
 
 jar {// package code
-    archiveFileName = 'restlite-apt.jar'
+    archiveFileName = $artifactId + '.jar'
 }
 task generateSourceJar(type: Jar) {
     archiveClassifier.set('sources')
     from sourceSets.main.java.srcDirs
-    archiveFileName = 'restlite-apt-sources.jar'
+    archiveFileName = $artifactId + '-sources.jar'
 }
 javadoc {// create document
     source = sourceSets.main.java.srcDirs
@@ -45,7 +45,7 @@ javadoc {// create document
 }
 task generateJavadoc(type: Jar) { // package document as jar
     group = 'jar'
-    archiveFileName = 'apt-javadoc.jar'
+    archiveFileName = $artifactId + '-javadoc.jar'
     archiveClassifier.set('javadoc')
     from "$rootDir/javadoc"
 }
