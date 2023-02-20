@@ -135,14 +135,11 @@ class SourceMain extends SourceClass {
         sb.append('}');
         // createProperties
         sb.append("private static Properties createProperties(){Properties properties=new Properties();");
-        if (TextUtils.isNotEmpty(conf.hostName())) {
-            setProperty(sb, "hostName", conf.hostName());
-        }
         if (TextUtils.isNotEmpty(conf.baseDir())) {
             setProperty(sb, "baseDir", conf.baseDir());
         }
         if (conf.maxThreads() > 0) {
-            setProperty(sb, "baseDir", conf.maxThreads());
+            setProperty(sb, "maxThreads", conf.maxThreads());
         }
         if (conf.minSpareThreads() > 0) {
             setProperty(sb, "minSpareThreads", conf.minSpareThreads());
@@ -158,10 +155,12 @@ class SourceMain extends SourceClass {
         }
         int i = 0;
         for (Connector connector : conf.connector()) {
-            setProperty(sb, "connector" + i + ".port", connector.port());
-            if (TextUtils.isNotEmpty(connector.hostName())) {
-                setProperty(sb, "connector" + i + ".hostName", connector.hostName());
+            String hostName = connector.hostName();
+            if ("".equals(hostName)) {
+                hostName = "connector" + i;
             }
+            setProperty(sb, "connector" + i + ".hostName", hostName);
+            setProperty(sb, "connector" + i + ".port", connector.port());
             if (connector.redirectPort() > 0) {
                 setProperty(sb, "connector" + i + ".redirectPort", connector.redirectPort());
             }
@@ -176,8 +175,9 @@ class SourceMain extends SourceClass {
             i++;
         }
         sb.append("return properties;}");
+        boolean runBeforeTomcat = methodsBeforeTomcat.size() > 0;
         // run before tomcat
-        if (methodsBeforeTomcat.size() > 0) {
+        if (runBeforeTomcat) {
             sb.append("private static void runBeforeTomcat(String[] args){");
             for (Element e : methodsBeforeTomcat) {
                 Set<Modifier> modifiers = e.getModifiers();
@@ -214,7 +214,9 @@ class SourceMain extends SourceClass {
                     tomcat.destroy();
                 } catch (LifecycleException e) {e.printStackTrace();}}));
                 try {
-                    runBeforeTomcat(args);
+                """);
+        if (runBeforeTomcat) sb.append("runBeforeTomcat(args);");
+        sb.append("""
                     Properties properties = getProperties(args);
                     if(properties==null){properties=createProperties();}
                     Context context = addContext(properties, tomcat);

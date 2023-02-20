@@ -193,7 +193,7 @@ class ProcessEnvironment {
             return elementUtils.getTypeElement(clz.getName()).getQualifiedName().toString();
         } catch (MirroredTypeException e) {
             String t = e.getTypeMirror().toString();
-            if ("java.lang.Object".equals(t)) {
+            if ("void".equals(t)) {
                 return "";
             }
             return t;
@@ -209,7 +209,7 @@ class ProcessEnvironment {
             return elementUtils.getTypeElement(clz.getName()).getQualifiedName().toString();
         } catch (MirroredTypeException e) {
             String t = e.getTypeMirror().toString();
-            if ("java.lang.Object".equals(t)) {
+            if ("void".equals(t)) {
                 return "";
             }
             return t;

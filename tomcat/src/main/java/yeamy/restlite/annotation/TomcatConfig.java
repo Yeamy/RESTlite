@@ -19,11 +19,6 @@ public @interface TomcatConfig {
     String main() default "";
 
     /**
-     * Set the name of the host, "" for default value 'localhost'.
-     */
-    String hostName() default "";
-
-    /**
      * keep empty for the “user.dir” system property (the directory where Java was run from)
      *
      * @see org.apache.catalina.startup.Tomcat#setBaseDir(String)
