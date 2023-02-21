@@ -87,6 +87,7 @@ abstract class SourceParam {
 
     private void appendArgument(SourceServlet servlet, SourceArguments args, VariableElement param, StringBuilder b) {
         if (doRequest(param, b)
+                || doAttribute(servlet, args, param, b)
                 || doHeader(servlet, args, param, b)
                 || doCookie(args, param, b)
                 || doParam(args, param, b)
@@ -115,6 +116,32 @@ abstract class SourceParam {
             return true;
         }
         return false;
+    }
+
+    private boolean doAttribute(SourceServlet servlet, SourceArguments args, VariableElement p, StringBuilder b) {
+        Attribute attribute = p.getAnnotation(Attribute.class);
+        if (attribute == null) {
+            return false;
+        }
+        String name = attribute.value();
+        if ("".equals(name)) {
+            name = p.getSimpleName().toString();
+        }
+        TypeMirror tm = p.asType();
+        String type = tm.toString();
+        String exist = args.getAttributeAlias(type, name);
+        if (exist != null) {
+            b.append(exist);
+            return true;
+        }
+        if (tm.getKind().isPrimitive()) {
+            args.addFallback("null/* not support primitive type */");
+            env.warning("not support attribute type " + type + " without annotation Creator");
+        } else {
+            b.append("(_req.getAttributeAs(\"").append(name).append("\") instanceof ").append(servlet.imports(type))
+                    .append("_a) ? _a : null;");
+        }
+        return true;
     }
 
     private boolean doHeader(SourceServlet servlet, SourceArguments args, VariableElement p, StringBuilder b) {

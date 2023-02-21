@@ -112,6 +112,10 @@ public class RESTfulRequest implements Serializable {
         return req.getHeaderNames();
     }
 
+    public Object getAttribute(String name) {
+        return req.getAttribute(name);
+    }
+
     /**
      * get http header "Accept"
      */

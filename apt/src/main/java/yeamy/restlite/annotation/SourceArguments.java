@@ -54,11 +54,17 @@ class SourceArguments {
     }
 
     private enum Kind {
-        header, cookie, param, body, inject, exist, fallback
+        attribute, header, cookie, param, body, inject, exist, fallback
     }
 
     public Impl addHeader(String name, String alias) {
         Impl impl = new Impl(Kind.header, "", name, alias);
+        list.add(impl);
+        return impl;
+    }
+
+    public Impl addAttribute(String name, String alias) {
+        Impl impl = new Impl(Kind.attribute, "", name, alias);
         list.add(impl);
         return impl;
     }
@@ -107,6 +113,13 @@ class SourceArguments {
             }
         }
         return null;
+    }
+
+    public String getAttributeAlias(String type, String hName) {
+        Impl cell = get(Kind.attribute, hName);
+        return cell == null
+                ? null
+                : TextUtils.equals(type, cell.type) ? cell.jName : null;
     }
 
     public String getHeaderAlias(String type, String hName) {

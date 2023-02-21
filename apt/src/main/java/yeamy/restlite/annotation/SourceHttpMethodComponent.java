@@ -39,6 +39,7 @@ class SourceHttpMethodComponent {
     public void create(String httpMethod) {
         for (VariableElement a : arguments) {
             if (doRequest(a)
+                    || doAttribute(a)
                     || doHeader(a)
                     || doCookie(a)
                     || doInject(a)
@@ -122,6 +123,33 @@ class SourceHttpMethodComponent {
         } else {
             return false;
         }
+    }
+
+    private boolean doAttribute(VariableElement p) {
+        Attribute attribute = p.getAnnotation(Attribute.class);
+        if (attribute == null) {
+            return false;
+        }
+        String alias = p.getSimpleName().toString();
+        String name = attribute.value();
+        if ("".equals(name)) {
+            name = alias;
+        }
+        TypeMirror tm = p.asType();
+        String type = tm.toString();
+        String exist = args.getAttributeAlias(type, name);
+        if (exist != null) {
+            args.addExist(exist);
+            return true;
+        }
+        if (tm.getKind().isPrimitive()) {
+            args.addFallback("null/* not support primitive type */");
+            env.warning("not support attribute type " + type + " without annotation Creator");
+        } else {
+            String iType = servlet.imports(tm);
+            args.addAttribute(name, alias).write(iType, " ", alias, " = (_req.getAttributeAs(\"", name, "\") instanceof ", iType, "_a) ? _a : null;");
+        }
+        return true;
     }
 
     private boolean doHeader(VariableElement p) {

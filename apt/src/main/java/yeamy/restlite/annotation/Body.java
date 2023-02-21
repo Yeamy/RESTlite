@@ -19,6 +19,7 @@ import java.lang.annotation.Target;
  * @see Header
  * @see Cookies
  * @see Param
+ * @see Attribute
  */
 @Target({ElementType.PARAMETER, ElementType.TYPE})
 @Retention(RetentionPolicy.CLASS) // ANNOTATION_TYPE need CLASS
