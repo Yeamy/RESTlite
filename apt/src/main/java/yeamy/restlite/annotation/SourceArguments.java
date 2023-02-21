@@ -1,5 +1,7 @@
 package yeamy.restlite.annotation;
 
+import yeamy.utils.TextUtils;
+
 import java.util.ArrayList;
 
 class SourceArguments {
@@ -107,9 +109,11 @@ class SourceArguments {
         return null;
     }
 
-    public String getHeaderAlias(String hName) {
+    public String getHeaderAlias(String type, String hName) {
         Impl cell = get(Kind.header, hName);
-        return cell == null ? null : cell.jName;
+        return cell == null
+                ? null
+                : TextUtils.equals(type, cell.type) ? cell.jName : null;
     }
 
     public String getCookieAlias(String type, String name) {

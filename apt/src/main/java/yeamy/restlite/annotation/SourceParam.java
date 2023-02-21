@@ -3,6 +3,7 @@ package yeamy.restlite.annotation;
 import yeamy.utils.TextUtils;
 
 import javax.lang.model.element.*;
+import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import java.util.List;
 import java.util.Set;
@@ -86,7 +87,7 @@ abstract class SourceParam {
 
     private void appendArgument(SourceServlet servlet, SourceArguments args, VariableElement param, StringBuilder b) {
         if (doRequest(param, b)
-                || doHeader(args, param, b)
+                || doHeader(servlet, args, param, b)
                 || doCookie(args, param, b)
                 || doParam(args, param, b)
                 || doBody(args, param, b)) {
@@ -116,7 +117,7 @@ abstract class SourceParam {
         return false;
     }
 
-    private boolean doHeader(SourceArguments args, VariableElement p, StringBuilder b) {
+    private boolean doHeader(SourceServlet servlet, SourceArguments args, VariableElement p, StringBuilder b) {
         Header header = p.getAnnotation(Header.class);
         if (header == null) {
             return false;
@@ -125,19 +126,21 @@ abstract class SourceParam {
         if ("".equals(name)) {
             name = p.getSimpleName().toString();
         }
-        String alias = args.getHeaderAlias(name);
-        if (alias != null) {
-            b.append(alias);
+        TypeMirror tm = p.asType();
+        String type = tm.toString();
+        String exist = args.getHeaderAlias(type, name);
+        if (exist != null) {
+            b.append(exist);
             return true;
         }
-        String type = p.asType().toString();
         if (T_String.equals(type)) {
-            String exist = args.getHeaderAlias(type);
-            if (exist != null) {
-                args.addExist(exist);
-                return true;
-            }
             b.append("_req.getHeader(\"").append(name).append("\")");
+        } else if (tm.getKind().equals(TypeKind.LONG)) {
+            b.append("_req.getDateHeader(\"").append(name).append("\")");
+            return true;
+        } else if (T_Date.equals(type)) {
+            b.append("_req.getDateHeader(new ").append(servlet.imports(T_Date))
+                    .append("(\"").append(name).append("\"))");
         } else {
             b.append("null/* not support type */");
             env.error("Not support header type " + type);

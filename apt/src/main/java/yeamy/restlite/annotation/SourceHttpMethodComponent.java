@@ -134,14 +134,20 @@ class SourceHttpMethodComponent {
         if ("".equals(name)) {
             name = alias;
         }
-        String type = p.asType().toString();
+        TypeMirror tm = p.asType();
+        String type = tm.toString();
+        String exist = args.getHeaderAlias(type, name);
+        if (exist != null) {
+            args.addExist(exist);
+            return true;
+        }
         if (T_String.equals(type)) {
-            String exist = args.getHeaderAlias(type);
-            if (exist != null) {
-                args.addExist(exist);
-                return true;
-            }
             args.addHeader(name, alias).write("String ", alias, " = _req.getHeader(\"", name, "\");");
+        } else if (tm.getKind().equals(TypeKind.LONG)) {
+            args.addHeader(name, alias).write("long ", alias, " = _req.getDateHeader(\"", name, "\");");
+        } else if (T_Date.equals(type)) {
+            String iType = servlet.imports(T_Date);
+            args.addHeader(name, alias).write(iType, " ", alias, " = new ", iType, "(_req.getDateHeader(\"", name, "\"));");
         } else {
             args.addFallback("null/* not support type */");
             env.warning("not support header type " + type + " without annotation Creator");

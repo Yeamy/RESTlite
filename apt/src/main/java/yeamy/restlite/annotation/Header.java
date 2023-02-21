@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 /**
  * declare the parameter is http request header.<br>
- * <b>support type:</b> {@linkplain String String}
+ * <b>support type:</b> {@linkplain String String}, long, {@linkplain java.util.Date Date},
  * @author Yeamy
  * @see Cookies
  * @see Param
