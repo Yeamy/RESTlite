@@ -141,10 +141,13 @@ class SourceHttpMethodComponent {
             args.addExist(exist);
             return true;
         }
-        if (T_String.equals(type)) {
-            args.addHeader(name, alias).write("String ", alias, " = _req.getHeader(\"", name, "\");");
-        } else if (tm.getKind().equals(TypeKind.LONG)) {
+        TypeKind kind = tm.getKind();
+        if (kind.equals(TypeKind.INT)) {
+            args.addHeader(name, alias).write("int ", alias, " = _req.getIntHeader(\"", name, "\");");
+        } else if (kind.equals(TypeKind.LONG)) {
             args.addHeader(name, alias).write("long ", alias, " = _req.getDateHeader(\"", name, "\");");
+        } else if (T_String.equals(type)) {
+            args.addHeader(name, alias).write("String ", alias, " = _req.getHeader(\"", name, "\");");
         } else if (T_Date.equals(type)) {
             String iType = servlet.imports(T_Date);
             args.addHeader(name, alias).write(iType, " ", alias, " = new ", iType, "(_req.getDateHeader(\"", name, "\"));");

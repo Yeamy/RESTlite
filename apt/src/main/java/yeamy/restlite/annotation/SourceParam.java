@@ -133,11 +133,15 @@ abstract class SourceParam {
             b.append(exist);
             return true;
         }
-        if (T_String.equals(type)) {
-            b.append("_req.getHeader(\"").append(name).append("\")");
-        } else if (tm.getKind().equals(TypeKind.LONG)) {
+        TypeKind kind = tm.getKind();
+        if (kind.equals(TypeKind.INT)) {
+            b.append("_req.getIntHeader(\"").append(name).append("\")");
+            return true;
+        } else if (kind.equals(TypeKind.LONG)) {
             b.append("_req.getDateHeader(\"").append(name).append("\")");
             return true;
+        } else if (T_String.equals(type)) {
+            b.append("_req.getHeader(\"").append(name).append("\")");
         } else if (T_Date.equals(type)) {
             b.append("_req.getDateHeader(new ").append(servlet.imports(T_Date))
                     .append("(\"").append(name).append("\"))");
