@@ -12,7 +12,9 @@ import yeamy.restlite.annotation.LinkTag;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Time;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -51,16 +53,32 @@ public class GsonParser {
                     }
                 }
             })
-            .registerTypeAdapter(java.sql.Date.class, new TypeAdapter<java.sql.Date>() {
+            .registerTypeAdapter(Date.class, new TypeAdapter<Date>() {
                 @Override
-                public void write(JsonWriter out, java.sql.Date value) throws IOException {
+                public void write(JsonWriter out, Date value) throws IOException {
                     out.value(DF.format(value));
                 }
 
                 @Override
-                public java.sql.Date read(JsonReader in) throws IOException {
+                public Date read(JsonReader in) throws IOException {
                     try {
-                        return new java.sql.Date(DF.parse(in.nextString()).getTime());
+                        return new Date(DF.parse(in.nextString()).getTime());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        return null;
+                    }
+                }
+            })
+            .registerTypeAdapter(Timestamp.class, new TypeAdapter<Timestamp>() {
+                @Override
+                public void write(JsonWriter out, Timestamp value) throws IOException {
+                    out.value(DF.format(value));
+                }
+
+                @Override
+                public Timestamp read(JsonReader in) throws IOException {
+                    try {
+                        return new Timestamp(DF.parse(in.nextString()).getTime());
                     } catch (Exception e) {
                         e.printStackTrace();
                         return null;

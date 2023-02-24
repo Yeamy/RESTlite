@@ -15,6 +15,7 @@ import yeamy.restlite.RESTfulRequest;
 
 import java.io.IOException;
 import java.sql.Time;
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.Locale;
@@ -77,6 +78,23 @@ public class JacksonXmlParser {
                 public Date deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
                     try {
                         return SF.parse(p.getValueAsString());
+                    } catch (ParseException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            });
+            addSerializer(Timestamp.class, new JsonSerializer<>() {
+
+                @Override
+                public void serialize(Timestamp value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+                    gen.writeString(SF.format(value));
+                }
+            });
+            addDeserializer(Timestamp.class, new JsonDeserializer<>() {
+                @Override
+                public Timestamp deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+                    try {
+                        return new Timestamp(SF.parse(p.getValueAsString()).getTime());
                     } catch (ParseException e) {
                         throw new RuntimeException(e);
                     }
