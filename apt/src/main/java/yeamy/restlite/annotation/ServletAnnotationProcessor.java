@@ -18,7 +18,7 @@ public class ServletAnnotationProcessor extends AbstractProcessor {
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
         supportedAnnotationTypes.add(Configuration.class.getCanonicalName());
-        supportedAnnotationTypes.add(Resource.class.getCanonicalName());
+        supportedAnnotationTypes.add(RESTfulResource.class.getCanonicalName());
     }
 
     @Override
@@ -57,7 +57,7 @@ public class ServletAnnotationProcessor extends AbstractProcessor {
         }
         // class
         ArrayList<SourceServlet> servlets = new ArrayList<>();
-        for (Element element : roundEnv.getElementsAnnotatedWith(Resource.class)) {
+        for (Element element : roundEnv.getElementsAnnotatedWith(RESTfulResource.class)) {
             SourceServlet servlet = new SourceServlet(env, (TypeElement) element);
             servlets.add(servlet);
         }

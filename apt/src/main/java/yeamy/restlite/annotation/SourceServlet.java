@@ -10,7 +10,7 @@ import java.util.HashMap;
 class SourceServlet extends SourceClass {
     final ProcessEnvironment env;
     private final TypeElement element;
-    private final Resource resource;
+    private final RESTfulResource resource;
     private final HashMap<String, SourceMethodHttpMethod> httpMethods = new HashMap<>();
     private final SourceMethodOnError error;
     private final StringBuilder b = new StringBuilder();
@@ -21,9 +21,9 @@ class SourceServlet extends SourceClass {
         super(((PackageElement) element.getEnclosingElement()).getQualifiedName().toString());
         this.env = env;
         this.element = element;
-        this.resource = element.getAnnotation(Resource.class);
-        if (getResource().contains("/")) {
-            throw new RuntimeException("Cannot create servlet with illegal resource in class:" + element.asType());
+        this.resource = element.getAnnotation(RESTfulResource.class);
+        if (getRESTfulResource().contains("/")) {
+            throw new RuntimeException("Cannot create servlet with illegal REST resource in class:" + element.asType());
         }
         SourceMethodOnError error = null;
         for (Element li : element.getEnclosedElements()) {
@@ -58,7 +58,7 @@ class SourceServlet extends SourceClass {
         return element.getQualifiedName();
     }
 
-    public String getResource() {
+    public String getRESTfulResource() {
         return resource.value();
     }
 
@@ -96,7 +96,7 @@ class SourceServlet extends SourceClass {
             } else {
                 b.append('"');
             }
-            b.append('/').append(getResource()).append('"');
+            b.append('/').append(getRESTfulResource()).append('"');
             WebInitParam[] initParams = resource.initParams();
             if (initParams.length > 0) {
                 b.append(", initParams = {");

@@ -10,19 +10,19 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * declare the REST Resource
+ * declare the REST resource
  *
  * @see WebServlet
  * @see MultipartConfig
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.SOURCE)
-public @interface Resource {
+public @interface RESTfulResource {
 
     // @WebServlet ---------------------
 
     /**
-     * name of Resource
+     * name of REST resource
      */
     String value();
 
