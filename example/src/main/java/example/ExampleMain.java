@@ -4,9 +4,7 @@ import bean.*;
 import yeamy.restlite.addition.TextPlainResponse;
 import yeamy.restlite.annotation.*;
 
-import java.util.ArrayList;
-
-@Resource("example")
+@RESTfulResource("example")
 public class ExampleMain {
     @Inject
     InjectField field;

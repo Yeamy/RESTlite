@@ -6,6 +6,7 @@ import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.*;
 import javax.lang.model.type.MirroredTypeException;
+import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
@@ -18,6 +19,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.Callable;
 
 class ProcessEnvironment {
     final ProcessingEnvironment processingEnv;
@@ -44,21 +46,12 @@ class ProcessEnvironment {
         responseAllType = ann.responseAllType();
         charset = ann.charset();
         supportPatch = ann.supportPatch();
-        this.response = response(ann);
+        this.response = getAnnotationType(ann::response);
         //
         closeable = elementUtils.getTypeElement("java.io.Closeable").asType();
         httpResponse = elementUtils.getTypeElement("yeamy.restlite.HttpResponse").asType();
         inputStream = elementUtils.getTypeElement("java.io.InputStream").asType();
         file = elementUtils.getTypeElement("java.io.File").asType();
-    }
-
-    private String response(Configuration ann) {
-        try {
-            Class<?> t = ann.response();
-            return elementUtils.getTypeElement(t.getName()).getQualifiedName().toString();
-        } catch (MirroredTypeException e) {
-            return e.getTypeMirror().toString();
-        }
     }
 
     public boolean isAssignable(TypeMirror t1, TypeMirror t2) {
@@ -97,7 +90,7 @@ class ProcessEnvironment {
     }
 
     public SourceParam getBodyCreator(SourceServlet servlet, TypeMirror t, Body body) {
-        String className = creator(body);
+        String className = getAnnotationType(body::creator);
         String tag = body.tag();
         TypeElement te = getTypeElement(t.toString());
         boolean samePackage = false;
@@ -116,7 +109,7 @@ class ProcessEnvironment {
                 }
                 return arg;
             }
-            String creator2 = creator(body);
+            String creator2 = getAnnotationType(body::creator);
             className = creator2.length() > 0 ? creator2 : t.toString();
         }
         if (tag.length() > 0) {// by tag
@@ -143,7 +136,7 @@ class ProcessEnvironment {
             return new SourceParamInject(this, param);
         }
         TypeMirror t = param.asType();
-        String className = creator(inject);
+        String className = getAnnotationType(inject::creator);
         String tag = inject.tag();
         TypeElement te = getTypeElement(t.toString());
         boolean samePackage = false;
@@ -162,7 +155,7 @@ class ProcessEnvironment {
                 }
                 return creator;
             }
-            String creator2 = creator(inject);
+            String creator2 = getAnnotationType(inject::creator);
             className = creator2.length() > 0 ? creator2 : t.toString();
         }
         if (tag.length() > 0) {// by tag
@@ -181,38 +174,6 @@ class ProcessEnvironment {
                 paramCreator.put(id, creator);
             }
             return creator;
-        }
-    }
-
-    public String creator(Body body) {
-        try {
-            Class<?> clz = body.creator();
-            if (clz.equals(void.class)) {
-                return "";
-            }
-            return elementUtils.getTypeElement(clz.getName()).getQualifiedName().toString();
-        } catch (MirroredTypeException e) {
-            String t = e.getTypeMirror().toString();
-            if ("void".equals(t)) {
-                return "";
-            }
-            return t;
-        }
-    }
-
-    public String creator(Inject inject) {
-        try {
-            Class<?> clz = inject.creator();
-            if (clz.equals(void.class)) {
-                return "";
-            }
-            return elementUtils.getTypeElement(clz.getName()).getQualifiedName().toString();
-        } catch (MirroredTypeException e) {
-            String t = e.getTypeMirror().toString();
-            if ("void".equals(t)) {
-                return "";
-            }
-            return t;
         }
     }
 
@@ -282,7 +243,7 @@ class ProcessEnvironment {
     }
 
     public void addInject(SourceInjectProvider inject) {
-        for(String type : inject.types) {
+        for (String type : inject.types) {
             injects.put(type, inject);
         }
     }
@@ -295,4 +256,17 @@ class ProcessEnvironment {
         return responseAllType;
     }
 
+    public static String getAnnotationType(Callable<Class<?>> runnable) {
+        try {
+            runnable.call();
+        } catch (MirroredTypeException e) {
+            TypeMirror tm = e.getTypeMirror();
+            if (!tm.getKind().equals(TypeKind.VOID)) {
+                return tm.toString();
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return "";
+    }
 }

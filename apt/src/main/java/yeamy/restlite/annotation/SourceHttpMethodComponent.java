@@ -27,7 +27,7 @@ class SourceHttpMethodComponent {
         this.servlet = servlet;
         this.method = method;
         this.arguments = method.getParameters();
-        this.serverName = new SourceServiceName(servlet.getResource(), arguments);
+        this.serverName = new SourceServiceName(servlet.getRESTfulResource(), arguments);
         this.async = async;
         this.asyncTimeout = asyncTimeout;
     }
