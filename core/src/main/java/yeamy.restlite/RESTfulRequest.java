@@ -337,6 +337,10 @@ public class RESTfulRequest implements Serializable {
         return param == null ? fallback : param;
     }
 
+    /**
+     * @param name name of param
+     * @return value of param, if fail return null
+     */
     public String getParameter(String name) {
         String value = this.parameter.get(name);
         if (value != null) {
@@ -345,6 +349,10 @@ public class RESTfulRequest implements Serializable {
         return req.getParameter(name);
     }
 
+    /**
+     * @param name name of param
+     * @return BigDecimal type value, if fail return null
+     */
     public BigDecimal getDecimalParam(String name) {
         try {
             return new BigDecimal(getParameter(name));
@@ -361,6 +369,10 @@ public class RESTfulRequest implements Serializable {
         }
     }
 
+    public boolean getBoolParam(String name) {
+        return Boolean.parseBoolean(getParameter(name));
+    }
+
     public boolean getBoolParam(String name, boolean fallback) {
         if (has(name)) {
             return Boolean.parseBoolean(getParameter(name));
@@ -368,12 +380,23 @@ public class RESTfulRequest implements Serializable {
         return fallback;
     }
 
-    public boolean getBoolParam(String name) {
-        return Boolean.parseBoolean(getParameter(name));
+    /**
+     * @param name name of param
+     * @return Boolean type value, if fail return null
+     */
+    public Boolean getBooleanParam(String name) {
+        if (has(name)) {
+            return Boolean.valueOf(getParameter(name));
+        }
+        return null;
     }
 
     public int getIntParam(String name) {
-        return getIntParam(name, 0);
+        try {
+            return Integer.parseInt(getParameter(name));
+        } catch (NumberFormatException e) {
+            return 0;
+        }
     }
 
     public int getIntParam(String name, int fallback) {
@@ -381,6 +404,18 @@ public class RESTfulRequest implements Serializable {
             return Integer.parseInt(getParameter(name));
         } catch (NumberFormatException e) {
             return fallback;
+        }
+    }
+
+    /**
+     * @param name name of param
+     * @return Integer type value, if fail return null
+     */
+    public Integer getIntegerParam(String name) {
+        try {
+            return Integer.valueOf(getParameter(name));
+        } catch (NumberFormatException e) {
+            return null;
         }
     }
 
@@ -393,6 +428,18 @@ public class RESTfulRequest implements Serializable {
             return Long.parseLong(getParameter(name));
         } catch (NumberFormatException e) {
             return fallback;
+        }
+    }
+
+    /**
+     * @param name name of param
+     * @return Long type value, if fail return null
+     */
+    public Long getLongTypeParam(String name) {
+        try {
+            return Long.valueOf(getParameter(name));
+        } catch (NumberFormatException e) {
+            return null;
         }
     }
 

@@ -15,6 +15,9 @@ class SupportType {
     public static final String T_Part = "jakarta.servlet.http.Part";
     public static final String T_Parts = T_Part + "[]";
     public static final String T_InputStream = "java.io.InputStream";
+    public static final String T_Integer = "java.lang.Integer";
+    public static final String T_Long = "java.lang.Long";
+    public static final String T_Boolean = "java.lang.Boolean";
     public static final String T_Bytes = "byte[]";
     public static final String T_Booleans = "boolean[]";
     public static final String T_Integers = "int[]";

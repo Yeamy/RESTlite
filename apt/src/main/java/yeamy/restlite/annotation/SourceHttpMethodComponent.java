@@ -357,6 +357,21 @@ class SourceHttpMethodComponent {
                             : new String[]{clz, " ", alias, " = _req.getDecimalParam(\"", name, "\", new " + clz
                             + "(\"" + fallback, "\");"};
                     args.addParam(type, name, alias).write(vs);
+                } else if (T_Integer.equals(type)) {
+                    String[] vs = "".equals(fallback)
+                            ? new String[]{"Integer ", alias, " = _req.getIntegerParam(\"", name, "\");"}
+                            : new String[]{"Integer ", alias, " = _req.getIntParam(\"", name, "\", ", fallback, ");"};
+                    args.addParam(type, name, alias).write(vs);
+                } else if (T_Long.equals(type)) {
+                    String[] vs = "".equals(fallback)
+                            ? new String[]{"Long ", alias, " = _req.getLongTypeParam(\"", name, "\");"}
+                            : new String[]{"Long ", alias, " = _req.getLongParam(\"", name, "\", ", fallback, ");"};
+                    args.addParam(type, name, alias).write(vs);
+                } else if (T_Boolean.equals(type)) {
+                    String[] vs = "".equals(fallback)
+                            ? new String[]{"Boolean ", alias, " = _req.getBooleanParam(\"", name, "\");"}
+                            : new String[]{"Boolean ", alias, " = _req.getBoolParam(\"", name, "\", ", fallback, ");"};
+                    args.addParam(type, name, alias).write(vs);
                 } else {
                     args.addParam(type, name, alias).write(type, " ", alias, " = null;/* not support type */");
                     env.warning("not support param type " + type + " without annotation Creator");

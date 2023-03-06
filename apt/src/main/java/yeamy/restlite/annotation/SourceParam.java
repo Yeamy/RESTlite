@@ -138,7 +138,7 @@ abstract class SourceParam {
             args.addFallback("null/* not support primitive type */");
             env.warning("not support attribute type " + type + " without annotation Creator");
         } else {
-            b.append("(_req.getAttributeAs(\"").append(name).append("\") instanceof ").append(servlet.imports(type))
+            b.append("(_req.getAttribute(\"").append(name).append("\") instanceof ").append(servlet.imports(type))
                     .append("_a) ? _a : null;");
         }
         return true;
@@ -265,18 +265,18 @@ abstract class SourceParam {
         switch (t.getKind()) {
             case LONG:
                 b.append("_req.getLongParam(\"").append(name);
-                if (!"".equals(fallback)) {
-                    b.append("\", ").append(Long.valueOf(fallback)).append(")");
-                } else {
+                if ("".equals(fallback)) {
                     b.append("\")");
+                } else {
+                    b.append("\", ").append(Long.parseLong(fallback)).append(")");
                 }
                 return true;
             case INT:
                 b.append("_req.getIntParam(\"").append(name);
-                if (!"".equals(fallback)) {
-                    b.append("\", ").append(Integer.valueOf(fallback)).append(")");
-                } else {
+                if ("".equals(fallback)) {
                     b.append("\")");
+                } else {
+                    b.append("\", ").append(Integer.parseInt(fallback)).append(")");
                 }
                 return true;
             case BOOLEAN:
@@ -284,26 +284,52 @@ abstract class SourceParam {
                 if ("".equals(fallback)) {
                     b.append("\")");
                 } else {
-                    boolean fb = "true".equalsIgnoreCase(fallback);
-                    b.append("\", ").append(fb).append(")");
+                    b.append("\", ").append(Boolean.parseBoolean(fallback)).append(")");
                 }
                 return true;
             case DECLARED: {
-                if (T_String.equals(type)) {
-                    b.append("_req.getParameter(\"").append(name);
-                    if (!"".equals(fallback)) {
-                        b.append("\", \"").append(SourceClass.convStr(fallback)).append("\")");
-                    } else {
+                switch (type) {
+                    case T_String -> {
+                        b.append("_req.getParameter(\"").append(name);
+                        if (!"".equals(fallback)) {
+                            b.append("\", \"").append(SourceClass.convStr(fallback)).append("\")");
+                        }
                         b.append("\")");
+                        return true;
                     }
-                    return true;
-                } else if (T_Decimal.equals(type)) {
-                    b.append("_req.getDecimalParam(\"").append(name).append('"');
-                    if (!"".equals(fallback)) {
-                        b.append("\", BigDecimal.valueOf(\"").append(fallback).append("\")");
+                    case T_Decimal -> {
+                        b.append("_req.getDecimalParam(\"").append(name);
+                        if ("".equals(fallback)) {
+                            b.append("\")");
+                        } else {
+                            b.append("\", BigDecimal.valueOf(\"").append(fallback).append("\"))");
+                        }
+                        return true;
                     }
-                    b.append(')');
-                    return true;
+                    case T_Integer -> {
+                        if ("".equals(fallback)) {
+                            b.append("req.getIntegerParam(\"").append(name).append("\")");
+                        } else {
+                            b.append("_req.getIntParam(\"").append(name).append("\", ").append(Integer.parseInt(fallback)).append(")");
+                        }
+                        return true;
+                    }
+                    case T_Long -> {
+                        if ("".equals(fallback)) {
+                            b.append("req.getLongTypeParam(\"").append(name).append("\")");
+                        } else {
+                            b.append("_req.getLongParam(\"").append(name).append("\", ").append(Long.parseLong(fallback)).append(")");
+                        }
+                        return true;
+                    }
+                    case T_Boolean -> {
+                        if ("".equals(fallback)) {
+                            b.append("req.getBooleanParam(\"").append(name).append("\")");
+                        } else {
+                            b.append("_req.getBoolParam(\"").append(name).append("\", ").append(Boolean.parseBoolean(fallback)).append(")");
+                        }
+                        return true;
+                    }
                 }
             }
             case ARRAY:
