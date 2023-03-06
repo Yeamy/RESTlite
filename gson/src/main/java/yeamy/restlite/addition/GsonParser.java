@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Time;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -114,7 +113,11 @@ public class GsonParser {
      */
     @LinkTag("deserializes")
     public static <T> T parse(RESTfulRequest request, Class<T> clz) {
-        return gson.fromJson(request.getBodyAsText(), clz);
+        return fromJson(request.getBodyAsText(), clz);
+    }
+
+    public static <T> T fromJson(String json, Class<T> clz) {
+        return gson.fromJson(json, clz);
     }
 
     /**

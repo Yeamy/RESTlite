@@ -109,7 +109,11 @@ public class JacksonParser {
      * deserializes request body as JSON into an object of the specified class.
      */
     public static <T> T parse(RESTfulRequest request, Class<T> clz) throws IOException {
-        return mapper.readValue(request.getBodyAsText(), clz);
+        return fromJson(request.getBodyAsText(), clz);
+    }
+
+    public static <T> T fromJson(String json, Class<T> clz) throws IOException {
+        return mapper.readValue(json, clz);
     }
 
     /**
