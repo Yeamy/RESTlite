@@ -14,13 +14,15 @@ public interface RESTfulFilter extends Filter {
     default void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletResponse resp = (HttpServletResponse) response;
         if (request.getAttribute(REQUEST) instanceof RESTfulRequest req) {
-            doFilter(req, resp, chain);
+            if (doFilter(req, resp)) {
+                chain.doFilter(request, resp);
+            }
         } else {
             doOriginal((HttpServletRequest) request, resp, chain);
         }
     }
 
-    void doFilter(RESTfulRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException;
+    boolean doFilter(RESTfulRequest request, ServletResponse response) throws IOException, ServletException;
 
     default void doOriginal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         chain.doFilter(request, response);
