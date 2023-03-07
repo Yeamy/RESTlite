@@ -23,4 +23,13 @@ public @interface Cookies {
      * name of Cookies, keep empty if same with parameter
      */
     String value() default "";
+
+    /**
+     * Process the value before method invoke.
+     *
+     * @return name of preprocessor
+     * @see Preprocessor
+     * @see yeamy.restlite.addition.ValueProcessor
+     */
+    String preprocess() default "";
 }

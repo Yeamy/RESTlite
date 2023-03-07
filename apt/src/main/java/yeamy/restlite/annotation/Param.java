@@ -31,4 +31,13 @@ public @interface Param {
 	String fallback() default "";
 
 	boolean required() default true;
+
+	/**
+	 * Process the value before method invoke.
+	 *
+	 * @return name of preprocessor
+	 * @see Preprocessor
+	 * @see yeamy.restlite.addition.ValueProcessor
+	 */
+	String preprocess() default "";
 }

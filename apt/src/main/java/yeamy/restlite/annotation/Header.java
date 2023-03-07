@@ -19,4 +19,13 @@ import java.lang.annotation.Target;
 public @interface Header {
 	/** name of Header if same with parameter */
 	String value() default "";
+
+	/**
+	 * Process the value before method invoke.
+	 *
+	 * @return name of preprocessor
+	 * @see Preprocessor
+	 * @see yeamy.restlite.addition.ValueProcessor
+	 */
+	String preprocess() default "";
 }
