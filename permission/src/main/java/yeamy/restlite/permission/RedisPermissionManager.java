@@ -10,9 +10,9 @@ import java.util.concurrent.atomic.AtomicReference;
 // redis.clients:jedis:4.3.1
 public class RedisPermissionManager extends PermissionManager {
     private final JedisPool pool;
-    private final String PREFIX_ACCOUNT = "restliet.permission::account::";
-    private final String PREFIX_ROLE = "restliet.permission::role::";
-    private final String PREFIX_PERMISSION = "restliet.permission::permission::";
+    private final String PREFIX_ACCOUNT = "restlite.permission::account::";
+    private final String PREFIX_ROLE = "restlite.permission::role::";
+    private final String PREFIX_PERMISSION = "restlite.permission::permission::";
 
     private final ConcurrentHashMap<String, Permission> permissions;
 
@@ -22,7 +22,7 @@ public class RedisPermissionManager extends PermissionManager {
 
     public RedisPermissionManager(JedisPool pool, boolean cachePermission) {
         this.pool = pool;
-        if (cachePermission) {
+        if (!cachePermission) {
             this.permissions = null;
             return;
         }
