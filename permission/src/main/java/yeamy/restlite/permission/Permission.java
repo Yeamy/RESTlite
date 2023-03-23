@@ -1,5 +1,7 @@
 package yeamy.restlite.permission;
 
+import yeamy.utils.SingletonPool;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.TreeSet;
@@ -8,8 +10,8 @@ import java.util.TreeSet;
  * access rule for account
  */
 public class Permission {
-    public static final String[] NO_PARAM = new String[0];
-    public static final String[] ALL_PARAM = new String[0];
+    public static final String[] NO_PARAM = SingletonPool.EMPTY_STRING_ARRAY;
+    public static final String[] ALL_PARAM = SingletonPool.EMPTY_STRING_ARRAY;
     private boolean allow;
     private String resource;
     private String[] method;

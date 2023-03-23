@@ -9,6 +9,7 @@ import java.util.function.Function;
  * Singleton Pool
  */
 public final class SingletonPool {
+    public static final String[] EMPTY_STRING_ARRAY = new String[0];
 
     private static final ConcurrentHashMap<String, Object> POOL = new ConcurrentHashMap<>();
 

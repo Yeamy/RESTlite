@@ -6,6 +6,7 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.Part;
+import yeamy.utils.SingletonPool;
 import yeamy.utils.StreamUtils;
 import yeamy.utils.TextUtils;
 
@@ -19,6 +20,9 @@ import java.util.*;
 import java.util.Map.Entry;
 
 public class RESTfulRequest implements Serializable {
+    private static final HttpRequestFile[] NO_FILE = new HttpRequestFile[0];
+    private static final Cookie[] NO_COOKIE = new Cookie[0];
+
     public static final String REQUEST = "RESTlite:Request";
 
     public static RESTfulRequest get(ServletRequest r) {
@@ -88,7 +92,7 @@ public class RESTfulRequest implements Serializable {
 
     public String[] getHeaderAsArray(String name) {
         String header = req.getHeader(name);
-        if (header == null) return new String[0];
+        if (header == null) return SingletonPool.EMPTY_STRING_ARRAY;
         String[] array = header.split(",");
         for (int i = 0; i < array.length; i++) {
             array[i] = array[i].trim();
@@ -164,10 +168,9 @@ public class RESTfulRequest implements Serializable {
     }
 
     public HttpRequestFile[] getFiles() {
-        if (fields == null) {
-            return null;
-        }
-        return fields.values().toArray(HttpRequestFile[]::new);
+        return fields == null
+                ? NO_FILE
+                : fields.values().toArray(HttpRequestFile[]::new);
     }
 
     public HttpRequestFile getFile(String name) {
@@ -469,7 +472,7 @@ public class RESTfulRequest implements Serializable {
         if (cookies == null) {
             cookies = req.getCookies();
             if (cookies == null) {
-                cookies = new Cookie[0];
+                cookies = NO_COOKIE;
             }
         }
         return cookies;
