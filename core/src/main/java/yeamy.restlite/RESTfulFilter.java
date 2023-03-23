@@ -14,7 +14,7 @@ public interface RESTfulFilter extends Filter {
     default void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletResponse resp = (HttpServletResponse) response;
         if (request.getAttribute(REQUEST) instanceof RESTfulRequest req) {
-            if (doFilter(req, resp)) {
+            if (!intercept(req, resp)) {
                 chain.doFilter(request, resp);
             }
         } else {
@@ -22,7 +22,7 @@ public interface RESTfulFilter extends Filter {
         }
     }
 
-    boolean doFilter(RESTfulRequest request, ServletResponse response) throws IOException, ServletException;
+    boolean intercept(RESTfulRequest request, ServletResponse response) throws IOException, ServletException;
 
     default void doOriginal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         chain.doFilter(request, response);
