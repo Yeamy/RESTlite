@@ -20,6 +20,7 @@ import java.lang.annotation.Target;
  * @see Header
  * @see Cookies
  * @see Body
+ * @see Part
  * @see Attribute
  */
 @Target(ElementType.PARAMETER)

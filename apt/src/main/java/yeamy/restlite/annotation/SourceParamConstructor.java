@@ -34,17 +34,25 @@ class SourceParamConstructor extends SourceParam {
                         : constructor.getParameters();
             }
         }
-        return new SourceParamConstructor(env, type, parameters, constructor, samePackage, elements, false);
+        return new SourceParamConstructor(env, type, parameters, constructor, samePackage, elements, ArgType.inject);
     }
 
     public static SourceParam body(ProcessEnvironment env, boolean samePackage, TypeElement type, String tag) {
+        return partOrBody(env, samePackage, type, tag, ArgType.body);
+    }
+
+    public static SourceParam part(ProcessEnvironment env, boolean samePackage, TypeElement type, String tag) {
+        return partOrBody(env, samePackage, type, tag, ArgType.part);
+    }
+
+    private static SourceParam partOrBody(ProcessEnvironment env, boolean samePackage, TypeElement type, String tag, ArgType argType) {
         List<? extends Element> elements = type.getEnclosedElements();
         ExecutableElement constructor;
         List<? extends VariableElement> parameters;
         if (tag.length() > 0) {
             constructor = findConstructor(elements, tag);
             if (constructor == null) {
-                env.error("Not support body type " + type + " without annotation Creator");
+                env.error("Not support " + argType + " type " + type + " without annotation Creator");
                 return SourceParamFail.INSTANCE;
             }
             parameters = constructor.getParameters();
@@ -60,7 +68,7 @@ class SourceParamConstructor extends SourceParam {
                         : constructor.getParameters();
             }
         }
-        return new SourceParamConstructor(env, type, parameters, constructor, samePackage, elements, true);
+        return new SourceParamConstructor(env, type, parameters, constructor, samePackage, elements, argType);
     }
 
     private static ExecutableElement findConstructor(List<? extends Element> list, String tag) {
@@ -114,8 +122,8 @@ class SourceParamConstructor extends SourceParam {
                                    ExecutableElement constructor,
                                    boolean samePackage,
                                    List<? extends Element> elements,
-                                   boolean isBody) {
-        super(env, type, isBody);
+                                   ArgType argType) {
+        super(env, type, argType);
         this.parameters = parameters;
         init(constructor, samePackage, elements);
     }

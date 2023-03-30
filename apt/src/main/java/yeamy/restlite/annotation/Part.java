@@ -7,22 +7,25 @@ import java.lang.annotation.Target;
 
 /**
  * declare the parameter(or the type of parameter) is http request body.<br>
- * <b>support parameter:</b> {@linkplain java.io.InputStream InputStream},
- * {@linkplain jakarta.servlet.ServletInputStream ServletInputStream}, byte[],
- * {@linkplain String String} or any declared type with this annotation.<br>
- * <b>Noted</b> that only POST, PUT, PATCH contains body
- * and each request body(InputStream) can read only once.
+ * <b>support parameter:</b> {@linkplain java.io.InputStream InputStream}, byte[],
+ * {@linkplain String String}, {@linkplain jakarta.servlet.http.Part Part}, Part[],
+ * {@linkplain yeamy.restlite.HttpRequestFile HttpRequestFile}, HttpRequestFile[] or
+ * any declared type with this annotation.<br>
+ * <b>Noted</b> that only POST, PUT, PATCH contains multi-parts body
+ * and each request part(InputStream) can read only once.
  *
  * @author Yeamy
  * @see Header
  * @see Cookies
  * @see Param
- * @see Part
+ * @see Body
  * @see Attribute
  */
 @Target({ElementType.PARAMETER, ElementType.TYPE})
 @Retention(RetentionPolicy.CLASS) // ANNOTATION_TYPE need CLASS
-public @interface Body {
+public @interface Part {
+
+    String value() default "";
 
     /**
      * Class name of static factory class. If empty, using type's Body annotation,

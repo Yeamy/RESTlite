@@ -15,10 +15,10 @@ public class ExampleMain {
     @Inject
     InjectCreator creator;
 
-	@GET
-	public String get(@Inject InjectParam ij, String p) {
-		return "get";
-	}
+//	@GET
+//	public String get(@Inject InjectParam ij, String p) {
+//		return "get";
+//	}
 
 //	@GET
 //	public String get(@Param(required = false) String p) {
@@ -26,9 +26,14 @@ public class ExampleMain {
 //	}
 
 //    @POST
-//    public String post1(@Body(creator = "yeamy.restlite.addition.GsonParser") ExampleBody bean) {
+//    public String post1(@Body(creator = yeamy.restlite.addition.GsonParser.class) ExampleBody bean) {
 //        return null;
 //    }
+
+    @POST
+    public String post1(@Part(creator = yeamy.restlite.addition.GsonParser.class) ExampleBody bean) {
+        return null;
+    }
 
 //    @POST
 //    public String post2(@Param String p1, @Cookies String c, @Header String h, @GsonBody int b2) {

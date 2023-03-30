@@ -12,6 +12,7 @@ import java.lang.annotation.Target;
  * @see Cookies
  * @see Param
  * @see Body
+ * @see Part
  * @see Attribute
  */
 @Target(ElementType.PARAMETER)

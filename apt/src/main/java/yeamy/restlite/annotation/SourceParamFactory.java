@@ -13,8 +13,7 @@ class SourceParamFactory extends SourceParam {
     private final TypeMirror childType;
     private final ExecutableElement method;
 
-    public static SourceParam inject(ProcessEnvironment env, boolean samePackage, String factoryClass,
-                                     TypeMirror child, String tag) {
+    public static SourceParam inject(ProcessEnvironment env, boolean samePackage, String factoryClass, TypeMirror child, String tag) {
         TypeElement factoryType = env.getTypeElement(factoryClass);
         if (factoryType == null) {
             env.error("No factory defend for type:" + child + " factory type:" + factoryClass);
@@ -26,23 +25,29 @@ class SourceParamFactory extends SourceParam {
             env.error("Cannot find method for type:" + child + " factory type:" + factoryClass);
             return SourceParamFail.INSTANCE;
         }
-        return new SourceParamFactory(env, factoryType, child, method, samePackage, elements, false);
+        return new SourceParamFactory(env, factoryType, child, method, samePackage, elements, ArgType.inject);
     }
 
-    public static SourceParam inject(ProcessEnvironment env, boolean samePackage, String factoryClass,
-                                     TypeMirror child) {
+    public static SourceParam inject(ProcessEnvironment env, boolean samePackage, String factoryClass, TypeMirror child) {
         TypeElement factoryType = env.getTypeElement(factoryClass);
         if (factoryType != null) {
             List<? extends Element> elements = factoryType.getEnclosedElements();
             ExecutableElement method = findMethod(env, samePackage, child, elements);
-            return new SourceParamFactory(env, factoryType, child, method, samePackage, elements, false);
+            return new SourceParamFactory(env, factoryType, child, method, samePackage, elements, ArgType.inject);
         }
         env.error("No factory defend for type:" + child + " factory type:" + factoryClass);
         return SourceParamFail.INSTANCE;
     }
 
-    public static SourceParam body(ProcessEnvironment env, boolean samePackage, String factoryClass,
-                                   TypeMirror child, String tag) {
+    public static SourceParam body(ProcessEnvironment env, boolean samePackage, String factoryClass, TypeMirror child, String tag) {
+        return partOrBody(env, samePackage, factoryClass, child, tag, ArgType.body);
+    }
+
+    public static SourceParam part(ProcessEnvironment env, boolean samePackage, String factoryClass, TypeMirror child, String tag) {
+        return partOrBody(env, samePackage, factoryClass, child, tag, ArgType.part);
+    }
+
+    private static SourceParam partOrBody(ProcessEnvironment env, boolean samePackage, String factoryClass, TypeMirror child, String tag, ArgType argType) {
         TypeElement factoryType = env.getTypeElement(factoryClass);
         if (factoryType == null) {
             env.error("No factory defend for type:" + child + " factory type:" + factoryClass);
@@ -54,7 +59,7 @@ class SourceParamFactory extends SourceParam {
             env.error("Cannot find method for type:" + child + " factory type:" + factoryClass);
             return SourceParamFail.INSTANCE;
         }
-        return new SourceParamFactory(env, factoryType, child, method, samePackage, elements, true);
+        return new SourceParamFactory(env, factoryType, child, method, samePackage, elements, argType);
     }
 
     private static ExecutableElement findMethodByTag(List<? extends Element> elements, String tag) {
@@ -74,8 +79,15 @@ class SourceParamFactory extends SourceParam {
         return null;
     }
 
-    public static SourceParam body(ProcessEnvironment env, boolean samePackage, String factoryClass,
-                                   TypeMirror child) {
+    public static SourceParam body(ProcessEnvironment env, boolean samePackage, String factoryClass, TypeMirror child) {
+        return partOrBody(env, samePackage, factoryClass, child, ArgType.body);
+    }
+
+    public static SourceParam part(ProcessEnvironment env, boolean samePackage, String factoryClass, TypeMirror child) {
+        return partOrBody(env, samePackage, factoryClass, child, ArgType.part);
+    }
+
+    private static SourceParam partOrBody(ProcessEnvironment env, boolean samePackage, String factoryClass, TypeMirror child, ArgType argType) {
         TypeElement factoryType = env.getTypeElement(factoryClass);
         if (factoryType == null) {
             env.error("No factory defend for type:" + child + " factory type:" + factoryClass);
@@ -83,11 +95,10 @@ class SourceParamFactory extends SourceParam {
         }
         List<? extends Element> elements = factoryType.getEnclosedElements();
         ExecutableElement method = findMethod(env, samePackage, child, elements);
-        return new SourceParamFactory(env, factoryType, child, method, samePackage, elements, true);
+        return new SourceParamFactory(env, factoryType, child, method, samePackage, elements, argType);
     }
 
-    private static ExecutableElement findMethod(ProcessEnvironment env, boolean samePackage, TypeMirror child,
-                                                List<? extends Element> elements) {
+    private static ExecutableElement findMethod(ProcessEnvironment env, boolean samePackage, TypeMirror child, List<? extends Element> elements) {
         LinkedList<ExecutableElement> methods = new LinkedList<>();
         for (Element element : elements) {
             if (element.getKind() == ElementKind.METHOD) {
@@ -129,8 +140,8 @@ class SourceParamFactory extends SourceParam {
                                ExecutableElement method,
                                boolean samePackage,
                                List<? extends Element> elements,
-                               boolean isBody) {
-        super(env, type, isBody);
+                               ArgType argType) {
+        super(env, type, argType);
         this.childType = childType;
         this.method = method;
         init(method, samePackage, elements);

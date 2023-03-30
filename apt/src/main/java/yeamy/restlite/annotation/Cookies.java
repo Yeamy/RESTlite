@@ -14,6 +14,7 @@ import java.lang.annotation.Target;
  * @see Header
  * @see Param
  * @see Body
+ * @see Part
  * @see Attribute
  */
 @Target(ElementType.PARAMETER)

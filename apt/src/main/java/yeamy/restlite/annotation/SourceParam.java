@@ -18,15 +18,15 @@ import static yeamy.restlite.annotation.SupportType.*;
 abstract class SourceParam {
     protected final ProcessEnvironment env;
     protected final TypeElement type;
-    protected final boolean isBody;
+    protected final ArgType argType;
     private boolean throwable = false;
     private boolean closeable = false;
     private boolean closeThrow = false;
 
-    public SourceParam(ProcessEnvironment env, TypeElement type, boolean isBody) {
+    public SourceParam(ProcessEnvironment env, TypeElement type, ArgType argType) {
         this.env = env;
         this.type = type;
-        this.isBody = isBody;
+        this.argType = argType;
     }
 
     protected void init(ExecutableElement method, boolean samePackage, List<? extends Element> elements) {
@@ -91,6 +91,7 @@ abstract class SourceParam {
                 || doHeader(servlet, args, param, b)
                 || doCookie(args, param, b)
                 || doParam(args, param, b)
+                || doPart(servlet, args, param, b)
                 || doBody(args, param, b)) {
             return;
         }
@@ -218,31 +219,61 @@ abstract class SourceParam {
     }
 
     private boolean doBody(SourceArguments args, VariableElement p, StringBuilder b) {
-        if (!isBody) return true;
+        if (argType != ArgType.body) return false;
+        Body body = p.getAnnotation(Body.class);
+        TypeMirror t = p.asType();
+        String type = t.toString();
+        if (body == null && !T_ServletInputStream.equals(type)) {
+            return false;
+        }
         if (args.containsBody()) {
             args.addFallback("null");
             env.error("cannot read body twice");
             return true;
         }
-        Body body = p.getAnnotation(Body.class);
+        switch (type) {
+            case T_ServletInputStream -> b.append("_req.getBody()");
+            case T_Bytes -> b.append("_req.getBodyAsByte()");
+            case T_String -> b.append("_req.getBodyAsText(\"").append(env.charset(body.charset())).append("\")");
+            default -> b.append("null");
+        }
+        return true;
+    }
+
+    private boolean doPart(SourceServlet servlet, SourceArguments args, VariableElement p, StringBuilder b) {
+        if (argType != ArgType.part) return false;
+        String alias, charset;
+        Part part = p.getAnnotation(Part.class);
         TypeMirror t = p.asType();
         String type = t.toString();
-        if ((body == null) || TextUtils.in(type, T_Part, T_Parts, T_File, T_Files, T_InputStream, T_ServletInputStream)) {
-            switch (type) {
-                case T_Part -> b.append("_req.getPart(\"").append(p.getSimpleName()).append("\")");
-                case T_Parts -> b.append("_req.getParts()");
-                case T_File -> b.append("_req.getFile(\"").append(p.getSimpleName()).append("\")");
-                case T_Files -> b.append("_req.getFiles()");
-                case T_InputStream, T_ServletInputStream -> b.append("_req.getBody()");
-                default -> {
-                    return false;
-                }
-            }
+        if (part == null && TextUtils.notIn(type, T_Part, T_Parts, T_File, T_Files)) {
+            part = ProcessEnvironment.getPart(p);
+            if (part == null) return false;
+        }
+        if (part != null) {
+            alias = part.value();
+            if (TextUtils.isEmpty(part.value())) alias = p.getSimpleName().toString();
+            charset = env.charset(part.charset());
+        } else {
+            alias = p.getSimpleName().toString();
+            charset = env.charset("");
+        }
+        if (args.containsPart(alias)) {
+            args.addFallback("null");
+            env.error("cannot read part \"" + alias + "\" twice");
             return true;
         }
         switch (type) {
-            case T_Bytes -> b.append("_req.getBodyAsByte()");
-            case T_String -> b.append("_req.getBodyAsText(\"").append(env.charset(body.charset())).append("\")");
+            case T_Part -> b.append("_req.getPart(\"").append(alias).append("\")");
+            case T_Parts -> b.append("_req.getParts()");
+            case T_File -> b.append("_req.getFile(\"").append(alias).append("\")");
+            case T_Files -> b.append("_req.getFiles()");
+            case T_InputStream, T_ServletInputStream -> b.append(servlet.imports("yeamy.utils.IfNotNull"))
+                    .append(".invoke(_req.getFile(\"").append(alias).append("\"),a->a.get()");
+            case T_Bytes -> b.append(servlet.imports("yeamy.utils.IfNotNull")).append(".invoke(_req.getFile(\"")
+                    .append(alias).append("\"),a->a.getAsByte()");
+            case T_String -> b.append(servlet.imports("yeamy.utils.IfNotNull")).append(".invoke(_req.getFile(\"")
+                    .append(alias).append("\"),a->a.getAsText(\"").append(charset).append("\")");
             default -> b.append("null");
         }
         return true;

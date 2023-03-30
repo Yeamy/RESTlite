@@ -13,6 +13,7 @@ import java.lang.annotation.Target;
  * @see Cookies
  * @see Param
  * @see Body
+ * @see Part
  */
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.SOURCE)

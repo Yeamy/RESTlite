@@ -6,10 +6,13 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import org.apache.commons.lang3.time.FastDateFormat;
+import yeamy.restlite.HttpRequestFile;
 import yeamy.restlite.RESTfulRequest;
 import yeamy.restlite.annotation.LinkTag;
+import yeamy.utils.StreamUtils;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -111,9 +114,14 @@ public class GsonParser {
     /**
      * deserializes request body as JSON into an object of the specified class.
      */
-    @LinkTag("deserializes")
-    public static <T> T parse(RESTfulRequest request, Class<T> clz) {
+    @LinkTag("body")
+    public static <T> T parse(RESTfulRequest request, Class<T> clz) throws IOException {
         return fromJson(request.getBodyAsText(), clz);
+    }
+
+    @LinkTag("part")
+    public static <T> T parse(HttpRequestFile part, Class<T> clz) throws IOException {
+        return fromJson(part.getAsText(), clz);
     }
 
     public static <T> T fromJson(String json, Class<T> clz) {

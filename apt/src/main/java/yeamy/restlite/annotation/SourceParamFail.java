@@ -7,7 +7,7 @@ class SourceParamFail extends SourceParam {
     final static SourceParamFail INSTANCE = new SourceParamFail();
 
     private SourceParamFail() {
-        super(null, null, false);
+        super(null, null, null);
     }
 
     @Override

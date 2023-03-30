@@ -1,14 +1,14 @@
 package yeamy.restlite.annotation;
 
-import yeamy.restlite.addition.JacksonParser;
+import yeamy.restlite.addition.GsonParser;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Retention(RetentionPolicy.CLASS)
+@Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.PARAMETER)
-@Body(creator = JacksonParser.class, tag = "body")
-public @interface JacksonBody {
+@Part(creator = GsonParser.class, tag = "part")
+public @interface GsonPart {
 }

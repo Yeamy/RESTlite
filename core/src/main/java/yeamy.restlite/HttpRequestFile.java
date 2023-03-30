@@ -3,6 +3,7 @@ package yeamy.restlite;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.Part;
 import yeamy.utils.StreamUtils;
+import yeamy.utils.TextUtils;
 
 import java.io.*;
 
@@ -63,17 +64,26 @@ public record HttpRequestFile(Part part) implements Serializable {
     }
 
     /**
-     * read the part as string with given charset
+     * read the part as string with given charset if charset not defended
      */
     public String getAsText(String charset) throws IOException {
-        return StreamUtils.readString(part.getInputStream(), charset);
+        try (InputStream is = part.getInputStream()) {
+            ByteArrayOutputStream os = new ByteArrayOutputStream(is.available());
+            StreamUtils.writeWithoutClose(os, is);
+            String cs = charset();
+            return os.toString(TextUtils.isNotEmpty(cs) ? cs : charset);
+        }
     }
 
     /**
      * read the part as byte array
      */
     public byte[] getAsByte() throws IOException {
-        return StreamUtils.readByte(part.getInputStream());
+        try (InputStream is = part.getInputStream()) {
+            ByteArrayOutputStream os = new ByteArrayOutputStream(is.available());
+            StreamUtils.writeWithoutClose(os, is);
+            return os.toByteArray();
+        }
     }
 
     /**
@@ -95,20 +105,20 @@ public record HttpRequestFile(Part part) implements Serializable {
     /**
      * save to local disk (as a file)
      */
-    public boolean save(String file) throws IOException {
+    public void save(String file) throws IOException {
         try (FileOutputStream os = new FileOutputStream(file);
              InputStream is = part.getInputStream()) {
-            return StreamUtils.writeWithoutClose(os, is);
+            StreamUtils.writeWithoutClose(os, is);
         }
     }
 
     /**
      * save to local disk (as a file)
      */
-    public boolean save(File file) throws IOException {
+    public void save(File file) throws IOException {
         try (FileOutputStream os = new FileOutputStream(file);
              InputStream is = part.getInputStream()) {
-            return StreamUtils.writeWithoutClose(os, is);
+            StreamUtils.writeWithoutClose(os, is);
         }
     }
 
@@ -122,4 +132,14 @@ public record HttpRequestFile(Part part) implements Serializable {
         return new File(hq.getRequest().getServletContext().getRealPath(""));
     }
 
+    public String charset() {
+        String contentType = contentType();
+        if (TextUtils.isNotEmpty(contentType)) {
+            int i = contentType.indexOf("charset");
+            if (i > 0) {
+                return contentType.substring(contentType.indexOf('=', i));
+            }
+        }
+        return null;
+    }
 }

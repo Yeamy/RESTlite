@@ -6,7 +6,7 @@ class SourceParamInject extends SourceParam {
     private final VariableElement param;
 
     public SourceParamInject(ProcessEnvironment env, VariableElement param) {
-        super(env, env.getTypeElement(param.asType().toString()), false);
+        super(env, env.getTypeElement(param.asType().toString()), ArgType.inject);
         this.param = param;
     }
 

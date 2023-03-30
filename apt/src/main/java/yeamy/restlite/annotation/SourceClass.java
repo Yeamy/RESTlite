@@ -23,13 +23,13 @@ abstract class SourceClass {
         this.pkg = pkg;
     }
 
-    private static final String[] JAVA_LANG_TYPE = {
+    private static final String[] BASE_TYPE = {
             "boolean", "byte", "char", "short", "int", "long", "float", "double",
             "boolean[]", "byte[]", "char[]", "short[]", "int[]", "long[]", "float[]", "double[]"
     };
 
     public String imports(String clz) {
-        if (clz.lastIndexOf('.') == -1 && TextUtils.in(clz, JAVA_LANG_TYPE)) {
+        if (clz.lastIndexOf('.') == -1 && TextUtils.in(clz, BASE_TYPE)) {
             return clz;
         }
         if (clz.startsWith("java.lang.") && clz.indexOf('.', 10) == -1) {

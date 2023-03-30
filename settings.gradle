@@ -7,7 +7,6 @@ include 'jacksonxml'
 include 'apt'
 include 'example'
 include 'sentinel'
-include 'httpclient'
 include 'tomcat'
 include 'nacos'
 

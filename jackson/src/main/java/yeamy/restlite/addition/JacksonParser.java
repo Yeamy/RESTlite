@@ -6,7 +6,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.apache.commons.lang3.time.FastDateFormat;
+import yeamy.restlite.HttpRequestFile;
 import yeamy.restlite.RESTfulRequest;
+import yeamy.restlite.annotation.LinkTag;
 
 import java.io.IOException;
 import java.sql.Time;
@@ -108,8 +110,14 @@ public class JacksonParser {
     /**
      * deserializes request body as JSON into an object of the specified class.
      */
+    @LinkTag("body")
     public static <T> T parse(RESTfulRequest request, Class<T> clz) throws IOException {
         return fromJson(request.getBodyAsText(), clz);
+    }
+
+    @LinkTag("part")
+    public static <T> T parse(HttpRequestFile file, Class<T> clz) throws IOException {
+        return fromJson(file.getAsText(), clz);
     }
 
     public static <T> T fromJson(String json, Class<T> clz) throws IOException {

@@ -10,7 +10,9 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import org.apache.commons.lang3.time.FastDateFormat;
+import yeamy.restlite.HttpRequestFile;
 import yeamy.restlite.RESTfulRequest;
+import yeamy.restlite.annotation.LinkTag;
 
 import java.io.IOException;
 import java.sql.Time;
@@ -110,10 +112,19 @@ public class JacksonXmlParser {
     }
 
     /**
-     * deserializes request body as JSON into an object of the specified class.
+     * deserializes request body as XML into an object of the specified class.
      */
+    @LinkTag("body")
     public static <T> T parse(RESTfulRequest request, Class<T> clz) throws IOException {
         return fromXml(request.getBodyAsText(), clz);
+    }
+
+    /**
+     * deserializes request body-part as XML into an object of the specified class.
+     */
+    @LinkTag("part")
+    public static <T> T parse(HttpRequestFile file, Class<T> clz) throws IOException {
+        return fromXml(file.getAsText(), clz);
     }
 
     public static <T> T fromXml(String xml, Class<T> clz) throws IOException {

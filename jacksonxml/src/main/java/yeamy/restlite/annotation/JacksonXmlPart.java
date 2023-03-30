@@ -1,6 +1,6 @@
 package yeamy.restlite.annotation;
 
-import yeamy.restlite.addition.JacksonParser;
+import yeamy.restlite.addition.JacksonXmlParser;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -9,6 +9,6 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.CLASS)
 @Target(ElementType.PARAMETER)
-@Body(creator = JacksonParser.class, tag = "body")
-public @interface JacksonBody {
+@Body(creator = JacksonXmlParser.class, tag = "part")
+public @interface JacksonXmlPart {
 }

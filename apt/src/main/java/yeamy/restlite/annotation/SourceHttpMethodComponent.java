@@ -44,6 +44,7 @@ class SourceHttpMethodComponent {
                     || doCookie(a)
                     || doInject(a)
                     || doBody(a)
+                    || doPart(a)
                     || doParam(a)) {
                 continue;
             }
@@ -235,37 +236,16 @@ class SourceHttpMethodComponent {
         TypeMirror t = p.asType();
         String type = t.toString();
         Body body = p.getAnnotation(Body.class);
-        if ((body == null) || TextUtils.in(type, T_Part, T_Parts, T_File, T_Files, T_InputStream, T_ServletInputStream)) {
-            String name = p.getSimpleName().toString();
-            switch (type) {
-                case T_Part -> args.addBody(name, false, false, false)
-                        .write(servlet.imports(T_File), " ", name, " = _req.getPart(\"", name, "\");");
-                case T_Parts -> args.addBody(name, false, false, false)
-                        .write(servlet.imports(T_File), "[] ", name, " = _req.getParts();");
-                case T_File -> args.addBody(name, false, false, false)
-                        .write(servlet.imports(T_File), " ", name, " = _req.getFile(\"", name, "\");");
-                case T_Files -> args.addBody(name, false, false, false)
-                        .write(servlet.imports(T_File), "[] ", name, " = _req.getFiles();");
-                case T_InputStream, T_ServletInputStream -> args.addBody(name, true, true, true)
-                        .write(servlet.imports(T_ServletInputStream), " ", name, " = _req.getBody();");
-                default -> {
-                    body = ProcessEnvironment.getBody(p);
-                    if (body == null) return false;
-                    SourceParam creator = env.getBodyCreator(servlet, t, body);
-                    if (creator instanceof SourceParamFail) {
-                        addNoType(t.getKind());
-                        env.error("Not support body type " + type + " without annotation Creator");
-                    } else {
-                        args.addBody(name, creator.isThrowable(), creator.isCloseable(), creator.isCloseThrow())
-                                .write(creator.toCharSequence(servlet, args, name));
-                    }
-                    return true;
-                }
+        if (body == null) {
+            if (!T_ServletInputStream.equals(type)) {
+                body = ProcessEnvironment.getBody(p);
+                if (body == null) return false;
             }
-            return true;
         }
         String name = p.getSimpleName().toString();
         switch (type) {
+            case T_InputStream, T_ServletInputStream -> args.addBody(name, true, true, true)
+                    .write(servlet.imports(T_ServletInputStream), " ", name, " = _req.getBody();");
             case T_Bytes -> args.addBody(name, false, false, false)
                     .write("byte[] ", name, " = _req.getBodyAsByte();");
             case T_String -> args.addBody(name, false, false, false)
@@ -284,16 +264,69 @@ class SourceHttpMethodComponent {
         return true;
     }
 
+    private boolean doPart(VariableElement p) {
+        if (args.containsBody()) {
+            args.addFallback("null");
+            env.error("cannot read part twice");
+            return true;
+        }
+        String name = p.getSimpleName().toString();
+        String alias, charset;
+        Part part = p.getAnnotation(Part.class);
+        TypeMirror t = p.asType();
+        String type = t.toString();
+        if (part == null && TextUtils.notIn(type, T_Part, T_Parts, T_File, T_Files)) {
+            part = ProcessEnvironment.getPart(p);
+            if (part == null) return false;
+        }
+        if (part != null) {
+            alias = TextUtils.isEmpty(part.value()) ? name : part.value();
+            charset = env.charset(part.charset());
+        } else {
+            alias = name;
+            charset = env.charset("");
+        }
+        switch (type) {
+            case T_Part -> args.addPart(name, alias, false, false, false)
+                    .write(servlet.imports(T_File), " ", name, " = _req.getPart(\"", alias, "\");");
+            case T_Parts -> args.addPart(name, alias, false, false, false)
+                    .write(servlet.imports(T_File), "[] ", name, " = _req.getParts();");
+            case T_File -> args.addPart(name, alias, false, false, false)
+                    .write(servlet.imports(T_File), " ", name, " = _req.getFile(\"", alias, "\");");
+            case T_Files -> args.addPart(name, alias, false, false, false)
+                    .write(servlet.imports(T_File), "[] ", name, " = _req.getFiles();");
+            case T_InputStream -> args.addPart(name, alias, true, true, true)
+                    .write(servlet.imports(T_InputStream), " ", name, " = ", servlet.imports("yeamy.utils.IfNotNull"), ".invoke(_req.getFile(\"", alias, "\"),a->a.get());");
+            case T_Bytes -> args.addPart(name, alias, false, false, false)
+                    .write("byte[] ", name, " = ", servlet.imports("yeamy.utils.IfNotNull"), ".invoke(_req.getFile(\"", alias, "\"),a->a.getAsByte());");
+            case T_String -> args.addPart(name, alias, false, false, false)
+                    .write("String ", name, " = ", servlet.imports("yeamy.utils.IfNotNull"), ".invoke(_req.getFile(\"", alias, "\"),a->a.getAsText(\"", env.charset(charset), "\");");
+            default -> {
+                assert part != null;
+                SourceParam creator = env.getPartCreator(servlet, t, part);
+                if (creator instanceof SourceParamFail) {
+                    addNoType(t.getKind());
+                    env.error("Not support part type " + type + " without annotation Creator");
+                } else {
+                    args.addPart(name, alias, creator.isThrowable(), creator.isCloseable(), creator.isCloseThrow())
+                            .write(creator.toCharSequence(servlet, args, name));
+                }
+                return true;
+            }
+        }
+        return true;
+    }
+
     private boolean doInject(VariableElement p) {
         TypeMirror t = p.asType();
         String type = t.toString();
         Inject inject = p.getAnnotation(Inject.class);
         if (inject == null) return false;
         String name = p.getSimpleName().toString();
-        SourceParam creator = env.getInjectParam(servlet, p, inject);
+        SourceParam creator = env.getInjectCreator(servlet, p, inject);
         if (creator instanceof SourceParamFail) {
             addNoType(t.getKind());
-            env.error("Not support body type " + type + " without annotation Creator");
+            env.error("Not support inject type " + type + " without annotation Creator");
         } else {
             args.addInject(name, creator.isThrowable(), creator.isCloseable(), creator.isCloseThrow())
                     .write(creator.toCharSequence(servlet, args, name));

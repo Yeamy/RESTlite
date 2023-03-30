@@ -10,9 +10,7 @@ import yeamy.utils.SingletonPool;
 import yeamy.utils.StreamUtils;
 import yeamy.utils.TextUtils;
 
-import java.io.IOException;
-import java.io.Serial;
-import java.io.Serializable;
+import java.io.*;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -194,8 +192,10 @@ public class RESTfulRequest implements Serializable {
     }
 
     public byte[] getBodyAsByte() {
-        try {
-            return StreamUtils.readByte(req.getInputStream());
+        try (InputStream is = req.getInputStream();
+             ByteArrayOutputStream os = new ByteArrayOutputStream(is.available())) {
+            StreamUtils.writeWithoutClose(os, is);
+            return os.toByteArray();
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -206,24 +206,19 @@ public class RESTfulRequest implements Serializable {
         return req.getCharacterEncoding();
     }
 
-    public String getBodyAsText() {
-        String cs = getCharset();
-        if (cs == null) {
-            return getBodyAsText(StandardCharsets.UTF_8);
-        }
-        return getBodyAsText(cs);
+    public String getBodyAsText() throws IOException {
+        return getBodyAsText(StandardCharsets.UTF_8);
     }
 
-    public String getBodyAsText(String charset) {
+    public String getBodyAsText(String charset) throws IOException {
         return getBodyAsText(Charset.forName(charset));
     }
 
-    public String getBodyAsText(Charset charset) {
-        try {
-            return StreamUtils.readString(req.getInputStream(), charset);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+    public String getBodyAsText(Charset charset) throws IOException {
+        try (InputStream is = req.getInputStream();
+             ByteArrayOutputStream os = new ByteArrayOutputStream(is.available())) {
+            StreamUtils.writeWithoutClose(os, is);
+            return os.toString(charset);
         }
     }
 

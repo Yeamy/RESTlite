@@ -9,6 +9,6 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.PARAMETER)
-@Body(creator = GsonParser.class, tag = "deserializes")
+@Body(creator = GsonParser.class, tag = "body")
 public @interface GsonBody {
 }

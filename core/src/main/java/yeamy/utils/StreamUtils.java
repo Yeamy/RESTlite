@@ -68,7 +68,7 @@ public class StreamUtils {
         }
     }
 
-    public static boolean writeWithoutClose(OutputStream os, InputStream is) throws IOException {
+    public static void writeWithoutClose(OutputStream os, InputStream is) throws IOException {
         byte[] buf = new byte[8192];
         while (true) {
             int l = is.read(buf);
@@ -78,36 +78,30 @@ public class StreamUtils {
             }
             os.write(buf, 0, l);
         }
-        return true;
     }
 
-    public static boolean writeWithoutClose(OutputStream os, InputStream is, long begin, long len) {
-        try {
-            long skip = 0;
-            do {
-                skip += is.skip(begin - skip);
-            } while (skip != begin);
-            byte[] buf = new byte[8192];
-            while (true) {
-                int l = is.read(buf);
-                if (l == -1) {
-                    os.flush();
-                    break;
-                }
-                len -= l;
-                if (len > 0) {
-                    os.write(buf, 0, l);
-                } else if (len < 0) {
-                    os.write(buf, 0, (int) (l + len));
-                    break;
-                } else {// len == 0
-                    os.write(buf, 0, l);
-                    break;
-                }
+    public static void writeWithoutClose(OutputStream os, InputStream is, long begin, long len) throws IOException {
+        long skip = 0;
+        do {
+            skip += is.skip(begin - skip);
+        } while (skip != begin);
+        byte[] buf = new byte[8192];
+        while (true) {
+            int l = is.read(buf);
+            if (l == -1) {
+                os.flush();
+                break;
             }
-            return true;
-        } catch (Exception e) {
-            return false;
+            len -= l;
+            if (len > 0) {
+                os.write(buf, 0, l);
+            } else if (len < 0) {
+                os.write(buf, 0, (int) (l + len));
+                break;
+            } else {// len == 0
+                os.write(buf, 0, l);
+                break;
+            }
         }
     }
 
