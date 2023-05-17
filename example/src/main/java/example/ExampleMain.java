@@ -15,10 +15,10 @@ public class ExampleMain {
     @Inject
     InjectCreator creator;
 
-//	@GET
-//	public String get(@Inject InjectParam ij, String p) {
-//		return "get";
-//	}
+	@GET
+	public String get(@Inject(creator = MaxTo15.class) int size, String p) {
+		return "get";
+	}
 
 //	@GET
 //	public String get(@Param(required = false) String p) {
@@ -31,7 +31,7 @@ public class ExampleMain {
 //    }
 
     @POST
-    public String post1(@Part(creator = yeamy.restlite.addition.GsonParser.class) ExampleBody bean) {
+    public String post1(@Part(processor = yeamy.restlite.addition.GsonParser.class) ExampleBody bean) {
         return null;
     }
 

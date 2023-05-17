@@ -100,7 +100,7 @@ class ProcessEnvironment {
     }
 
     public SourceParam getBodyCreator(SourceServlet servlet, TypeMirror t, Body body) {
-        String className = getAnnotationType(body::creator);
+        String className = getAnnotationType(body::processor);
         String tag = body.tag();
         TypeElement te = getTypeElement(t.toString());
         boolean samePackage = false;
@@ -119,7 +119,7 @@ class ProcessEnvironment {
                 }
                 return arg;
             }
-            String creator2 = getAnnotationType(body::creator);
+            String creator2 = getAnnotationType(body::processor);
             className = creator2.length() > 0 ? creator2 : t.toString();
         }
         if (tag.length() > 0) {// by tag
@@ -142,7 +142,7 @@ class ProcessEnvironment {
     }
 
     public SourceParam getPartCreator(SourceServlet servlet, TypeMirror t, Part part) {
-        String className = getAnnotationType(part::creator);
+        String className = getAnnotationType(part::processor);
         String tag = part.tag();
         TypeElement te = getTypeElement(t.toString());
         boolean samePackage = false;
@@ -161,7 +161,7 @@ class ProcessEnvironment {
                 }
                 return arg;
             }
-            String creator2 = getAnnotationType(part::creator);
+            String creator2 = getAnnotationType(part::processor);
             className = creator2.length() > 0 ? creator2 : t.toString();
         }
         if (tag.length() > 0) {// by tag

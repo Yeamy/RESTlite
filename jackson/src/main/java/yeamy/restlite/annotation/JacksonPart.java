@@ -9,6 +9,6 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.CLASS)
 @Target(ElementType.PARAMETER)
-@Body(creator = JacksonParser.class, tag = "part")
+@Body(processor = JacksonParser.class, tag = "part")
 public @interface JacksonPart {
 }

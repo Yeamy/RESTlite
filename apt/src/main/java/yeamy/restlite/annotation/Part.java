@@ -31,10 +31,10 @@ public @interface Part {
      * Class name of static factory class. If empty, using type's Body annotation,
      * if still empty, using type's constructor.
      */
-    Class<?> creator() default void.class;
+    Class<?> processor() default void.class;
 
     /**
-     * tag the constructor/creator-method, suggest to use if more than one
+     * tag the constructor/static-method, suggest to use if more than one
      * constructor/method
      *
      * @see LinkTag

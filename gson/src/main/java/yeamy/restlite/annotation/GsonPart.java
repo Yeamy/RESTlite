@@ -9,6 +9,6 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.PARAMETER)
-@Part(creator = GsonParser.class, tag = "part")
+@Part(processor = GsonParser.class, tag = "part")
 public @interface GsonPart {
 }
