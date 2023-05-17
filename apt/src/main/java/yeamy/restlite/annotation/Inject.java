@@ -8,8 +8,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * declare to inject the field of {@link RESTfulResource}.<br>
- * Noted that the injection instances will be created once and cached in the pool.
+ * declare to inject the field of {@link RESTfulResource}
+ * or a param of http method such as {@link GET}, {@link POST}...<br>
+ *
+ * @see Inject#singleton()
  */
 @Target({ElementType.FIELD, ElementType.PARAMETER, ElementType.TYPE})
 @Retention(RetentionPolicy.SOURCE)
