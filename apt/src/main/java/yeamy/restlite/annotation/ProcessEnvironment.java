@@ -26,7 +26,7 @@ class ProcessEnvironment {
     private final Messager messager;
     private final Types typeUtils;
     private final Elements elementUtils;
-    private final HashMap<String, SourceParam> paramCreator = new HashMap<>();
+    private final HashMap<String, SourceProcessor> paramCreator = new HashMap<>();
     private final boolean responseAllType;
     private final String charset;
     private final SupportPatch supportPatch;
@@ -54,8 +54,8 @@ class ProcessEnvironment {
         file = elementUtils.getTypeElement("java.io.File").asType();
     }
 
-    public boolean isAssignable(TypeMirror t1, TypeMirror t2) {
-        return typeUtils.isAssignable(t1, t2);
+    public boolean isAssignable(TypeMirror subType, TypeMirror type) {
+        return typeUtils.isAssignable(subType, type);
     }
 
     public Element asElement(TypeMirror t) {
@@ -97,136 +97,6 @@ class ProcessEnvironment {
             }
         }
         return null;
-    }
-
-    public SourceParam getBodyCreator(SourceServlet servlet, TypeMirror t, Body body) {
-        String className = getAnnotationType(body::processor);
-        String tag = body.tag();
-        TypeElement te = getTypeElement(t.toString());
-        boolean samePackage = false;
-        if (!t.getKind().isPrimitive()) {
-            String fpk = ((PackageElement) te.getEnclosingElement()).getQualifiedName().toString();
-            samePackage = fpk.equals(servlet.pkg);
-        }
-        if (className.length() == 0) {
-            body = te.getAnnotation(Body.class);
-            if (body == null) {
-                String id = "bc:" + te.getQualifiedName() + ":" + tag;
-                SourceParam arg = paramCreator.get(id);
-                if (arg == null) {
-                    arg = SourceParamConstructor.body(this, samePackage, te, tag);
-                    paramCreator.put(id, arg);
-                }
-                return arg;
-            }
-            String creator2 = getAnnotationType(body::processor);
-            className = creator2.length() > 0 ? creator2 : t.toString();
-        }
-        if (tag.length() > 0) {// by tag
-            String id = "bt:" + className + ":" + tag;
-            SourceParam creator = paramCreator.get(id);
-            if (creator == null) {
-                creator = SourceParamFactory.body(this, samePackage, className, t, tag);
-                paramCreator.put(id, creator);
-            }
-            return creator;
-        } else {// by type
-            String id = "bf:" + className + ":" + t + ":" + (samePackage ? "" : servlet.pkg);
-            SourceParam creator = paramCreator.get(id);
-            if (creator == null) {
-                creator = SourceParamFactory.body(this, samePackage, className, t);
-                paramCreator.put(id, creator);
-            }
-            return creator;
-        }
-    }
-
-    public SourceParam getPartCreator(SourceServlet servlet, TypeMirror t, Part part) {
-        String className = getAnnotationType(part::processor);
-        String tag = part.tag();
-        TypeElement te = getTypeElement(t.toString());
-        boolean samePackage = false;
-        if (!t.getKind().isPrimitive()) {
-            String fpk = ((PackageElement) te.getEnclosingElement()).getQualifiedName().toString();
-            samePackage = fpk.equals(servlet.pkg);
-        }
-        if (className.length() == 0) {
-            part = te.getAnnotation(Part.class);
-            if (part == null) {
-                String id = "pc:" + te.getQualifiedName() + ":" + tag;
-                SourceParam arg = paramCreator.get(id);
-                if (arg == null) {
-                    arg = SourceParamConstructor.part(this, samePackage, te, tag);
-                    paramCreator.put(id, arg);
-                }
-                return arg;
-            }
-            String creator2 = getAnnotationType(part::processor);
-            className = creator2.length() > 0 ? creator2 : t.toString();
-        }
-        if (tag.length() > 0) {// by tag
-            String id = "pt:" + className + ":" + tag;
-            SourceParam creator = paramCreator.get(id);
-            if (creator == null) {
-                creator = SourceParamFactory.part(this, samePackage, className, t, tag);
-                paramCreator.put(id, creator);
-            }
-            return creator;
-        } else {// by type
-            String id = "pf:" + className + ":" + t + ":" + (samePackage ? "" : servlet.pkg);
-            SourceParam creator = paramCreator.get(id);
-            if (creator == null) {
-                creator = SourceParamFactory.part(this, samePackage, className, t);
-                paramCreator.put(id, creator);
-            }
-            return creator;
-        }
-    }
-
-    public SourceParam getInjectCreator(SourceServlet servlet, VariableElement param, Inject inject) {
-        if (inject.singleton().equals(Singleton.yes)) {
-            return new SourceParamInject(this, param);
-        }
-        TypeMirror t = param.asType();
-        String className = getAnnotationType(inject::creator);
-        String tag = inject.tag();
-        TypeElement te = getTypeElement(t.toString());
-        boolean samePackage = false;
-        if (!t.getKind().isPrimitive()) {
-            String fpk = ((PackageElement) te.getEnclosingElement()).getQualifiedName().toString();
-            samePackage = fpk.equals(servlet.pkg);
-        }
-        if (className.length() == 0) {
-            inject = te.getAnnotation(Inject.class);
-            if (inject == null) {
-                String id = "ic:" + te.getQualifiedName() + ":" + tag;
-                SourceParam creator = paramCreator.get(id);
-                if (creator == null) {
-                    creator = SourceParamConstructor.inject(this, samePackage, te, tag);
-                    paramCreator.put(id, creator);
-                }
-                return creator;
-            }
-            String creator2 = getAnnotationType(inject::creator);
-            className = creator2.length() > 0 ? creator2 : t.toString();
-        }
-        if (tag.length() > 0) {// by tag
-            String id = "it:" + className + ":" + tag;
-            SourceParam creator = paramCreator.get(id);
-            if (creator == null) {
-                creator = SourceParamFactory.inject(this, samePackage, className, t, tag);
-                paramCreator.put(id, creator);
-            }
-            return creator;
-        } else {// by type
-            String id = "if:" + className + ":" + t + ":" + (samePackage ? "" : servlet.pkg);
-            SourceParam creator = paramCreator.get(id);
-            if (creator == null) {
-                creator = SourceParamFactory.inject(this, samePackage, className, t);
-                paramCreator.put(id, creator);
-            }
-            return creator;
-        }
     }
 
     public String getFileName(String pkg, String name) {
@@ -310,15 +180,15 @@ class ProcessEnvironment {
 
     public static String getAnnotationType(Callable<Class<?>> runnable) {
         try {
-            runnable.call();
+            return runnable.call().getName();
         } catch (MirroredTypeException e) {
             TypeMirror tm = e.getTypeMirror();
-            if (!tm.getKind().equals(TypeKind.VOID)) {
-                return tm.toString();
+            if (tm.getKind().equals(TypeKind.VOID)) {
+                return "";
             }
+            return tm.toString();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        return "";
     }
 }

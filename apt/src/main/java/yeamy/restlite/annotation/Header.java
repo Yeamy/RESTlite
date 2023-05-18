@@ -20,4 +20,21 @@ import java.lang.annotation.Target;
 public @interface Header {
 	/** name of Header if same with parameter */
 	String value() default "";
+
+	/**
+	 * class name of processor to create value.<br>
+	 * support executor: constructor, method<br>
+	 * support param: only one String
+	 *
+	 * @see #tag()
+	 */
+	Class<?> processor() default void.class;
+
+	/**
+	 * tag the constructor/static-method, suggest to use if more than one
+	 * constructor/method
+	 *
+	 * @see LinkTag
+	 */
+	String tag() default "";
 }

@@ -18,7 +18,10 @@ class SourceServiceName {
                 }
             } else if (a.getAnnotation(Header.class) == null//
                     && a.getAnnotation(Cookies.class) == null//
+                    && a.getAnnotation(Attribute.class) == null//
+                    && a.getAnnotation(Part.class) == null//
                     && a.getAnnotation(Body.class) == null//
+                    && a.getAnnotation(Inject.class) == null//
                     && ProcessEnvironment.getBody(a) == null) {
                 params.add(a.getSimpleName().toString());
             }

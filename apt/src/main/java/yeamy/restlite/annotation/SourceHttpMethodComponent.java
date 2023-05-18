@@ -38,15 +38,14 @@ class SourceHttpMethodComponent {
 
     public void create(String httpMethod) {
         for (VariableElement a : arguments) {
-            if (doRequest(a)
-                    || doAttribute(a)
-                    || doHeader(a)
-                    || doCookie(a)
-                    || doInject(a)
-                    || doBody(a)
-                    || doPart(a)
-                    || doParam(a)) {
-                continue;
+            if (!doRequest(a)
+                    && !doAttribute(a)
+                    && !doHeader(a)
+                    && !doCookie(a)
+                    && !doInject(a)
+                    && !doBody(a)
+                    && !doPart(a)) {
+                doParam(a);
             }
         }
         String key = env.addServerName(httpMethod, serverName);
@@ -170,6 +169,11 @@ class SourceHttpMethodComponent {
             args.addExist(exist);
             return true;
         }
+        SourceProcessor processor = SourceProcessorHeader.get(env, servlet, p, header);
+        if (processor != null) {
+            processor.addToArgs(args, servlet, p, name);
+            return true;
+        }
         TypeKind kind = tm.getKind();
         if (kind.equals(TypeKind.INT)) {
             args.addHeader(name, alias).write("int ", alias, " = _req.getIntHeader(\"", name, "\");");
@@ -195,20 +199,14 @@ class SourceHttpMethodComponent {
             return true;
         }
         Cookies cookie = p.getAnnotation(Cookies.class);
-        String alias;
-        String name;
-        if (cookie == null) {
-            if (T_Cookie.equals(type)) {
-                name = alias = p.getSimpleName().toString();
-            } else {
-                return false;
-            }
-        } else {
+        String name, alias;
+        if (cookie != null) {
             alias = p.getSimpleName().toString();
-            name = cookie.value();
-            if ("".equals(name)) {
-                name = alias;
-            }
+            name = TextUtils.isEmpty(cookie.value()) ? alias : cookie.value();
+        } else if (T_Cookie.equals(type)) {
+            name = alias = p.getSimpleName().toString();
+        } else {
+            return false;
         }
         String exist = args.getCookieAlias(type, name);
         if (exist != null) {
@@ -251,14 +249,7 @@ class SourceHttpMethodComponent {
             case T_String -> args.addBody(name, false, false, false)
                     .write("String ", name, " = _req.getBodyAsText(\"", env.charset(body.charset()), "\");");
             default -> {
-                SourceParam creator = env.getBodyCreator(servlet, t, body);
-                if (creator instanceof SourceParamFail) {
-                    addNoType(t.getKind());
-                    env.error("Not support body type " + type + " without annotation Creator");
-                } else {
-                    args.addBody(name, creator.isThrowable(), creator.isCloseable(), creator.isCloseThrow())
-                            .write(creator.toCharSequence(servlet, args, name));
-                }
+                SourceProcessorBody.get(env, servlet, p, body).addToArgs(args, servlet, p, name);
             }
         }
         return true;
@@ -271,46 +262,46 @@ class SourceHttpMethodComponent {
             return true;
         }
         String name = p.getSimpleName().toString();
-        String alias, charset;
-        Part part = p.getAnnotation(Part.class);
         TypeMirror t = p.asType();
         String type = t.toString();
-        if (part == null && TextUtils.notIn(type, T_Part, T_Parts, T_File, T_Files)) {
-            part = ProcessEnvironment.getPart(p);
-            if (part == null) return false;
+        if (type.equals(T_Parts)) {
+            args.addPart(name, name, false, false, false)
+                    .write(servlet.imports(T_File), "[] ", name, " = _req.getParts();");
+            return true;
+        } else if (type.equals(T_Files)) {
+            args.addPart(name, name, false, false, false)
+                    .write(servlet.imports(T_File), "[] ", name, " = _req.getFiles();");
+            return true;
         }
-        if (part != null) {
-            alias = TextUtils.isEmpty(part.value()) ? name : part.value();
-            charset = env.charset(part.charset());
-        } else {
-            alias = name;
-            charset = env.charset("");
+        Part part = p.getAnnotation(Part.class);
+        if (part == null) {
+            if (type.equals(T_Part)) {
+                args.addPart(name, name, false, false, false)
+                        .write(servlet.imports(T_File), " ", name, " = _req.getPart(\"", name, "\");");
+                return true;
+            } else if (type.equals(T_File)) {
+                args.addPart(name, name, false, false, false)
+                        .write(servlet.imports(T_File), " ", name, " = _req.getFile(\"", name, "\");");
+                return true;
+            } else {
+                part = ProcessEnvironment.getPart(p);
+            }
         }
+        if (part == null) return false;
+        String alias = TextUtils.isEmpty(part.value()) ? name : part.value();
         switch (type) {
             case T_Part -> args.addPart(name, alias, false, false, false)
                     .write(servlet.imports(T_File), " ", name, " = _req.getPart(\"", alias, "\");");
-            case T_Parts -> args.addPart(name, alias, false, false, false)
-                    .write(servlet.imports(T_File), "[] ", name, " = _req.getParts();");
             case T_File -> args.addPart(name, alias, false, false, false)
                     .write(servlet.imports(T_File), " ", name, " = _req.getFile(\"", alias, "\");");
-            case T_Files -> args.addPart(name, alias, false, false, false)
-                    .write(servlet.imports(T_File), "[] ", name, " = _req.getFiles();");
             case T_InputStream -> args.addPart(name, alias, true, true, true)
                     .write(servlet.imports(T_InputStream), " ", name, " = ", servlet.imports("yeamy.utils.IfNotNull"), ".invoke(_req.getFile(\"", alias, "\"),a->a.get());");
             case T_Bytes -> args.addPart(name, alias, false, false, false)
                     .write("byte[] ", name, " = ", servlet.imports("yeamy.utils.IfNotNull"), ".invoke(_req.getFile(\"", alias, "\"),a->a.getAsByte());");
             case T_String -> args.addPart(name, alias, false, false, false)
-                    .write("String ", name, " = ", servlet.imports("yeamy.utils.IfNotNull"), ".invoke(_req.getFile(\"", alias, "\"),a->a.getAsText(\"", env.charset(charset), "\");");
+                    .write("String ", name, " = ", servlet.imports("yeamy.utils.IfNotNull"), ".invoke(_req.getFile(\"", alias, "\"),a->a.getAsText(\"", env.charset(part.charset()), "\");");
             default -> {
-                assert part != null;
-                SourceParam creator = env.getPartCreator(servlet, t, part);
-                if (creator instanceof SourceParamFail) {
-                    addNoType(t.getKind());
-                    env.error("Not support part type " + type + " without annotation Creator");
-                } else {
-                    args.addPart(name, alias, creator.isThrowable(), creator.isCloseable(), creator.isCloseThrow())
-                            .write(creator.toCharSequence(servlet, args, name));
-                }
+                SourceProcessorPart.get(env, servlet, p, part).addToArgs(args, servlet, p, name);
                 return true;
             }
         }
@@ -318,116 +309,60 @@ class SourceHttpMethodComponent {
     }
 
     private boolean doInject(VariableElement p) {
-        TypeMirror t = p.asType();
-        String type = t.toString();
         Inject inject = p.getAnnotation(Inject.class);
         if (inject == null) return false;
         String name = p.getSimpleName().toString();
-        SourceParam creator = env.getInjectCreator(servlet, p, inject);
-        if (creator instanceof SourceParamFail) {
-            addNoType(t.getKind());
-            env.error("Not support inject type " + type + " without annotation Creator");
-        } else {
-            args.addInject(name, creator.isThrowable(), creator.isCloseable(), creator.isCloseThrow())
-                    .write(creator.toCharSequence(servlet, args, name));
-        }
+        SourceProcessorInject.get(env, servlet, p, inject).addToArgs(args, servlet, p, name);
         return true;
     }
 
-    private void addNoType(TypeKind k) {
-        switch (k) {
-            case BOOLEAN -> args.addFallback("false");
-            case BYTE, CHAR, SHORT, INT, LONG, FLOAT, DOUBLE -> args.addFallback("0");
-            default -> args.addFallback("null");
-        }
-    }
-
-    private boolean doParam(VariableElement p) {
+    private void doParam(VariableElement p) {
         TypeMirror t = p.asType();
         String type = t.toString();
-        Param param = p.getAnnotation(Param.class);
         String alias = p.getSimpleName().toString();
-        String fallback, name;
+        String name;
+        Param param = p.getAnnotation(Param.class);
         if (param != null) {
-            fallback = param.fallback();
             name = param.value().length() > 0 ? param.value() : alias;
+            SourceProcessor processor = SourceProcessorParam.get(env, servlet, p, param);
+            if (processor != null) {
+                processor.addToArgs(args, servlet, p, name);
+                return;
+            }
         } else {
-            fallback = "";
             name = alias;
         }
+        SourceArguments.Impl arg = args.addParam(type, name, alias);
         switch (t.getKind()) {
-            case INT: {
-                String[] vs = "".equals(fallback)
-                        ? new String[]{"int ", alias, " = _req.getIntParam(\"", name, "\");"}
-                        : new String[]{"int ", alias, " = _req.getIntParam(\"", name, "\", ", fallback, ");"};
-                args.addParam(type, name, alias).write(vs);
-                break;
-            }
-            case LONG: {
-                String[] vs = "".equals(fallback)
-                        ? new String[]{"long ", alias, " = _req.getLongParam(\"", name, "\");"}
-                        : new String[]{"long ", alias, " = _req.getLongParam(\"", name, "\", ", fallback, ");"};
-                args.addParam(type, name, alias).write(vs);
-                break;
-            }
-            case BOOLEAN: {
-                String[] vs = "".equals(fallback)
-                        ? new String[]{"boolean ", alias, " = _req.getBoolParam(\"", name, "\");"}
-                        : new String[]{"boolean ", alias, " = _req.getBoolParam(\"", name, "\", ", fallback, ");"};
-                args.addParam(type, name, alias).write(vs);
-                break;
-            }
-            case DECLARED: {
-                if (T_String.equals(type)) {
-                    String[] vs = "".equals(fallback)
-                            ? new String[]{"String ", alias, " = _req.getParameter(\"", name, "\");"}
-                            : new String[]{"String ", alias, " = _req.getParameter(\"", name, "\", \"", SourceClass.convStr(fallback).toString(), "\");"};
-                    args.addParam(type, name, alias).write(vs);
-                } else if (T_Decimal.equals(type)) {
-                    String clz = servlet.imports(T_Decimal);
-                    String[] vs = "".equals(fallback)
-                            ? new String[]{clz, " ", alias, " = _req.getDecimalParam(\"", name, "\");"}
-                            : new String[]{clz, " ", alias, " = _req.getDecimalParam(\"", name, "\", new " + clz
-                            + "(\"" + fallback, "\");"};
-                    args.addParam(type, name, alias).write(vs);
-                } else if (T_Integer.equals(type)) {
-                    String[] vs = "".equals(fallback)
-                            ? new String[]{"Integer ", alias, " = _req.getIntegerParam(\"", name, "\");"}
-                            : new String[]{"Integer ", alias, " = _req.getIntParam(\"", name, "\", ", fallback, ");"};
-                    args.addParam(type, name, alias).write(vs);
-                } else if (T_Long.equals(type)) {
-                    String[] vs = "".equals(fallback)
-                            ? new String[]{"Long ", alias, " = _req.getLongTypeParam(\"", name, "\");"}
-                            : new String[]{"Long ", alias, " = _req.getLongParam(\"", name, "\", ", fallback, ");"};
-                    args.addParam(type, name, alias).write(vs);
-                } else if (T_Boolean.equals(type)) {
-                    String[] vs = "".equals(fallback)
-                            ? new String[]{"Boolean ", alias, " = _req.getBooleanParam(\"", name, "\");"}
-                            : new String[]{"Boolean ", alias, " = _req.getBoolParam(\"", name, "\", ", fallback, ");"};
-                    args.addParam(type, name, alias).write(vs);
-                } else {
-                    args.addParam(type, name, alias).write(type, " ", alias, " = null;/* not support type */");
-                    env.warning("not support param type " + type + " without annotation Creator");
-                }
-                break;
-            }
-            case ARRAY:
+            case INT -> arg.write("int ", alias, " = _req.getIntParam(\"", name, "\");");
+            case LONG -> arg.write("long ", alias, " = _req.getLongParam(\"", name, "\");");
+            case BOOLEAN -> arg.write("boolean ", alias, " = _req.getBoolParam(\"", name, "\");");
+            case DECLARED -> {
                 switch (type) {
-                    case T_Booleans -> args.addParam(type, name, alias)
-                            .write("boolean[] ", alias, " = _req.getBoolParams(\"", name, "\");");
-                    case T_Integers -> args.addParam(type, name, alias)
-                            .write("int[] ", alias, " = _req.getIntParams(\"", name, "\");");
-                    case T_Longs -> args.addParam(type, name, alias)
-                            .write("long[] ", alias, " = _req.getLongParams(\"", name, "\");");
-                    case T_Decimals -> args.addParam(type, name, alias)
-                            .write(servlet.imports(T_Decimal), "[] ", alias, " = _req.getDecimalParams(\"", name, "\");");
-                    case T_Strings -> args.addParam(type, name, alias)
-                            .write("String[] ", alias, " = _req.getParams(\"", name, "\");");
+                    case T_String -> arg.write("String ", alias, " = _req.getParameter(\"", name, "\");");
+                    case T_Integer -> arg.write("Integer ", alias, " = _req.getIntegerParam(\"", name, "\");");
+                    case T_Long -> arg.write("Long ", alias, " = _req.getLongTypeParam(\"", name, "\");");
+                    case T_Boolean -> arg.write("Boolean ", alias, " = _req.getBooleanParam(\"", name, "\");");
+                    case T_Decimal ->
+                            arg.write(servlet.imports(T_Decimal), " ", alias, " = _req.getDecimalParam(\"", name, "\");");
+                    default -> {
+                        arg.write(type, " ", alias, " = null;/* not support type */");
+                        env.warning("not support param type " + type + " without annotation Creator");
+                    }
+                }
+            }
+            case ARRAY -> {
+                switch (type) {
+                    case T_Booleans -> arg.write("boolean[] ", alias, " = _req.getBoolParams(\"", name, "\");");
+                    case T_Integers -> arg.write("int[] ", alias, " = _req.getIntParams(\"", name, "\");");
+                    case T_Longs -> arg.write("long[] ", alias, " = _req.getLongParams(\"", name, "\");");
+                    case T_Strings -> arg.write("String[] ", alias, " = _req.getParams(\"", name, "\");");
+                    case T_Decimals ->
+                            arg.write(servlet.imports(T_Decimal), "[] ", alias, " = _req.getDecimalParams(\"", name, "\");");
                     default -> args.addFallback("null");
                 }
-            default:
+            }
         }
-        return true;
     }
 
     private void doReturn(ProcessEnvironment env, SourceServlet servlet) {

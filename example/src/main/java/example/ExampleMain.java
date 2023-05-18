@@ -16,7 +16,12 @@ public class ExampleMain {
     InjectCreator creator;
 
 	@GET
-	public String get(@Inject(creator = MaxTo15.class) int size, String p) {
+	public String get(@Inject(creator = MaxTo15.class) long size, String p) {
+		return "get";
+	}
+
+	@GET
+	public String get2(@Param(processor = MaxTo15.class) int size, String p) {
 		return "get";
 	}
 
