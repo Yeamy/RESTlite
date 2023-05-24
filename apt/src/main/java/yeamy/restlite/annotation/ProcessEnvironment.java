@@ -111,11 +111,13 @@ class ProcessEnvironment {
         }
     }
 
-    public String charset(String charset) {
-        if (TextUtils.isEmpty(charset)) {
-            return this.charset;
+    public String charset(String... charset) {
+        for (String c : charset) {
+            if (TextUtils.isNotEmpty(c)) {
+                return c;
+            }
         }
-        return charset;
+        return this.charset;
     }
 
     public String getPackage() {

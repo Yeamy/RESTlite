@@ -11,7 +11,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 class SourceProcessorBody extends SourceProcessor {
-    private final String charset;
 
     public static SourceProcessor get(ProcessEnvironment env, SourceServlet servlet, VariableElement param, Body ann) {
         TypeMirror type = param.asType();
@@ -70,8 +69,7 @@ class SourceProcessorBody extends SourceProcessor {
                                 boolean samePackage,
                                 List<? extends Element> elements,
                                 String charset) {
-        super(env, factoryType, exec, returnType);
-        this.charset = charset;
+        super(env, factoryType, exec, returnType, charset);
         init(exec, samePackage, elements);
     }
 

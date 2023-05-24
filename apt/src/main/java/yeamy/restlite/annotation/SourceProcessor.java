@@ -25,6 +25,7 @@ abstract class SourceProcessor {
     private final TypeElement factoryType;
     private final ExecutableElement exec;
     protected final TypeMirror returnType;
+    private final String charset;
     private boolean throwable = false;
     private boolean closeable = false;
     private boolean closeThrow = false;
@@ -121,10 +122,15 @@ abstract class SourceProcessor {
     //----------------------------------------------------------------------
 
     public SourceProcessor(ProcessEnvironment env, TypeElement factoryType, ExecutableElement exec, TypeMirror returnType) {
+        this(env, factoryType, exec, returnType, null);
+    }
+
+    public SourceProcessor(ProcessEnvironment env, TypeElement factoryType, ExecutableElement exec, TypeMirror returnType, String charset) {
         this.env = env;
         this.factoryType = factoryType;
         this.exec = exec;
         this.returnType = returnType;
+        this.charset = charset;
     }
 
     protected void init(ExecutableElement method, boolean samePackage, List<? extends Element> elements) {
@@ -244,7 +250,7 @@ abstract class SourceProcessor {
                     case T_InputStream -> b.append("_req.getBody()");
                     case T_Bytes -> b.append("_req.getBodyAsByte()");
                     case T_String ->
-                            b.append("_req.getBodyAsText(\"").append(env.charset(body.charset())).append("\")");
+                            b.append("_req.getBodyAsText(\"").append(env.charset(charset, body.charset())).append("\")");
                     default -> b.append("null");
                 }
             }
@@ -277,7 +283,7 @@ abstract class SourceProcessor {
             case T_Bytes -> b.append(servlet.imports("yeamy.utils.IfNotNull")).append(".invoke(_req.getFile(\"")
                     .append(alias).append("\"),a->a.getAsByte()");
             case T_String -> b.append(servlet.imports("yeamy.utils.IfNotNull")).append(".invoke(_req.getFile(\"")
-                    .append(alias).append("\"),a->a.getAsText(\"").append(env.charset(part.charset())).append("\")");
+                    .append(alias).append("\"),a->a.getAsText(\"").append(env.charset(charset, part.charset())).append("\")");
             default -> {
                 return false;
             }

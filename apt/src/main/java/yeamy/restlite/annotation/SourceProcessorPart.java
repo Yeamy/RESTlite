@@ -10,11 +10,8 @@ import javax.lang.model.type.TypeMirror;
 import java.util.LinkedList;
 import java.util.List;
 
-import static yeamy.restlite.annotation.SupportType.*;
-
 class SourceProcessorPart extends SourceProcessor {
     private final String alias;
-    private final String charset;
 
     public static SourceProcessor get(ProcessEnvironment env, SourceServlet servlet, VariableElement param, Part ann) {
         String name = ann.value();
@@ -77,20 +74,14 @@ class SourceProcessorPart extends SourceProcessor {
                                 List<? extends Element> elements,
                                 String alias,
                                 String charset) {
-        super(env, factoryType, exec, returnType);
+        super(env, factoryType, exec, returnType, charset);
         this.alias = alias;
-        this.charset = charset;
         init(exec, samePackage, elements);
     }
 
     @Override
     protected boolean doBody(SourceArguments args, VariableElement p, StringBuilder b) {
         return false;// disable body
-    }
-
-    @Override
-    protected boolean doPart(SourceServlet servlet, SourceArguments args, VariableElement p, StringBuilder b) {
-        return super.doPart(servlet, args, p, b);
     }
 
     @Override
