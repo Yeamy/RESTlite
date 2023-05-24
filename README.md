@@ -40,11 +40,12 @@ public class ExampleMain {
      */
     @POST
     public String getColor(@Param String p, // 来自URI的请求数据
-                        String p2,          // 无注解，当必要Param处理
-                        @Param(required=false)String p3, // 可选（非必要）Param
-                        @Cookies String c,  // 来自cookie的数据
-                        @Header String h,   // 来自header的数据
-                        @GsonBody Bean b) { // 使用GSON解析body
+                           String p2,          // 无注解，当必要Param处理
+                           @Param(required=false)String p3, // 可选（非必要）Param
+                           @Param(processor=Max15.class)int p4, // 通过processor读取
+                           @Cookies String c,  // 来自cookie的数据
+                           @Header String h,   // 来自header的数据
+                           @GsonBody Bean b) { // 使用GSON解析body
         return "This is getColor";
     }
 
@@ -92,8 +93,8 @@ public class B implements A {
 }
 ```
 
-### 4.tag() 与 @LinkTag.value() 对应
-@Body注解与@Inject的tag()，当tag()不为空时，creator()指定的类内必须存在与之相同参数的@LinkTag注解存在。如:
+### 4.预处理请求参数
+在@Param, @Header, @Cookies, @Body和@Inject等注解中为了预处理请求参数，可以使用processor()或creator()来指定预处理类，并使用tag()来标记指定函数，当tag()为空时，processor()或creator()指定的类内必须存在唯一一个返回该类型的静态方法或构造函数；否则必须存在与tag()返回值相同的@LinkTag.value()注解。如:
 ```java
 @Inject(creator=B.class, tag="xx")
 public class A {

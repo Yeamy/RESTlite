@@ -23,8 +23,9 @@ public @interface Header {
 
 	/**
 	 * class name of processor to create value.<br>
-	 * support executor: constructor, method<br>
-	 * support param: only one String
+	 * <b>support executor:</b>  constructor, method<br>
+	 * <b>support param:</b>  only one String<br>
+	 * <b>support param:</b> any type
 	 *
 	 * @see #tag()
 	 */

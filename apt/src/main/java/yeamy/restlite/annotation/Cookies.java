@@ -26,9 +26,10 @@ public @interface Cookies {
     String value() default "";
 
     /**
-     * class name of processor to create value.<br>
-     * support executor: constructor, method<br>
-     * support param: only one {@linkplain jakarta.servlet.http.Cookie Cookie} or Cookie[],
+     * class name of processor to preprocess value.<br>
+     * <b>support executor:</b> constructor, static-method<br>
+     * <b>support param:</b> only one {@linkplain jakarta.servlet.http.Cookie Cookie} or Cookie[]<br>
+     * <b>support param:</b> any type
      *
      * @see #tag()
      */

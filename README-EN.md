@@ -39,11 +39,12 @@ public class ExampleMain {
      */
     @POST
     public String getColor(@Param String p, // param data
-                        String p2,          // no annotation, take it as necessary Param
-                        @Param(required=false)String p3, // optional Param
-                        @Cookies String c,  // cookie data
-                        @Header String h,   // header data
-                        @GsonBody Bean b) { // deserialize body with GSON
+                           String p2,          // no annotation, take it as necessary Param
+                           @Param(required=false)String p3, // optional Param
+                           @Param(processor=Max15.class)int p4, // read via processor
+                           @Cookies String c,  // cookie data
+                           @Header String h,   // header data
+                           @GsonBody Bean b) { // deserialize body with GSON
         return "This is getColor";
     }
 
@@ -91,8 +92,8 @@ public class B implements A {
 }
 ```
 
-### 4.tag() match with @LinkTag.value()
-tag() in @Body or @Inject, when tag() is not empty, @LinkTag must match tag():
+### 4.preprocess request parameter
+Preprocess request parameter(such as @Param, @Header, @Cookies, @Body, @Inject) by processor() or creator() and mark executor with tag(), if tag() is empty, there must only one executor(static-method or constructor) return same type, otherwise there must be only one executor with @LinkTag.value() match the tag():
 ```java
 @Inject(creator=B.class, tag="xx")
 public class A {
