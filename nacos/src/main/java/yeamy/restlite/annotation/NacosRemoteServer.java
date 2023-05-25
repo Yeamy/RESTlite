@@ -5,7 +5,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Retention(RetentionPolicy.RUNTIME)
+/**
+ * declare the interface is nacos client<br>
+ */
+@Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.TYPE)
 public @interface NacosRemoteServer {
 

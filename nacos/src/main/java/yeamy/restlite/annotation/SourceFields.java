@@ -38,7 +38,6 @@ class SourceFields {
             this.name = name;
         }
 
-
         @Override
         public boolean equals(Object obj) {
             if (obj instanceof NacosField id) {

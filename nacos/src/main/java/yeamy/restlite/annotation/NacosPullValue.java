@@ -6,10 +6,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * interface public method<br>
+ * interface getter method<br>
  * support int, long, short, float, double, boolean, String, BigDecimal
  */
-@Retention(RetentionPolicy.CLASS)
+@Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.METHOD)
 public @interface NacosPullValue {
 
@@ -20,6 +20,19 @@ public @interface NacosPullValue {
     long timeoutMs();
 
     boolean autoRefreshed() default false;
+
+    /**
+     * class of processor to create value.<br>
+     * <b>support executor:</b> constructor, method<br>
+     * <b>support param:</b> only one String<br>
+     * <b>support return:</b> any type
+     */
+    Class<?> processor() default void.class;
+
+    /**
+     * @see LinkTag
+     */
+    String tag() default "";
 
 //    ConfigType type() default ConfigType.UNSET;
 }

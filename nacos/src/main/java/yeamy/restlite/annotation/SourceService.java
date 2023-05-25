@@ -39,9 +39,9 @@ class SourceService extends SourceClass {
     public void create() throws IOException {
         String clzName = type.getSimpleName() + "Impl";
         Object ifName = type.getSimpleName();
-        StringBuilder sb = new StringBuilder("public class ").append(clzName).append(" implements ").append(ifName).append('{')
-                .append("@InjectProvider(provideFor=").append(ifName).append(".class)")
-                .append("public ").append(clzName).append("{Properties properties = new Properties();");
+        StringBuilder clz = new StringBuilder("public class ").append(clzName).append(" implements ").append(ifName).append('{');
+        StringBuilder sb = new StringBuilder("@InjectProvider(provideFor=").append(ifName).append(".class)");
+        sb.append("public ").append(clzName).append("(){Properties properties = new Properties();");
         addProperties(sb, "SERVER_ADDR", server.serverAddr());
         addProperties(sb, "NAMESPACE", server.namespace());
         addProperties(sb, "USERNAME", server.username());
@@ -64,10 +64,10 @@ class SourceService extends SourceClass {
             imports("com.alibaba.nacos.api.naming.NamingService");
             imports("com.alibaba.nacos.client.naming.NacosNamingService");
             for (NacosDiscovery nameServer : nameServers) {
-//              sb.append("NamingService namingService = NacosFactory.createNamingService(properties);namingService.registerInstance(\"")
+                clz.append("private NamingService namingService;");
                 sb.append("NamingService namingService = new NacosNamingService(properties);namingService.registerInstance(\"")
                         .append(nameServer.serviceName()).append("\", \"").append(nameServer.serviceIP()).append("\",")
-                        .append(nameServer.serviceIP()).append(",\"").append(convStr(nameServer.clusterName()))
+                        .append(nameServer.servicePort()).append(",\"").append(convStr(nameServer.clusterName()))
                         .append("\");this.namingService = namingService;");
             }
         }
@@ -81,21 +81,31 @@ class SourceService extends SourceClass {
             ExecutableElement method = iterator.next();
             NacosPullValue pull = method.getAnnotation(NacosPullValue.class);
             if (pull != null) {
-                addConfigPull(pull, method, ms, fieldNames, sb);
+                addGetter(pull, method, clz, fieldNames, ms);
                 iterator.remove();
             }
         }
-        sb.append('}');
         boolean containsConfigService = ms.length() > 0;
         if (containsConfigService) {
-            imports("com.alibaba.nacos.api.config.ConfigService");
-            imports("com.alibaba.nacos.client.config.NacosConfigService");
-//            sb.append("ConfigService configService = NacosFactory.createConfigService(properties);this.configService = configService;");
-            sb.append("ConfigService configService = new NacosConfigService(properties);this.configService = configService;");
+            clz.append("private ")
+                    .append(imports("com.alibaba.nacos.api.config.ConfigService"))
+                    .append(" configService;");
+            clz.append("private interface L extends ")
+                    .append(imports("com.alibaba.nacos.api.config.listener.Listener"))
+                    .append("{default ")
+                    .append(imports("java.util.concurrent.Executor"))
+                    .append(" getExecutor(){return ")
+                    .append(getExecutor())
+                    .append(";}}");
+            clz.append("private String getConfigAndSignListener(String d, String g, long t, L l){try {return configService.getConfigAndSignListener(d, g, t, l);}catch(")
+                    .append(imports("com.alibaba.nacos.api.exception.NacosException"))
+                    .append(" e) {e.printStackTrace();return null;}}");
+            sb.append("ConfigService configService = this.configService = new ")
+                    .append(imports("com.alibaba.nacos.client.config.NacosConfigService"))
+                    .append("(properties);")
+                    .append(ms);
         }
-        sb.append('}');
         // --------------- config method end | add methods --------------
-        sb.append(ms);
         Elements utils = env.getElementUtils();
         TypeMirror T_NamingService = utils.getTypeElement("com.alibaba.nacos.api.naming.NamingService").asType();
         TypeMirror T_ConfigService = utils.getTypeElement("com.alibaba.nacos.api.config.ConfigService").asType();
@@ -104,64 +114,67 @@ class SourceService extends SourceClass {
             if (push != null) {
                 SourceFields.NacosField field = fieldNames.get(push.dataId(), push.group());
                 if (field == null) {
-                    addConfigPush(push, method, fieldNames, sb);
+                    addSetter(push, method, fieldNames, sb);
                 } else {
-                    addConfigPush(push, method, field.type, field.name, sb);
+                    addSetter(push, method, field.type, field.name, sb);
                 }
             } else if (typeUtils.isSubtype(method.getReturnType(), T_NamingService)) {
-                sb.append("public NamingService ").append(method.getSimpleName()).append('(');
+                clz.append("public NamingService ").append(method.getSimpleName()).append('(');
                 List<? extends VariableElement> params = method.getParameters();
                 if (params.size() > 0) {
                     for (VariableElement p : method.getParameters()) {
-                        sb.append(imports(p.asType())).append(' ').append(p.getSimpleName()).append(',');
+                        clz.append(imports(p.asType())).append(' ').append(p.getSimpleName()).append(',');
                     }
-                    sb.deleteCharAt(sb.length() - 1);
+                    clz.deleteCharAt(clz.length() - 1);
                 }
-                sb.append(containsNamingService
+                clz.append(containsNamingService
                         ? "){return this.namingService;}"
                         : "){return null;}");
             } else if (typeUtils.isSubtype(method.getReturnType(), T_ConfigService)) {
-                sb.append("public ConfigService ").append(method.getSimpleName()).append('(');
+                clz.append("public ConfigService ").append(method.getSimpleName()).append('(');
                 List<? extends VariableElement> params = method.getParameters();
                 if (params.size() > 0) {
                     for (VariableElement p : method.getParameters()) {
-                        sb.append(imports(p.asType())).append(' ').append(p.getSimpleName()).append(',');
+                        clz.append(imports(p.asType())).append(' ').append(p.getSimpleName()).append(',');
                     }
-                    sb.deleteCharAt(sb.length() - 1);
+                    clz.deleteCharAt(clz.length() - 1);
                 }
-                sb.append(containsConfigService
+                clz.append(containsConfigService
                         ? "){return this.configService;}"
                         : "){return null;}");
             } else {
-                sb.append("public ").append(imports(method.getReturnType())).append(' ').append(method.getSimpleName()).append('(');
+                clz.append("public ").append(imports(method.getReturnType())).append(' ').append(method.getSimpleName()).append('(');
                 List<? extends VariableElement> params = method.getParameters();
                 if (params.size() > 0) {
                     for (VariableElement p : params) {
-                        sb.append(imports(p.asType())).append(' ').append(p.getSimpleName()).append(',');
+                        clz.append(imports(p.asType())).append(' ').append(p.getSimpleName()).append(',');
                     }
-                    sb.deleteCharAt(sb.length() - 1);
+                    clz.deleteCharAt(clz.length() - 1);
                 }
-                sb.append("){return null;}");
+                clz.append("){return null;}");
             }
         }
-        sb.append("}catch(NacosException e){e.printStackTrace();}}");
-        createSourceFile(env, pkg + '.' + clzName, sb);
+        sb.append("}catch(")
+                .append(imports("com.alibaba.nacos.api.exception.NacosException"))
+                .append(" e){e.printStackTrace();}}");
+        clz.append(sb).append('}');
+        createSourceFile(env, pkg + '.' + clzName, clz);
     }
 
-    private void addConfigPush(NacosPushValue push, ExecutableElement method, SourceFields fields, StringBuilder sb) {
+    private void addSetter(NacosPushValue push, ExecutableElement method, SourceFields fields, StringBuilder sb) {
         String fieldName = "arg" + fields.index();
-        String fieldType = addConfigPush(push, method, null, fieldName, sb);
+        String fieldType = addSetter(push, method, null, fieldName, sb);
         if (fieldType != null) {
             fields.put(push, fieldType, fieldName);
         }
     }
 
-    private String addConfigPush(NacosPushValue push, ExecutableElement method, String fieldType, String fieldName, StringBuilder sb) {
+    private String addSetter(NacosPushValue push, ExecutableElement method, String fieldType, String fieldName, StringBuilder sb) {
         List<? extends VariableElement> params = method.getParameters();
         if (method.getReturnType().getKind().equals(TypeKind.VOID)) {
-            showError("@NacosPushValue method's return type must be void: " + type.getQualifiedName() + "." + method.getSimpleName());
+            showError("@NacosSet method's return type must be void: " + type.getQualifiedName() + "." + method.getSimpleName());
         } else if (params.size() == 1) {
-            showError("@NacosPushValue method's must have only one param: " + type.getQualifiedName() + "." + method.getSimpleName());
+            showError("@NacosSet method's must have only one param: " + type.getQualifiedName() + "." + method.getSimpleName());
         } else {
             Object methodName = method.getSimpleName();
             VariableElement param = params.get(0);
@@ -178,18 +191,18 @@ class SourceService extends SourceClass {
                         .append(paramName).append(",\"").append(push.type()).append("\");}");
                 return paramType;
             } else {
-                showError("param of @NacosPushValue method not the same with @NacosPullValue method: " + type.getQualifiedName() + "." + method.getSimpleName());
+                showError("param of @NacosSet method not the same with @NacosPullValue method: " + type.getQualifiedName() + "." + method.getSimpleName());
                 sb.append("public void ").append(methodName).append('(').append(paramType).append(' ').append(paramName).append("){}");
             }
         }
         return null;
     }
 
-    private void addConfigPull(NacosPullValue pull, ExecutableElement method, StringBuilder ms, SourceFields fieldNames, StringBuilder sb) {
+    private void addGetter(NacosPullValue pull, ExecutableElement method, StringBuilder ms, SourceFields fieldNames, StringBuilder sb) {
         String fieldName = "arg" + fieldNames.index();
         List<? extends VariableElement> parameters = method.getParameters();
         if (parameters.size() > 0) {
-            showError("@NacosPullValue must have no parameter: " + type.getQualifiedName() + "." + method.getSimpleName());
+            showError("@NacosPullValue must be no parameter: " + type.getQualifiedName() + "." + method.getSimpleName());
             String rt = "null";
             TypeKind kind = method.getReturnType().getKind();
             if (kind.isPrimitive()) {
@@ -211,40 +224,64 @@ class SourceService extends SourceClass {
         TypeMirror rtm = method.getReturnType();
         TypeKind kind = rtm.getKind();
         String returnType = "";
-        String expression = "";
+        String[] expression = new String[]{"", ""};
         switch (kind) {
-            case INT -> {
-                returnType = "int";
-                expression = "Integer.parseInt(configInfo)";
-            }
-            case LONG -> {
-                returnType = "long";
-                expression = "Long.parseLong(configInfo)";
-            }
             case BOOLEAN -> {
                 returnType = "boolean";
-                expression = "Boolean.parseBoolean(configInfo)";
+                expression = new String[]{imports("yeamy.utils.ValueUtils") + ".toBoolean(", ",false)"};
             }
             case SHORT -> {
                 returnType = "short";
-                expression = "Short.parseShort(configInfo)";
+                expression = new String[]{imports("yeamy.utils.ValueUtils") + ".toShort(", ",0)"};
+            }
+            case INT -> {
+                returnType = "int";
+                expression = new String[]{imports("yeamy.utils.ValueUtils") + ".toInt(", ",0)"};
+            }
+            case LONG -> {
+                returnType = "long";
+                expression = new String[]{imports("yeamy.utils.ValueUtils") + ".toLong(", ",0)"};
             }
             case FLOAT -> {
                 returnType = "float";
-                expression = "Float.parseFloat(configInfo)";
+                expression = new String[]{imports("yeamy.utils.ValueUtils") + ".toFloat(", ",0)"};
             }
             case DOUBLE -> {
                 returnType = "double";
-                expression = "Double.parseDouble(configInfo)";
+                expression = new String[]{imports("yeamy.utils.ValueUtils") + ".toDouble(", ",0)"};
             }
             case DECLARED -> {
                 returnType = rtm.toString();
-                if (returnType.equals("java.math.BigDecimal")) {
-                    returnType = imports("java.math.BigDecimal");
-                    expression = "new BigDecimal(configInfo)";
-                } else if (returnType.equals("java.lang.String")) {
-                    returnType = "String";
-                    expression = "configInfo";
+                switch (returnType) {
+                    case "java.lang.String" -> returnType = "String";
+                    case "java.math.BigDecimal" -> {
+                        returnType = imports("java.math.BigDecimal");
+                        expression = new String[]{imports("yeamy.utils.ValueUtils") + ".toBigDecimal(", ")"};
+                    }
+                    case "java.lang.Boolean" -> {
+                        returnType = "Boolean";
+                        expression = new String[]{imports("yeamy.utils.ValueUtils") + ".toBoolean(", ")"};
+                    }
+                    case "java.lang.Short" -> {
+                        returnType = "Short";
+                        expression = new String[]{imports("yeamy.utils.ValueUtils") + ".toShort(", ")"};
+                    }
+                    case "java.lang.Integer" -> {
+                        returnType = "Integer";
+                        expression = new String[]{imports("yeamy.utils.ValueUtils") + ".toInteger(", ")"};
+                    }
+                    case "java.lang.Long" -> {
+                        returnType = "Long";
+                        expression = new String[]{imports("yeamy.utils.ValueUtils") + ".toLong(", ")"};
+                    }
+                    case "java.lang.Float" -> {
+                        returnType = "Float";
+                        expression = new String[]{imports("yeamy.utils.ValueUtils") + ".toFloat(", ")"};
+                    }
+                    case "java.lang.Double" -> {
+                        returnType = "Double";
+                        expression = new String[]{imports("yeamy.utils.ValueUtils") + ".toDouble(", ")"};
+                    }
                 }
             }
         }
@@ -257,14 +294,16 @@ class SourceService extends SourceClass {
         ms.append("private ").append(returnType).append(' ').append(fieldName).append("; public ").append(returnType)
                 .append(' ').append(methodName).append("(){ return ").append(fieldName).append(";}");
         if (pull.autoRefreshed()) {
-            sb.append(fieldName).append(" = configService.getConfigAndSignListener(").append(convStr(pull.dataId()))
-                    .append(',').append(convStr(pull.group())).append(',').append(pull.timeoutMs())//
-                    .append("L,new Listener() {@Override public Executor getExecutor(){return ")//
-                    .append(getExecutor()).append(";}@Override public void receiveConfigInfo(String configInfo){this.")//
-                    .append(fieldName).append('=').append(expression).append(";}});");
+            sb.append(fieldName).append('=').append(expression[0]).append("getConfigAndSignListener(\"")
+                    .append(convStr(pull.dataId())).append("\",\"").append(convStr(pull.group())).append("\",")
+                    .append(pull.timeoutMs()).append("L,v-> ").append(fieldName).append('=').append(expression[0])
+                    .append('v').append(expression[1]).append(")")
+                    .append(expression[1]).append(';');
         } else {
-            sb.append(fieldName).append(" = configService.getConfig(").append(convStr(pull.dataId())).append(',')
-                    .append(convStr(pull.group())).append(',').append(pull.timeoutMs()).append("L);");
+            sb.append(fieldName).append('=').append(expression[0]).append("configService.getConfig(\"")
+                    .append(convStr(pull.dataId())).append("\",\"")
+                    .append(convStr(pull.group())).append("\",")
+                    .append(pull.timeoutMs()).append("L)").append(expression[1]).append(';');
         }
         fieldNames.put(pull, rtm.toString(), fieldName);
     }
@@ -327,7 +366,7 @@ class SourceService extends SourceClass {
                 return "null";
             }
         }
-        return null;
+        return "null";
     }
 
     private void showError(String msg) {

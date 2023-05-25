@@ -24,6 +24,7 @@ dependencies {
     implementation project(':nacos')
 
     annotationProcessor project(':apt')
+    annotationProcessor project(':nacos')
     annotationProcessor project(':tomcat')
 
 //    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
