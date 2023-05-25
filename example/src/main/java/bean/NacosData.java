@@ -1,9 +1,8 @@
 package bean;
 
-import yeamy.restlite.annotation.NacosExecutor;
-import yeamy.restlite.annotation.NacosDiscovery;
-import yeamy.restlite.annotation.NacosPullValue;
-import yeamy.restlite.annotation.NacosRemoteServer;
+import com.alibaba.nacos.api.exception.NacosException;
+import jakarta.servlet.ServletException;
+import yeamy.restlite.annotation.*;
 
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -20,9 +19,12 @@ public interface NacosData {
     ThreadPoolExecutor executor = new ThreadPoolExecutor(2, 4, 1000L,
             TimeUnit.MICROSECONDS, new LinkedBlockingDeque<>());
 
-    @NacosPullValue(group = "g", dataId = "d1", timeoutMs = 1000L)
+    @NacosGet(group = "g", dataId = "d1", timeoutMs = 1000L)
     int getStr1();
 
-    @NacosPullValue(group = "g", dataId = "d2", timeoutMs = 1000L, autoRefreshed = true)
+    @NacosGet(group = "g", dataId = "d2", timeoutMs = 1000L, autoRefreshed = true)
     Integer getStr2();
+
+    @NacosSet(group = "g", dataId = "d2")
+    void setStr2(Integer v) throws ServletException;
 }

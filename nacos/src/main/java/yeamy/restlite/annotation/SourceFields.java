@@ -9,13 +9,13 @@ class SourceFields {
         return map.get(new NacosField(dataId, group, null, null));
     }
 
-    public void put(NacosPullValue pull, String fieldType, String fieldName) {
-        NacosField id = new NacosField(pull.dataId(), pull.group(), fieldType, fieldName);
+    public void put(NacosGet getter, String fieldType, String fieldName) {
+        NacosField id = new NacosField(getter.dataId(), getter.group(), fieldType, fieldName);
         map.put(id, id);
     }
 
-    public void put(NacosPushValue push, String fieldType, String fieldName) {
-        NacosField id = new NacosField(push.dataId(), push.group(), fieldType, fieldName);
+    public void put(NacosSet setter, String fieldType, String fieldName) {
+        NacosField id = new NacosField(setter.dataId(), setter.group(), fieldType, fieldName);
         map.put(id, id);
     }
 

@@ -74,14 +74,14 @@ class SourceService extends SourceClass {
         // --------------- name server end | config server start --------------
         StringBuilder ms = new StringBuilder();
         SourceFields fieldNames = new SourceFields();
-        // add pull
+        // add getter
         ArrayList<ExecutableElement> methods = getMethods();
         Iterator<ExecutableElement> iterator = methods.iterator();
         while (iterator.hasNext()) {
             ExecutableElement method = iterator.next();
-            NacosPullValue pull = method.getAnnotation(NacosPullValue.class);
-            if (pull != null) {
-                addGetter(pull, method, clz, fieldNames, ms);
+            NacosGet getter = method.getAnnotation(NacosGet.class);
+            if (getter != null) {
+                addGetter(getter, method, clz, fieldNames, ms);
                 iterator.remove();
             }
         }
@@ -92,7 +92,7 @@ class SourceService extends SourceClass {
                     .append(" configService;");
             clz.append("private interface L extends ")
                     .append(imports("com.alibaba.nacos.api.config.listener.Listener"))
-                    .append("{default ")
+                    .append("{@Override default ")
                     .append(imports("java.util.concurrent.Executor"))
                     .append(" getExecutor(){return ")
                     .append(getExecutor())
@@ -110,13 +110,13 @@ class SourceService extends SourceClass {
         TypeMirror T_NamingService = utils.getTypeElement("com.alibaba.nacos.api.naming.NamingService").asType();
         TypeMirror T_ConfigService = utils.getTypeElement("com.alibaba.nacos.api.config.ConfigService").asType();
         for (ExecutableElement method : methods) {
-            NacosPushValue push = method.getAnnotation(NacosPushValue.class);
-            if (push != null) {
-                SourceFields.NacosField field = fieldNames.get(push.dataId(), push.group());
+            NacosSet setter = method.getAnnotation(NacosSet.class);
+            if (setter != null) {
+                SourceFields.NacosField field = fieldNames.get(setter.dataId(), setter.group());
                 if (field == null) {
-                    addSetter(push, method, fieldNames, sb);
+                    addSetter(setter, method, fieldNames, clz);
                 } else {
-                    addSetter(push, method, field.type, field.name, sb);
+                    addSetter(setter, method, field.type, field.name, clz);
                 }
             } else if (typeUtils.isSubtype(method.getReturnType(), T_NamingService)) {
                 clz.append("public NamingService ").append(method.getSimpleName()).append('(');
@@ -161,48 +161,85 @@ class SourceService extends SourceClass {
         createSourceFile(env, pkg + '.' + clzName, clz);
     }
 
-    private void addSetter(NacosPushValue push, ExecutableElement method, SourceFields fields, StringBuilder sb) {
+    private void addSetter(NacosSet setter, ExecutableElement method, SourceFields fields, StringBuilder clz) {
         String fieldName = "arg" + fields.index();
-        String fieldType = addSetter(push, method, null, fieldName, sb);
+        String fieldType = addSetter(setter, method, null, fieldName, clz);
         if (fieldType != null) {
-            fields.put(push, fieldType, fieldName);
+            fields.put(setter, fieldType, fieldName);
         }
     }
 
-    private String addSetter(NacosPushValue push, ExecutableElement method, String fieldType, String fieldName, StringBuilder sb) {
+    private String addSetter(NacosSet setter, ExecutableElement method, String fieldType, String fieldName, StringBuilder clz) {
         List<? extends VariableElement> params = method.getParameters();
-        if (method.getReturnType().getKind().equals(TypeKind.VOID)) {
+        if (!method.getReturnType().getKind().equals(TypeKind.VOID)) {
             showError("@NacosSet method's return type must be void: " + type.getQualifiedName() + "." + method.getSimpleName());
-        } else if (params.size() == 1) {
+        } else if (params.size() != 1) {
             showError("@NacosSet method's must have only one param: " + type.getQualifiedName() + "." + method.getSimpleName());
         } else {
             Object methodName = method.getSimpleName();
             VariableElement param = params.get(0);
             Object paramName = param.getSimpleName();
-            String paramType = imports(param.asType());
+            String paramType = param.asType().toString();
             if (fieldType == null) {
-                fieldType = paramType;
-                sb.append("private ").append(paramType).append(' ').append(fieldName).append(';');
+                fieldType = imports(paramType);
+                clz.append("private ").append(imports(paramType)).append(' ').append(fieldName).append(';');
+            }
+            clz.append("public void ").append(methodName).append('(').append(imports(paramType)).append(' ').append(paramName).append(')');
+            List<? extends TypeMirror> ts = method.getThrownTypes();
+            boolean noThrown = true, throwSev = false;
+            if (ts.size() > 0) {
+                clz.append(" throws ");
+                for (int i = 0; i < ts.size(); i++) {
+                    String throwClz = ts.get(i).toString();
+                    if (i > 0) clz.append(',');
+                    clz.append(imports(throwClz));
+                    if (noThrown) {
+                        if (TextUtils.in(throwClz, "java.lang.Exception", "java.lang.Throwable",
+                                "com.alibaba.nacos.api.exception.NacosException")) {
+                            noThrown = false;
+                        } else if (!throwSev && throwClz.equals("jakarta.servlet.ServletException")) {
+                            throwSev = true;
+                        }
+                    }
+                }
             }
             if (fieldType.equals(paramType)) {
-                sb.append("public void ").append(methodName).append('(').append(paramType).append(' ').append(paramName)
-                        .append("){this.").append(fieldName).append('=').append(paramName).append(";configService.publishConfig(\"")
-                        .append(convStr(push.dataId())).append("\",\"").append(convStr(push.group())).append("\",")
-                        .append(paramName).append(",\"").append(push.type()).append("\");}");
+                clz.append('{');
+                if (noThrown) clz.append("try{");
+                clz.append("this.").append(fieldName).append('=').append(paramName).append(';');
+                clz.append("configService.publishConfig(\"").append(convStr(setter.dataId())).append("\",\"")
+                        .append(convStr(setter.group())).append("\",");
+                if (fieldType.equals("java.lang.String")) {
+                    clz.append(paramName);
+                } else {
+                    clz.append("String.valueOf(").append(paramName).append(')');
+                }
+                clz.append(",\"").append(setter.type()).append("\");");
+                if (noThrown) {
+                    clz.append("}catch(").append(imports("com.alibaba.nacos.api.exception.NacosException"))
+                            .append(" e)");
+                    if (throwSev) {
+                        clz.append("{throw new ").append(imports("jakarta.servlet.ServletException")).append("(e);}");
+                    } else {
+                        clz.append("{e.printStackTrace();}");
+                    }
+                }
+                clz.append('}');
                 return paramType;
             } else {
-                showError("param of @NacosSet method not the same with @NacosPullValue method: " + type.getQualifiedName() + "." + method.getSimpleName());
-                sb.append("public void ").append(methodName).append('(').append(paramType).append(' ').append(paramName).append("){}");
+                showError("param of @NacosSet method not the same with @NacosGet method: " + type.getQualifiedName()
+                        + "." + method.getSimpleName());
+                clz.append("{}");
             }
         }
         return null;
     }
 
-    private void addGetter(NacosPullValue pull, ExecutableElement method, StringBuilder ms, SourceFields fieldNames, StringBuilder sb) {
+    private void addGetter(NacosGet getter, ExecutableElement method, StringBuilder ms, SourceFields fieldNames, StringBuilder sb) {
         String fieldName = "arg" + fieldNames.index();
         List<? extends VariableElement> parameters = method.getParameters();
         if (parameters.size() > 0) {
-            showError("@NacosPullValue must be no parameter: " + type.getQualifiedName() + "." + method.getSimpleName());
+            showError("@NacosGet must be no parameter: " + type.getQualifiedName() + "." + method.getSimpleName());
             String rt = "null";
             TypeKind kind = method.getReturnType().getKind();
             if (kind.isPrimitive()) {
@@ -293,19 +330,19 @@ class SourceService extends SourceClass {
         }
         ms.append("private ").append(returnType).append(' ').append(fieldName).append("; public ").append(returnType)
                 .append(' ').append(methodName).append("(){ return ").append(fieldName).append(";}");
-        if (pull.autoRefreshed()) {
+        if (getter.autoRefreshed()) {
             sb.append(fieldName).append('=').append(expression[0]).append("getConfigAndSignListener(\"")
-                    .append(convStr(pull.dataId())).append("\",\"").append(convStr(pull.group())).append("\",")
-                    .append(pull.timeoutMs()).append("L,v-> ").append(fieldName).append('=').append(expression[0])
+                    .append(convStr(getter.dataId())).append("\",\"").append(convStr(getter.group())).append("\",")
+                    .append(getter.timeoutMs()).append("L,v-> ").append(fieldName).append('=').append(expression[0])
                     .append('v').append(expression[1]).append(")")
                     .append(expression[1]).append(';');
         } else {
             sb.append(fieldName).append('=').append(expression[0]).append("configService.getConfig(\"")
-                    .append(convStr(pull.dataId())).append("\",\"")
-                    .append(convStr(pull.group())).append("\",")
-                    .append(pull.timeoutMs()).append("L)").append(expression[1]).append(';');
+                    .append(convStr(getter.dataId())).append("\",\"")
+                    .append(convStr(getter.group())).append("\",")
+                    .append(getter.timeoutMs()).append("L)").append(expression[1]).append(';');
         }
-        fieldNames.put(pull, rtm.toString(), fieldName);
+        fieldNames.put(getter, rtm.toString(), fieldName);
     }
 
     private ArrayList<ExecutableElement> getMethods() {
