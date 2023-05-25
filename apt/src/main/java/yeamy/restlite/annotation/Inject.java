@@ -25,8 +25,7 @@ public @interface Inject {
      * <b>auto/no:</b> create new in servlet init(ServletConfig) and close in destroy()<br>
      * <br>
      * <b>PARAMETER:</b><br>
-     * <b>auto/yes:</b> get or create from SingletonPool.<br>
-     * <b>no:</b> create before method and close after method.<br>
+     * take it as no.<br>
      *
      * @see SingletonPool
      */

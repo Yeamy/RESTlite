@@ -14,9 +14,6 @@ class SourceProcessorInject extends SourceProcessor {
     private final SourceInject sourceInject;
 
     public static SourceProcessor get(ProcessEnvironment env, SourceServlet servlet, VariableElement param, Inject ann) {
-        if (ann.singleton().equals(Singleton.yes)) {
-            return new SourceProcessorInject(servlet, param);
-        }
         TypeMirror type = param.asType();
         String factoryClz = ProcessEnvironment.getAnnotationType(ann::creator);
         if (TextUtils.isNotEmpty(factoryClz)) {
