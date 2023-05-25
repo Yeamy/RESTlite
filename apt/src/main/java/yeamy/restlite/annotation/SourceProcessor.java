@@ -248,7 +248,7 @@ abstract class SourceProcessor {
                 }
                 switch (type) {
                     case T_InputStream -> b.append("_req.getBody()");
-                    case T_Bytes -> b.append("_req.getBodyAsByte()");
+                    case T_ByteArray -> b.append("_req.getBodyAsByte()");
                     case T_String ->
                             b.append("_req.getBodyAsText(\"").append(env.charset(charset, body.charset())).append("\")");
                     default -> b.append("null");
@@ -280,7 +280,7 @@ abstract class SourceProcessor {
         switch (type) {
             case T_InputStream -> b.append(servlet.imports("yeamy.utils.IfNotNull"))
                     .append(".invoke(_req.getFile(\"").append(alias).append("\"),a->a.get()");
-            case T_Bytes -> b.append(servlet.imports("yeamy.utils.IfNotNull")).append(".invoke(_req.getFile(\"")
+            case T_ByteArray -> b.append(servlet.imports("yeamy.utils.IfNotNull")).append(".invoke(_req.getFile(\"")
                     .append(alias).append("\"),a->a.getAsByte()");
             case T_String -> b.append(servlet.imports("yeamy.utils.IfNotNull")).append(".invoke(_req.getFile(\"")
                     .append(alias).append("\"),a->a.getAsText(\"").append(env.charset(charset, part.charset())).append("\")");
@@ -417,35 +417,42 @@ abstract class SourceProcessor {
             return true;
         }
         switch (t.getKind()) {
-            case LONG -> b.append("_req.getLongParam(\"");
-            case INT -> b.append("_req.getIntParam(\"");
-            case BOOLEAN -> b.append("_req.getBoolParam(\"");
+            case INT -> b.append("_req.getIntParam(\"").append(name).append("\", 0)");
+            case LONG -> b.append("_req.getLongParam(\"").append(name).append("\")");
+            case FLOAT -> b.append("_req.getFloatParam(\"").append(name).append("\", 0)");
+            case DOUBLE -> b.append("_req.getDoubleParam(\"").append(name).append("\", 0)");
+            case BOOLEAN -> b.append("_req.getBoolParam(\"").append(name).append("\",false)");
             case DECLARED -> {
                 switch (type) {
                     case T_String -> b.append("_req.getParameter(\"");
                     case T_Decimal -> b.append("_req.getDecimalParam(\"");
                     case T_Integer -> b.append("_req.getIntegerParam(\"");
-                    case T_Long -> b.append("_req.getLongTypeParam(\"");
+                    case T_Long -> b.append("_req.getLongParam(\"");
+                    case T_Float -> b.append("_req.getFloatParam(\"");
+                    case T_Double -> b.append("_req.getDoubleParam(\"");
                     case T_Boolean -> b.append("_req.getBooleanParam(\"");
                     default -> {
                         return false;
                     }
                 }
+                b.append(name).append("\")");
             }
             case ARRAY -> {
                 switch (type) {
-                    case T_Booleans -> b.append("_req.getBooleanParams(\"");
-                    case T_Integers -> b.append("_req.getIntParams(\"");
-                    case T_Longs -> b.append("_req.getLongParams(\"");
-                    case T_Decimals -> b.append("_req.getDecimalParams(\"");
-                    case T_Strings -> b.append("_req.getParameters(\"");
+                    case T_IntegerArray -> b.append("_req.getIntegerParams(\"");
+                    case T_LongArray -> b.append("_req.getLongParams(\"");
+                    case T_FloatArray -> b.append("_req.getFloatParams(\"");
+                    case T_DoubleArray -> b.append("_req.getDoubleParams(\"");
+                    case T_BooleanArray -> b.append("_req.getBooleanParams(\"");
+                    case T_DecimalArray -> b.append("_req.getDecimalParams(\"");
+                    case T_StringArray -> b.append("_req.getParameters(\"");
                     default -> {
                         return false;
                     }
                 }
+                b.append(name).append("\")");
             }
         }
-        b.append(name).append("\")");
         return true;
     }
 

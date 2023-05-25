@@ -9,6 +9,7 @@ import jakarta.servlet.http.Part;
 import yeamy.utils.SingletonPool;
 import yeamy.utils.StreamUtils;
 import yeamy.utils.TextUtils;
+import yeamy.utils.ValueUtils;
 
 import java.io.*;
 import java.math.BigDecimal;
@@ -262,72 +263,28 @@ public class RESTfulRequest implements Serializable {
         }
     }
 
-    public int[] getIntParams(String name) {
-        String[] params = getParams(name);
-        if (params == null) {
-            return null;
-        }
-        int l = params.length;
-        int[] array = new int[l];
-        try {
-            for (int i = 0; i < array.length; i++) {
-                array[i] = Integer.parseInt(params[i]);
-            }
-            return array;
-        } catch (Exception e) {
-            return null;
-        }
+    public Integer[] getIntegerParams(String name) {
+        return ValueUtils.allToInteger(getParams(name));
     }
 
-    public long[] getLongParams(String name) {
-        String[] params = getParams(name);
-        if (params == null) {
-            return null;
-        }
-        int l = params.length;
-        long[] array = new long[l];
-        try {
-            for (int i = 0; i < array.length; i++) {
-                array[i] = Long.parseLong(params[i]);
-            }
-            return array;
-        } catch (Exception e) {
-            return null;
-        }
+    public Long[] getLongParams(String name) {
+        return ValueUtils.allToLong(getParams(name));
     }
 
-    public boolean[] getBoolParams(String name) {
-        String[] params = getParams(name);
-        if (params == null) {
-            return null;
-        }
-        int l = params.length;
-        boolean[] array = new boolean[l];
-        try {
-            for (int i = 0; i < array.length; i++) {
-                array[i] = Boolean.parseBoolean(getParameter(name));
-            }
-            return array;
-        } catch (Exception e) {
-            return null;
-        }
+    public Float[] getFloatParams(String name) {
+        return ValueUtils.allToFloat(getParams(name));
+    }
+
+    public Double[] getDoubleParams(String name) {
+        return ValueUtils.allToDouble(getParams(name));
+    }
+
+    public Boolean[] getBooleanParams(String name) {
+        return ValueUtils.allToBoolean(getParams(name));
     }
 
     public BigDecimal[] getDecimalParams(String name) {
-        String[] params = getParams(name);
-        if (params == null) {
-            return null;
-        }
-        int l = params.length;
-        BigDecimal[] array = new BigDecimal[l];
-        try {
-            for (int i = 0; i < array.length; i++) {
-                array[i] = new BigDecimal(params[i]);
-            }
-            return array;
-        } catch (Exception e) {
-            return null;
-        }
+        return ValueUtils.allToBigDecimal(getParams(name));
     }
 
     public String getParameter(String name, String fallback) {
@@ -352,30 +309,16 @@ public class RESTfulRequest implements Serializable {
      * @return BigDecimal type value, if fail return null
      */
     public BigDecimal getDecimalParam(String name) {
-        try {
-            return new BigDecimal(getParameter(name));
-        } catch (Exception e) {
-            return null;
-        }
+        return ValueUtils.toBigDecimal(getParameter(name));
     }
 
     public BigDecimal getDecimalParam(String name, BigDecimal fallback) {
-        try {
-            return new BigDecimal(getParameter(name));
-        } catch (Exception e) {
-            return fallback;
-        }
+        BigDecimal param = ValueUtils.toBigDecimal(getParameter(name));
+        return param != null ? param : fallback;
     }
 
-    public boolean getBoolParam(String name) {
-        return Boolean.parseBoolean(getParameter(name));
-    }
-
-    public boolean getBoolParam(String name, boolean fallback) {
-        if (has(name)) {
-            return Boolean.parseBoolean(getParameter(name));
-        }
-        return fallback;
+    public boolean getBooleanParam(String name, boolean fallback) {
+        return ValueUtils.toBoolean(getParameter(name), fallback);
     }
 
     /**
@@ -383,26 +326,11 @@ public class RESTfulRequest implements Serializable {
      * @return Boolean type value, if fail return null
      */
     public Boolean getBooleanParam(String name) {
-        if (has(name)) {
-            return Boolean.valueOf(getParameter(name));
-        }
-        return null;
-    }
-
-    public int getIntParam(String name) {
-        try {
-            return Integer.parseInt(getParameter(name));
-        } catch (NumberFormatException e) {
-            return 0;
-        }
+        return ValueUtils.toBoolean(getParameter(name));
     }
 
     public int getIntParam(String name, int fallback) {
-        try {
-            return Integer.parseInt(getParameter(name));
-        } catch (NumberFormatException e) {
-            return fallback;
-        }
+        return ValueUtils.toInt(getParameter(name), fallback);
     }
 
     /**
@@ -410,42 +338,42 @@ public class RESTfulRequest implements Serializable {
      * @return Integer type value, if fail return null
      */
     public Integer getIntegerParam(String name) {
-        try {
-            return Integer.valueOf(getParameter(name));
-        } catch (NumberFormatException e) {
-            return null;
-        }
-    }
-
-    public long getLongParam(String name) {
-        return getLongParam(name, 0);
-    }
-
-    public long getLongParam(String name, long fallback) {
-        try {
-            return Long.parseLong(getParameter(name));
-        } catch (NumberFormatException e) {
-            return fallback;
-        }
+        return ValueUtils.toInteger(getParameter(name));
     }
 
     /**
      * @param name name of param
      * @return Long type value, if fail return null
      */
-    public Long getLongTypeParam(String name) {
-        try {
-            return Long.valueOf(getParameter(name));
-        } catch (NumberFormatException e) {
-            return null;
-        }
+    public Long getLongParam(String name) {
+        return ValueUtils.toLong(getParameter(name));
+    }
+
+    public long getLongParam(String name, long fallback) {
+        return ValueUtils.toLong(getParameter(name), fallback);
+    }
+
+    public Float getFloatParam(String name) {
+        return ValueUtils.toFloat(getParameter(name));
+    }
+
+    public float getFloatParam(String name, float fallback) {
+        return ValueUtils.toFloat(getParameter(name), fallback);
+    }
+
+    public Double getDoubleParam(String name) {
+        return ValueUtils.toDouble(getParameter(name));
+    }
+
+    public double getDoubleParam(String name, double fallback) {
+        return ValueUtils.toDouble(getParameter(name), fallback);
     }
 
     /**
      * @return parameter value as int of current Resource
      */
-    public int getIntValue() {
-        return getIntParam(resource);
+    public Integer getIntValue() {
+        return getIntegerParam(resource);
     }
 
     /**

@@ -10,10 +10,11 @@ import java.lang.annotation.Target;
  * <b>Noted</b> that parameter(Java method) without annotation will be
  * treated as http parameter, too.<br>
  * <p>
- * support type: {@linkplain String String}, String[], long, long[],
- * int, int[], boolean, boolean[], {@linkplain java.math.BigDecimal BigDecimal},
- * BigDecimal[], {@linkplain yeamy.restlite.HttpRequestFile HttpRequestFile},
- * HttpRequestFile[], {@linkplain yeamy.restlite.RESTfulRequest RESTfulRequest},
+ * support type: {@link String}, String[], int, {@link Integer}, Integer[], long, {@link Long}, Long[],
+ * float, {@link Float}, Float[], double, {@link Double}, Double[], boolean, {@link Boolean}, Boolean[],
+ * {@linkplain java.math.BigDecimal BigDecimal}, BigDecimal[],
+ * {@linkplain yeamy.restlite.HttpRequestFile HttpRequestFile}, HttpRequestFile[],
+ * {@linkplain yeamy.restlite.RESTfulRequest RESTfulRequest},
  * {@linkplain jakarta.servlet.http.HttpServletRequest HttpServletRequest},
  *
  * @author Yeamy

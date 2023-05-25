@@ -244,7 +244,7 @@ class SourceHttpMethodComponent {
         switch (type) {
             case T_InputStream, T_ServletInputStream -> args.addBody(name, true, true, true)
                     .write(servlet.imports(T_ServletInputStream), " ", name, " = _req.getBody();");
-            case T_Bytes -> args.addBody(name, false, false, false)
+            case T_ByteArray -> args.addBody(name, false, false, false)
                     .write("byte[] ", name, " = _req.getBodyAsByte();");
             case T_String -> args.addBody(name, false, false, false)
                     .write("String ", name, " = _req.getBodyAsText(\"", env.charset(body.charset()), "\");");
@@ -296,7 +296,7 @@ class SourceHttpMethodComponent {
                     .write(servlet.imports(T_File), " ", name, " = _req.getFile(\"", alias, "\");");
             case T_InputStream -> args.addPart(name, alias, true, true, true)
                     .write(servlet.imports(T_InputStream), " ", name, " = ", servlet.imports("yeamy.utils.IfNotNull"), ".invoke(_req.getFile(\"", alias, "\"),a->a.get());");
-            case T_Bytes -> args.addPart(name, alias, false, false, false)
+            case T_ByteArray -> args.addPart(name, alias, false, false, false)
                     .write("byte[] ", name, " = ", servlet.imports("yeamy.utils.IfNotNull"), ".invoke(_req.getFile(\"", alias, "\"),a->a.getAsByte());");
             case T_String -> args.addPart(name, alias, false, false, false)
                     .write("String ", name, " = ", servlet.imports("yeamy.utils.IfNotNull"), ".invoke(_req.getFile(\"", alias, "\"),a->a.getAsText(\"", env.charset(part.charset()), "\");");
@@ -334,14 +334,18 @@ class SourceHttpMethodComponent {
         }
         SourceArguments.Impl arg = args.addParam(type, name, alias);
         switch (t.getKind()) {
-            case INT -> arg.write("int ", alias, " = _req.getIntParam(\"", name, "\");");
-            case LONG -> arg.write("long ", alias, " = _req.getLongParam(\"", name, "\");");
-            case BOOLEAN -> arg.write("boolean ", alias, " = _req.getBoolParam(\"", name, "\");");
+            case INT -> arg.write("int ", alias, " = _req.getIntParam(\"", name, "\",0);");
+            case LONG -> arg.write("long ", alias, " = _req.getLongParam(\"", name, "\",0);");
+            case FLOAT -> arg.write("float ", alias, " = _req.getFloatParam(\"", name, "\",0);");
+            case DOUBLE -> arg.write("double ", alias, " = _req.getDoubleParam(\"", name, "\",0);");
+            case BOOLEAN -> arg.write("boolean ", alias, " = _req.getBoolParam(\"", name, "\",false);");
             case DECLARED -> {
                 switch (type) {
                     case T_String -> arg.write("String ", alias, " = _req.getParameter(\"", name, "\");");
                     case T_Integer -> arg.write("Integer ", alias, " = _req.getIntegerParam(\"", name, "\");");
-                    case T_Long -> arg.write("Long ", alias, " = _req.getLongTypeParam(\"", name, "\");");
+                    case T_Long -> arg.write("Long ", alias, " = _req.getLongParam(\"", name, "\");");
+                    case T_Float -> arg.write("Float ", alias, " = _req.getFloatParam(\"", name, "\");");
+                    case T_Double -> arg.write("Double ", alias, " = _req.getDoubleParam(\"", name, "\");");
                     case T_Boolean -> arg.write("Boolean ", alias, " = _req.getBooleanParam(\"", name, "\");");
                     case T_Decimal ->
                             arg.write(servlet.imports(T_Decimal), " ", alias, " = _req.getDecimalParam(\"", name, "\");");
@@ -353,11 +357,13 @@ class SourceHttpMethodComponent {
             }
             case ARRAY -> {
                 switch (type) {
-                    case T_Booleans -> arg.write("boolean[] ", alias, " = _req.getBoolParams(\"", name, "\");");
-                    case T_Integers -> arg.write("int[] ", alias, " = _req.getIntParams(\"", name, "\");");
-                    case T_Longs -> arg.write("long[] ", alias, " = _req.getLongParams(\"", name, "\");");
-                    case T_Strings -> arg.write("String[] ", alias, " = _req.getParams(\"", name, "\");");
-                    case T_Decimals ->
+                    case T_IntegerArray -> arg.write("Integer[] ", alias, " = _req.getIntegerParams(\"", name, "\");");
+                    case T_LongArray -> arg.write("Long[] ", alias, " = _req.getLongParams(\"", name, "\");");
+                    case T_FloatArray -> arg.write("Float[] ", alias, " = _req.getFloatParams(\"", name, "\");");
+                    case T_DoubleArray -> arg.write("Double[] ", alias, " = _req.getDoubleParams(\"", name, "\");");
+                    case T_StringArray -> arg.write("String[] ", alias, " = _req.getParams(\"", name, "\");");
+                    case T_BooleanArray -> arg.write("Boolean[] ", alias, " = _req.getBoolParams(\"", name, "\");");
+                    case T_DecimalArray ->
                             arg.write(servlet.imports(T_Decimal), "[] ", alias, " = _req.getDecimalParams(\"", name, "\");");
                     default -> args.addFallback("null");
                 }
