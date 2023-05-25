@@ -5,7 +5,7 @@ import yeamy.restlite.RESTfulRequest;
 public class MaxTo15 {
 
     public static long maxTo15(RESTfulRequest req) {
-        int ok = req.getIntParam("ok");
+        int ok = req.getIntParam("ok", 15);
         return Math.min(ok, 15);
     }
 
