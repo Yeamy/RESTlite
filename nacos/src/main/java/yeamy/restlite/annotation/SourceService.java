@@ -29,8 +29,6 @@ class SourceService extends SourceClass {
         this.server = server;
         this.executor = executor;
         imports("java.util.Properties");
-        imports("com.alibaba.nacos.api.PropertyKeyConst");
-        imports("com.alibaba.nacos.api.NacosFactory");
         imports("yeamy.restlite.annotation.InjectProvider");
         typeUtils = env.getTypeUtils();
     }
@@ -357,7 +355,8 @@ class SourceService extends SourceClass {
 
     private void addProperties(StringBuilder sb, String key, String value) {
         if (TextUtils.isNotEmpty(value)) {
-            sb.append("properties.put(PropertyKeyConst.").append(key).append(',').append(value).append(");");
+            sb.append("properties.put(").append(imports("com.alibaba.nacos.api.PropertyKeyConst"))
+                    .append(".").append(key).append(',').append(value).append(");");
         }
     }
 
