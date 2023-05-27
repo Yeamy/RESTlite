@@ -3,8 +3,24 @@ English | [中文](README.md)
 
 RESTLite is a modern Java WEB framework, It's design to create a simple, powerful, lightweight and extensible WEB framework.
 
+```gradle
+dependencies {
+    implementation 'io.github.yeamy:restlite-gson:1.0-RC1' // google json
+//    implementation 'io.github.yeamy:restlite-permission:1.0-RC1' // permission manage
+//    implementation 'io.github.yeamy:restlite-jackson:1.0-RC1' // fastjson json
+//    implementation 'io.github.yeamy:restlite-jacksonxml:1.0-RC1' // fastjson xml
+//    implementation 'io.github.yeamy:restlite-sentinel:1.0-RC1' // alibaba sentinel
+//    implementation 'io.github.yeamy:restlite-nacos:1.0-RC1' // alibaba nacos
+//    implementation 'io.github.yeamy:restlite-tomcat:1.0-RC1' // tomcat embed
+
+    annotationProcessor 'io.github.yeamy:restlite-apt:1.0-RC1' // apt code generator
+//    annotationProcessor 'io.github.yeamy:restlite-nacos:1.0-RC1'
+//    annotationProcessor 'io.github.yeamy:restlite-tomcat:1.0-RC1' 
+}
+```
+
 ## What's different
-- no longer MVC, to cater to the trend of separation of front and rear ends, the View layer was deleted, Adopt the design concept of Resource+Method, which is more in line with the design style of RESTful;
+- Adopting the design concept of "Resource"+"Method", which is similar to servlet and more in line with the design style of RESTful;
 - Use Java APT(since jdk1.6) to generate code instead of reflection and dynamic proxy;
 - configure with annotation rather than xml;
 - Embedded Tomcat supports replacing annotation configuration with outside properties file;

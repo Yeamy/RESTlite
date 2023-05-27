@@ -3,8 +3,24 @@
 
 RESTLite是基于Java语言的现代化WEB开发框架，其设计目标是创建一个简单易用、功能强大、轻量可扩展的WEB框架。
 
+```gradle
+dependencies {
+    implementation 'io.github.yeamy:restlite-gson:1.0-RC1' // 谷歌json解析器
+//    implementation 'io.github.yeamy:restlite-permission:1.0-RC1' // 权限管理
+//    implementation 'io.github.yeamy:restlite-jackson:1.0-RC1' // fastjson json 解析器
+//    implementation 'io.github.yeamy:restlite-jacksonxml:1.0-RC1' // fastjson xml 解析器
+//    implementation 'io.github.yeamy:restlite-sentinel:1.0-RC1' // 阿里巴巴 sentinel
+//    implementation 'io.github.yeamy:restlite-nacos:1.0-RC1' // 阿里巴巴 nacos
+//    implementation 'io.github.yeamy:restlite-tomcat:1.0-RC1' // 内嵌式 tomcat
+
+    annotationProcessor 'io.github.yeamy:restlite-apt:1.0-RC1' // apt代码生成器
+//    annotationProcessor 'io.github.yeamy:restlite-nacos:1.0-RC1'
+//    annotationProcessor 'io.github.yeamy:restlite-tomcat:1.0-RC1' 
+}
+```
+
 ## 有何不同
-- 抛弃MVC架构，迎合前后端分离的趋势删除了View层，采用Resource+Method的设计理念，更符合RESTful的设计风格；
+- 采用与servlet接近的 “资源(接口)” + “方法” 的设计理念，更符合RESTful的设计风格；
 - 采用APT生成代码而非反射和动态代理；
 - 采用注解配置而非xml配置；
 - 内嵌Tomcat支持properties文件替换jar包内配置；
