@@ -47,20 +47,20 @@ public class Config {
 package example;
 import yeamy.restlite.annotation.*;
 
-@Resource("apple")// name of resource
+@RESTfulResource("apple")// name of resource
 public class ExampleMain {
 
     /* annotation of HTTP method: support GET, DELETE, POST, PUT, PATCH.
      * Only POST, PUT, PATCH support body
      */
     @POST
-    public String getColor(@Param String p, // param data
+    public String getColor(@Param String p,    // param data
                            String p2,          // no annotation, take it as necessary Param
                            @Param(required=false)String p3, // optional Param
                            @Param(processor=Max15.class)int p4, // read via processor
                            @Cookies String c,  // cookie data
                            @Header String h,   // header data
-                           @GsonBody Bean b) { // deserialize body with GSON
+                           @Body String b) {   // body data
         return "This is getColor";
     }
 
@@ -72,7 +72,7 @@ public class ExampleMain {
 ```
 ### 3.Adding instance by @Inject
 ```java
-@Resource("apple")
+@RESTfulResource("apple")
 public class ExampleMain {
     @Inject InjectBean injectBean;          // inject field (default is singleton)
 
@@ -83,10 +83,10 @@ public class ExampleMain {
     }
 }
 ```
-note: @Inject only work in @Resource, and constructor/static-method of singleton must with no parameter.
+note: @Inject only work in @RESTfulResource, and constructor/static-method of singleton must with no parameter.
 
 **For field:**  
-create field of @Resource with @Inject, create singleton by default:
+create field of @RESTfulResource with @Inject, create singleton by default:
 1. param's creator() not empty, if tag() not empty lookup the math @LinkTag in target class; else if tag() is empty lookup static no-param-method, static field, constructor without param.
 2. lookup type's @Inject, if creator() is not empty, follow step as upside.
 3. lookup @InjectProvider.
@@ -127,7 +127,15 @@ To support JSON with `restlite-gson` or `restlite-jackson`.
 - Deserialization request body with @GsonBody or @JacksonBody,  
 - Response JSON with @GsonResponse or @JacksonResponse (return by method or configure the default response with @Configuration)  
 - Default time format is “yyyy-MM-dd HH:mm:ss” of class GsonParser/JacksonParser, support to replace GSON/Jackson instance.
-
+```java
+@RESTfulResource("apple")// RESTful注解，该资源名为apple
+public class ExampleMain {
+    @POST
+    public GsonResponse getColor(@GsonBody Bean b) { // 使用GSON解析body
+        return new GsonResponse("return");
+    }
+}
+```
 ### 6.Support of sentinel
 To support sentinel with `restlite-sentinel`.  
 The dependency package is modified from Sentinel's support package for javax-servlets, and the CommonTotalFilter is retained.
@@ -198,7 +206,7 @@ java -jar abc.jar -tomcat tomcat.properties
 Using `io.github.yeamy:httpclient-apt-gson` or `io.github.yeamy:httpclient-apt-jackson` with @Inject.  
 version >= 1.0.1
 ```java
-@Resource("apple")
+@RESTfulResource("apple")
 public class ExampleMain {
     @Inject              // httpclient-apt create implementation class with @InjectProvider
     DemoClient client;   // interface with annotation of httpclient-apt

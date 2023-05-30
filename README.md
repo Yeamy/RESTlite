@@ -48,20 +48,20 @@ public class Config {
 package example;
 import yeamy.restlite.annotation.*;
 
-@Resource("apple")// RESTful注解，该资源名为apple
+@RESTfulResource("apple")// RESTful注解，该资源名为apple
 public class ExampleMain {
 
     /* 添加注解，声明其HTTP方法，支持GET, DELETE, PUT, PATCH, POST。
      * 其中PUT, PATCH, POST支持http body请求数据
      */
     @POST
-    public String getColor(@Param String p, // 来自URI的请求数据
+    public String getColor(@Param String p,    // 来自URI的请求数据
                            String p2,          // 无注解，当必要Param处理
                            @Param(required=false)String p3, // 可选（非必要）Param
                            @Param(processor=Max15.class)int p4, // 通过processor读取
                            @Cookies String c,  // 来自cookie的数据
                            @Header String h,   // 来自header的数据
-                           @GsonBody Bean b) { // 使用GSON解析body
+                           @Body String b) {   // 来自body的数据
         return "This is getColor";
     }
 
@@ -73,7 +73,7 @@ public class ExampleMain {
 ```
 ### 3.@Inject添加成员变量
 ```java
-@Resource("apple")
+@RESTfulResource("apple")
 public class ExampleMain {
     @Inject InjectBean injectBean;            // 添加(注入)单例
 
@@ -87,14 +87,14 @@ public class ExampleMain {
 注意：@Inject只在资源类有效，且创建单例的静态函数或构造函数必须为无参函数。
 
 **成员变量**  
-使用@Inject注解为@Resource资源对象添加成员变量，成员变量默认为RESTLite创建并缓存的单例，@Inject注解的创建顺序如下：
+使用@Inject注解为@RESTfulResource资源对象添加成员变量，成员变量默认为RESTLite创建并缓存的单例，@Inject注解的创建顺序如下：
 1. 当成员变量的creator()不为空时，使用creator()提供的类，当tag()不为空时，查找带有对应@LinkTag注解的函数，否则查找静态无参函数、类变量或者无参构造函数。
 2. 当成员变量的类带有@Inject注解时，如果creator()不为空时，通过与成员变量相同的方法查找。
 3. 查找@InjectProvider注解提供的单例
 4. 查找类的公开当前类常量、公开静态无参函数、公开无参构造函数。
 
 **请求参数**  
-使用@Inject注解为@Resource方法添加参数，参数默认为方法创建新对象，支持@Header，@Cookies，@Param作为参数；  
+使用@Inject注解为@RESTfulResource方法添加参数，参数默认为方法创建新对象，支持@Header，@Cookies，@Param作为参数；  
 若@Inject(singleton = true)注解为单例，其创建方式与成员变量相同；  
 
 **@InjectProvider:**
@@ -128,7 +128,15 @@ RESTLite提供了GSON跟Jackson两套解决方案，通过选择添加`restlite-
 - 分别提供解析request body为JSON格式的@GsonBody和@JacksonBody注解，  
 - 返回JSON格式的GsonResponse和@JacksonResponse（可以作为函数返回值，或者在@Configuration声明为默认返回值）  
 - 默认时间格式为“yyyy-MM-dd HH:mm:ss”的GsonParser和JacksonParser类，支持替换为自定义的GSON/Jackson实体。
-
+```java
+@RESTfulResource("apple")// RESTful注解，该资源名为apple
+public class ExampleMain {
+    @POST
+    public GsonResponse getColor(@GsonBody Bean b) { // 使用GSON解析body
+        return new GsonResponse("return");
+    }
+}
+```
 ### 6.对sentinel的支持
 RESTLite提供了对sentinel的支持方案，通过添加`restlite-sentinel`依赖实现。  
 该依赖包修改自sentinel对javax-servlet的支持包，并保留了CommonTotalFilter。
@@ -198,7 +206,7 @@ java -jar abc.jar -tomcat tomcat.properties
 使用`io.github.yeamy:httpclient-apt-gson`或者`io.github.yeamy:httpclient-apt-jackson`依赖，配合@Inject。  
 版本号 >= 1.0.1
 ```java
-@Resource("apple")
+@RESTfulResource("apple")
 public class ExampleMain {
     @Inject              // httpclient-apt默认生成Impl结尾的实现类
     DemoClient client;   // 实现httpclient-apt注解的接口类
