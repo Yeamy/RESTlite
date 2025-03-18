@@ -2,7 +2,6 @@ plugins {
     id 'application'
 //    id 'war
 }
-sourceCompatibility = JavaVersion.VERSION_17
 
 group 'io.github.yeamy'
 version '1.0-SNAPSHOT'
