@@ -13,7 +13,7 @@ repositories {
 }
 
 dependencies {
-    api('org.apache.tomcat.embed:tomcat-embed-core:10.1.7') {
+    api('org.apache.tomcat.embed:tomcat-embed-core:11.0.3') {
 //        exclude group: 'org.apache.tomcat', module: 'tomcat-catalina'
 //        exclude group: 'org.apache.tomcat', module: 'tomcat-servlet-api'
     }

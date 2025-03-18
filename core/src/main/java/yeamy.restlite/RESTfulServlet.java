@@ -13,8 +13,7 @@ public abstract class RESTfulServlet extends HttpServlet {
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         switch (req.getMethod()) {
-            case "GET", "POST", "DELETE", "PUT", "HEAD", "OPTIONS" -> super.service(req, resp);
-            case "PATCH" -> doPatch(RESTfulRequest.get(req), resp);
+            case "GET", "POST", "DELETE", "PUT", "HEAD", "OPTIONS", "PATCH" -> super.service(req, resp);
             default -> do_(RESTfulRequest.get(req), resp);
         }
     }
@@ -28,8 +27,13 @@ public abstract class RESTfulServlet extends HttpServlet {
         super.doPost(req.getRequest(), resp);
     }
 
+    @Override
+    protected final void doPatch(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        doPatch(RESTfulRequest.get(req), resp);
+    }
+
     public void doPatch(RESTfulRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        resp.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+        super.doPatch(req.getRequest(), resp);
     }
 
     @Override
