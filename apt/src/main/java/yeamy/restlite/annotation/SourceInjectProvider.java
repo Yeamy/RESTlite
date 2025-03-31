@@ -9,7 +9,7 @@ import java.util.Set;
 class SourceInjectProvider {
     public final TypeElement importType;
     public final ArrayList<String> types = new ArrayList<>();
-    private final Object[] content;
+    private final String content;
 
     public SourceInjectProvider(ProcessEnvironment env, Element element) {
         this.importType = (TypeElement) element.getEnclosingElement();
@@ -29,47 +29,46 @@ class SourceInjectProvider {
                 this.types.add(t.toString());
             }
         }
-        if (element instanceof ExecutableElement
-                && ((ExecutableElement) element).getParameters().size() > 0) {
+        if (element instanceof ExecutableElement ee && ee.getParameters().size() > 0) {
             env.error("InjectProvider must have no parameter!");
-            this.content = new String[]{"null;"};
+            this.content = null;
         } else if (kind == ElementKind.FIELD) {
             Set<Modifier> modifiers = element.getModifiers();
             if (modifiers.contains(Modifier.PUBLIC)
                     && modifiers.contains(Modifier.STATIC)
                     && modifiers.contains(Modifier.FINAL)) {
-                this.content = new Object[]{importType, "." + element.getSimpleName() + ';'};
+                this.content = importType.getSimpleName() + "." + element.getSimpleName() + ';';
             } else {
                 env.error("InjectProvider field must have the modifier public static final:"
                         + element.asType().toString() + "." + element.getSimpleName());
-                this.content = new String[]{"null;"};
+                this.content = null;
             }
         } else if (kind == ElementKind.METHOD) {
             Set<Modifier> modifiers = element.getModifiers();
             if (modifiers.contains(Modifier.PUBLIC)
                     && modifiers.contains(Modifier.STATIC)) {
-                this.content = new Object[]{importType, "." + element.getSimpleName() + "()"};
+                this.content = importType + "." + element.getSimpleName() + "()";
             } else {
                 env.error("InjectProvider method must have the modifier public static:"
                         + element.asType().toString() + "." + element.getSimpleName());
-                this.content = new String[]{"null;"};
+                this.content = null;
             }
-        } else {// METHOD
+        } else {// CONSTRUCTOR
             if (element.getModifiers().contains(Modifier.PUBLIC)) {
-                this.content = new Object[]{"new ", importType, "()"};
+                this.content = "new " + importType.getSimpleName() + "()";
             } else {
                 env.error("InjectProvider constructor must have the modifier public:"
                         + element.asType().toString() + "." + element.getSimpleName());
-                this.content = new String[]{"null;"};
+                this.content = null;
             }
         }
     }
 
     public String create(SourceServlet servlet) {
-        StringBuilder b = new StringBuilder();
-        for (Object s : content) {
-            b.append(s instanceof TypeElement ? servlet.imports((TypeElement) s) : s);
+        if (content == null) {
+            return "null;";
         }
-        return b.toString();
+        servlet.imports(importType);
+        return content;
     }
 }
