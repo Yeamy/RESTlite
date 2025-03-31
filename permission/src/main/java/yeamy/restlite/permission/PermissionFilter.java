@@ -39,11 +39,11 @@ public abstract class PermissionFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         Object a = request.getAttribute(RESTfulRequest.REQUEST);
         if (a instanceof RESTfulRequest req) {
-            Account account = manager.getAccount(getAccount(req));
-            if (manager.isAllow(account, req.getResource(), req.getMethod(), req.getParams().keySet())) {
-                chain.doFilter(request, response);
-            } else if (account == null) {
+            Account account = getAccount(req);
+            if (account == null) {
                 doNoAccount(req, (HttpServletResponse) response);
+            } else if (manager.isAllow(account, req.getResource(), req.getMethod(), req.getParams().keySet())) {
+                chain.doFilter(request, response);
             } else {
                 doDeny(req, (HttpServletResponse) response);
             }
@@ -60,7 +60,7 @@ public abstract class PermissionFilter implements Filter {
         chain.doFilter(request, response);
     }
 
-    protected abstract String getAccount(RESTfulRequest request);
+    protected abstract Account getAccount(RESTfulRequest request);
 
     protected abstract void doDeny(RESTfulRequest req, HttpServletResponse resp) throws IOException, ServletException;
 

@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Local memory cache permission manager
+ */
 public class LocalPermissionManager extends PermissionManager {
     private final ConcurrentHashMap<String, Account> accounts = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, Role> roles = new ConcurrentHashMap<>();

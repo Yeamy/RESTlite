@@ -35,7 +35,7 @@ public class Permission {
             method[i] = char2method(ms[i]);
         }
         String rp = rs[3];
-        if (rp.length() == 0) {
+        if (rp.isEmpty()) {
             this.param = NO_PARAM;
         } else if (rp.equals("*")) {
             this.param = ALL_PARAM;
@@ -108,37 +108,25 @@ public class Permission {
     }
 
     private static String char2method(char c) {
-        switch (c) {
-            case 'D':
-                return "DELETE";
-            case 'G':
-                return "GET";
-            case 'A':
-                return "PATCH";
-            case 'O':
-                return "POST";
-            case 'U':
-                return "PUT";
-            default:
-                throw new RuntimeException("Invalid method");
-        }
+        return switch (c) {
+            case 'D' -> "DELETE";
+            case 'G' -> "GET";
+            case 'A' -> "PATCH";
+            case 'O' -> "POST";
+            case 'U' -> "PUT";
+            default -> throw new RuntimeException("Invalid method");
+        };
     }
 
     private static char method2char(String c) {
-        switch (c) {
-            case "DELETE":
-                return 'D';
-            case "GET":
-                return 'G';
-            case "PATCH":
-                return 'A';
-            case "POST":
-                return 'O';
-            case "PUT":
-                return 'U';
-            default:
-                throw new RuntimeException("Invalid method");
-        }
+        return switch (c) {
+            case "DELETE" -> 'D';
+            case "GET" -> 'G';
+            case "PATCH" -> 'A';
+            case "POST" -> 'O';
+            case "PUT" -> 'U';
+            default -> throw new RuntimeException("Invalid method");
+        };
     }
 
     public CheckResult isAllow(String resource, String method, Collection<String> params) {

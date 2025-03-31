@@ -20,8 +20,9 @@ public class SimplePermissionFilter extends PermissionFilter {
     }
 
     @Override
-    protected String getAccount(RESTfulRequest request) {
-        return request.getHeader(HEADER_API_TOKEN);
+    protected Account getAccount(RESTfulRequest request) {
+        String token = request.getHeader(HEADER_API_TOKEN);
+        return token == null ? null : getPermissionManager().getAccount(token);
     }
 
     @Override
