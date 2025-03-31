@@ -36,10 +36,6 @@ public final class NoSessionManager implements Manager {
     }
 
     @Override
-    public void setSessionCounter(long sessionCounter) {
-    }
-
-    @Override
     public int getMaxActive() {
         return 0;
     }
