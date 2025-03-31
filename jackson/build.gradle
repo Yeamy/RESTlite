@@ -31,7 +31,7 @@ apply plugin: 'maven-publish'
 jar {// package code
     archiveFileName = $artifactId + '.jar'
 }
-task generateSourceJar(type: Jar) {
+tasks.register('generateSourceJar', Jar) {
     archiveClassifier.set('sources')
     from sourceSets.main.java.srcDirs
     archiveFileName = $artifactId + '-sources.jar'
@@ -46,7 +46,7 @@ javadoc {// create document
         links "http://docs.oracle.com/javase/17/docs/api"
     }
 }
-task generateJavadoc(type: Jar) { // package document as jar
+tasks.register('generateJavadoc', Jar) { // package document as jar
     group = 'jar'
     archiveFileName = $artifactId + '-javadoc.jar'
     archiveClassifier.set('javadoc')
