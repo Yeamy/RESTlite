@@ -5,40 +5,47 @@ import java.util.ArrayList;
 import static yeamy.restlite.annotation.SupportType.T_HttpRequest;
 import static yeamy.restlite.annotation.SupportType.T_TextPlainResponse;
 
-class SourceMethodHttpMethod {
+class SourceServletMethod {
     protected final ProcessEnvironment env;
     protected final SourceServlet servlet;
-    private final ArrayList<SourceHttpMethodComponent> components = new ArrayList<>();
-    protected final String httpMethod;
+    private final ArrayList<SourceServletMethodComponent> components = new ArrayList<>();
+    protected final String httpMethod, nameOfServlet;
 
-    public SourceMethodHttpMethod(ProcessEnvironment env, SourceServlet servlet, String httpMethod) {
+    public SourceServletMethod(ProcessEnvironment env, SourceServlet servlet, String httpMethod) {
         this.env = env;
         this.servlet = servlet;
         this.httpMethod = httpMethod;
+        char[] src = httpMethod.toCharArray();
+        char[] out = new char[src.length + 2];
+        out[0] = 'd';
+        out[1] = 'o';
+        for (int i = 0; i < src.length; i++) {
+            out[i + 2] = (char) (src[i] - 32);
+        }
+        this.nameOfServlet = new String(out);
     }
 
-    public final void addMethod(SourceHttpMethodComponent method) {
-        components.add(method);
+    public final void addComponent(SourceServletMethodComponent component) {
+        components.add(component);
     }
 
-    protected void create(boolean catchException, ArrayList<SourceHttpMethodComponent> methods) {
+    protected void create(boolean containException, ArrayList<SourceServletMethodComponent> components) {
         servlet.imports(T_HttpRequest);
         servlet.imports("jakarta.servlet.http.HttpServletResponse");
         servlet.imports("jakarta.servlet.ServletException");
         servlet.imports("java.io.IOException");
-        servlet.append("@Override public void do").append(httpMethod.charAt(0))
-                .append(httpMethod.toLowerCase(), 1, httpMethod.length())
+        servlet.append("@Override public void ").append(nameOfServlet)
                 .append("(RESTfulRequest _req, HttpServletResponse _resp) throws ServletException, IOException {");
-        if (catchException) servlet.append("try{");
+        if (containException) servlet.append("try{");
         servlet.append("switch(_req.getServiceName()){");
-        for (SourceHttpMethodComponent method : methods) {
-            method.create(httpMethod);
+        for (SourceServletMethodComponent component : components) {
+            component.create(httpMethod);
         }
-        if (methods.size() >= 1 && allMethodHasArg()) {
+        if (components.size() >= 1 && allMethodHasArg()) {
             servlet.imports("yeamy.restlite.addition.NoMatchMethodException");
             servlet.append("default:{ onError(_req, _resp, new NoMatchMethodException(_req));}");
         }
-        servlet.append(catchException ? "}}catch(Exception ex){onError(_req,_resp,ex);}}" : "}}");
+        servlet.append(containException ? "}}catch(Exception ex){onError(_req,_resp,ex);}}" : "}}");
     }
 
     /**
@@ -49,14 +56,13 @@ class SourceMethodHttpMethod {
         servlet.imports("jakarta.servlet.http.HttpServletResponse");
         servlet.imports("jakarta.servlet.ServletException");
         servlet.imports("java.io.IOException");
-        servlet.append("@Override public void do").append(httpMethod.charAt(0))
-                .append(httpMethod.toLowerCase(), 1, httpMethod.length())
+        servlet.append("@Override public void ").append(nameOfServlet)
                 .append("(RESTfulRequest _req, HttpServletResponse _resp) throws ServletException, IOException {new ")
                 .append(servlet.imports(T_TextPlainResponse))
                 .append("(500, \"Server error!\");}");
     }
 
-    public void create(boolean catchException) {
+    public void create(boolean containException) {
         components.sort((m1, m2) -> {
             String k1 = m1.orderKey();
             String k2 = m2.orderKey();
@@ -79,9 +85,9 @@ class SourceMethodHttpMethod {
         });
         boolean ok = true;
         String cache = null;
-        ArrayList<SourceHttpMethodComponent> conflicts = new ArrayList<>();
+        ArrayList<SourceServletMethodComponent> conflicts = new ArrayList<>();
         for (int i = 0, max = components.size() - 1; i <= max; i++) {
-            SourceHttpMethodComponent component = components.get(i);
+            SourceServletMethodComponent component = components.get(i);
             boolean eq = component.orderKey().equals(cache);
             if (eq) {
                 conflicts.add(component);
@@ -90,7 +96,7 @@ class SourceMethodHttpMethod {
                 ok = false;
                 StringBuilder msg = new StringBuilder("Conflict cause methods in class ").append(servlet.getImplClass())
                         .append(" with same request parameter(s):");
-                for (SourceHttpMethodComponent conflict : conflicts) {
+                for (SourceServletMethodComponent conflict : conflicts) {
                     msg.append(conflict.name()).append(", ");
                 }
                 env.error(msg.substring(0, msg.length() - 2));
@@ -102,14 +108,14 @@ class SourceMethodHttpMethod {
             }
         }
         if (ok) {
-            create(catchException, components);
+            create(containException, components);
         } else {
             createError();
         }
     }
 
     public boolean allMethodHasArg() {
-        for (SourceHttpMethodComponent component : components) {
+        for (SourceServletMethodComponent component : components) {
             if (component.orderKey().length() == 0) {
                 return false;
             }

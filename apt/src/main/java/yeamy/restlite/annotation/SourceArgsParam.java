@@ -7,10 +7,10 @@ import javax.lang.model.type.TypeMirror;
 import java.util.LinkedList;
 import java.util.List;
 
-class SourceProcessorParam extends SourceProcessor {
+class SourceArgsParam extends SourceArgs {
     private final String alias;
 
-    public static SourceProcessor get(ProcessEnvironment env, SourceServlet servlet, VariableElement param, Param ann) {
+    public static SourceArgs get(ProcessEnvironment env, SourceServlet servlet, VariableElement param, Param ann) {
         String factoryClz = ProcessEnvironment.getAnnotationType(ann::processor);
         if (TextUtils.isEmpty(factoryClz)) {
             return null;
@@ -28,14 +28,14 @@ class SourceProcessorParam extends SourceProcessor {
                     for (ExecutableElement constructor : allConstructor(elements, samePackage)) {
                         List<? extends VariableElement> ps = constructor.getParameters();
                         if (ps.size() == 1 && ps.get(0).asType().toString().equals(SupportType.T_String)) {
-                            return new SourceProcessorParam(env, factoryType, type, constructor, samePackage, elements, name);
+                            return new SourceArgsParam(env, factoryType, type, constructor, samePackage, elements, name);
                         }
                     }
                 }
                 for (ExecutableElement method : findMethodByType(env, type, elements, samePackage)) {
                     List<? extends VariableElement> ps = method.getParameters();
                     if (ps.size() == 1 && ps.get(0).asType().toString().equals(SupportType.T_String)) {
-                        return new SourceProcessorParam(env, factoryType, type, method, samePackage, elements, name);
+                        return new SourceArgsParam(env, factoryType, type, method, samePackage, elements, name);
                     }
                 }
             } else {
@@ -45,7 +45,7 @@ class SourceProcessorParam extends SourceProcessor {
                     if (c != null) {
                         List<? extends VariableElement> ps = c.getParameters();
                         if (ps.size() == 1 && ps.get(0).asType().toString().equals(SupportType.T_String)) {
-                            return new SourceProcessorParam(env, factoryType, type, c, samePackage, elements, name);
+                            return new SourceArgsParam(env, factoryType, type, c, samePackage, elements, name);
                         }
                     }
                 }
@@ -53,22 +53,22 @@ class SourceProcessorParam extends SourceProcessor {
                 if (method != null) {
                     List<? extends VariableElement> ps = method.getParameters();
                     if (ps.size() == 1 && ps.get(0).asType().toString().equals(SupportType.T_String)) {
-                        return new SourceProcessorParam(env, factoryType, type, method, samePackage, elements, name);
+                        return new SourceArgsParam(env, factoryType, type, method, samePackage, elements, name);
                     }
                 }
             }
         }
         env.error("No factory defend for type:" + type + " factory type:" + factoryClz);
-        return SourceProcessorFail.INSTANCE;
+        return SourceArgsFail.INSTANCE;
     }
 
-    private SourceProcessorParam(ProcessEnvironment env,
-                                 TypeElement factoryType,
-                                 TypeMirror returnType,
-                                 ExecutableElement exec,
-                                 boolean samePackage,
-                                 List<? extends Element> elements,
-                                 String alias) {
+    private SourceArgsParam(ProcessEnvironment env,
+                            TypeElement factoryType,
+                            TypeMirror returnType,
+                            ExecutableElement exec,
+                            boolean samePackage,
+                            List<? extends Element> elements,
+                            String alias) {
         super(env, factoryType, exec, returnType);
         this.alias = alias;
         init(exec, samePackage, elements);

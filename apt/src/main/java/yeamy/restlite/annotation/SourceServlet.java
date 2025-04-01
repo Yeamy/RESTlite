@@ -11,10 +11,10 @@ class SourceServlet extends SourceClass {
     final ProcessEnvironment env;
     private final TypeElement element;
     private final RESTfulResource resource;
-    private final HashMap<String, SourceMethodHttpMethod> httpMethods = new HashMap<>();
+    private final HashMap<String, SourceServletMethod> httpMethods = new HashMap<>();
     private final SourceMethodOnError error;
     private final StringBuilder b = new StringBuilder();
-    private final ArrayList<SourceInject> injects = new ArrayList<>();
+    private final ArrayList<SourceInject> injectFields = new ArrayList<>();
     private boolean asyncSupported = false;
 
     public SourceServlet(ProcessEnvironment env, TypeElement element) {
@@ -31,7 +31,7 @@ class SourceServlet extends SourceClass {
             if (kind == ElementKind.FIELD) {
                 Inject inject = li.getAnnotation(Inject.class);
                 if (inject != null) {
-                    injects.add(new SourceInject(this, (VariableElement) li));
+                    injectFields.add(new SourceInject(this, (VariableElement) li));
                 }
             } else if (kind == ElementKind.METHOD) {
                 ExecutableElement eli = (ExecutableElement) li;
@@ -64,13 +64,13 @@ class SourceServlet extends SourceClass {
 
     private void addMethodComponent(String ann, ExecutableElement element, boolean async, long asyncTimeout) {
         if (async) asyncSupported = true;
-        SourceHttpMethodComponent method = new SourceHttpMethodComponent(env, this, element, async, asyncTimeout);
-        SourceMethodHttpMethod httpMethod = httpMethods.get(ann);
+        SourceServletMethodComponent method = new SourceServletMethodComponent(env, this, element, async, asyncTimeout);
+        SourceServletMethod httpMethod = httpMethods.get(ann);
         if (httpMethod == null) {
-            httpMethod = new SourceMethodHttpMethod(env, this, ann);
+            httpMethod = new SourceServletMethod(env, this, ann);
             httpMethods.put(ann, httpMethod);
         }
-        httpMethod.addMethod(method);
+        httpMethod.addComponent(method);
     }
 
     @Override
@@ -137,12 +137,12 @@ class SourceServlet extends SourceClass {
         // impl
         b.append("private ").append(impl).append(" _impl = new ").append(impl).append("();");
         // field
-        if (injects.size() > 0) {
+        if (injectFields.size() > 0) {
             b.append("@Override public void init(")
                     .append(imports("jakarta.servlet.ServletConfig"))
                     .append(" config) throws ServletException { super.init(config);");
             ArrayList<SourceInject> closeable = new ArrayList<>();
-            for (SourceInject inject : injects) {
+            for (SourceInject inject : injectFields) {
                 inject.createField(b);
                 if (inject.needClose()) {
                     closeable.add(inject);
@@ -158,12 +158,12 @@ class SourceServlet extends SourceClass {
             }
         }
         // method
-        boolean catchException = error != null;
-        for (SourceMethodHttpMethod method : httpMethods.values()) {
-            method.create(catchException);
+        boolean containException = error != null;
+        for (SourceServletMethod method : httpMethods.values()) {
+            method.create(containException);
         }
         // error
-        if (catchException) {
+        if (containException) {
             error.create();
         }
         b.append("}");

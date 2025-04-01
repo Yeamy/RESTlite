@@ -10,9 +10,9 @@ import javax.lang.model.type.TypeMirror;
 import java.util.LinkedList;
 import java.util.List;
 
-class SourceProcessorBody extends SourceProcessor {
+class SourceArgsBody extends SourceArgs {
 
-    public static SourceProcessor get(ProcessEnvironment env, SourceServlet servlet, VariableElement param, Body ann) {
+    public static SourceArgs get(ProcessEnvironment env, SourceServlet servlet, VariableElement param, Body ann) {
         TypeMirror type = param.asType();
         String factoryClz = ProcessEnvironment.getAnnotationType(ann::processor);
         if (TextUtils.isNotEmpty(factoryClz)) {
@@ -25,13 +25,13 @@ class SourceProcessorBody extends SourceProcessor {
                     if (env.isAssignable(factoryType.asType(), type)) {
                         for (ExecutableElement constructor : allConstructor(elements, samePackage)) {
                             if (paramOk(constructor)) {
-                                return new SourceProcessorBody(env, factoryType, type, constructor, samePackage, elements, ann.charset());
+                                return new SourceArgsBody(env, factoryType, type, constructor, samePackage, elements, ann.charset());
                             }
                         }
                     }
                     for (ExecutableElement method : findMethodByType(env, type, elements, samePackage)) {
                         if (paramOk(method)) {
-                            return new SourceProcessorBody(env, factoryType, type, method, samePackage, elements, ann.charset());
+                            return new SourceArgsBody(env, factoryType, type, method, samePackage, elements, ann.charset());
                         }
                     }
                 } else {
@@ -39,18 +39,18 @@ class SourceProcessorBody extends SourceProcessor {
                         LinkedList<ExecutableElement> constructors = allConstructor(elements, samePackage);
                         ExecutableElement constructor = findConstructor(constructors, tag, samePackage);
                         if (constructor != null && paramOk(constructor)) {
-                            return new SourceProcessorBody(env, factoryType, type, constructor, samePackage, elements, ann.charset());
+                            return new SourceArgsBody(env, factoryType, type, constructor, samePackage, elements, ann.charset());
                         }
                     }
                     ExecutableElement method = findMethodByTag(elements, tag, samePackage);
                     if (method != null && paramOk(method)) {
-                        return new SourceProcessorBody(env, factoryType, type, method, samePackage, elements, ann.charset());
+                        return new SourceArgsBody(env, factoryType, type, method, samePackage, elements, ann.charset());
                     }
                 }
             }
         }
         env.error("No factory defend for type:" + type + " cause factory type is empty");
-        return SourceProcessorFail.INSTANCE;
+        return SourceArgsFail.INSTANCE;
     }
 
     private static boolean paramOk(ExecutableElement constructor) {
@@ -62,13 +62,13 @@ class SourceProcessorBody extends SourceProcessor {
         return true;
     }
 
-    private SourceProcessorBody(ProcessEnvironment env,
-                                TypeElement factoryType,
-                                TypeMirror returnType,
-                                ExecutableElement exec,
-                                boolean samePackage,
-                                List<? extends Element> elements,
-                                String charset) {
+    private SourceArgsBody(ProcessEnvironment env,
+                           TypeElement factoryType,
+                           TypeMirror returnType,
+                           ExecutableElement exec,
+                           boolean samePackage,
+                           List<? extends Element> elements,
+                           String charset) {
         super(env, factoryType, exec, returnType, charset);
         init(exec, samePackage, elements);
     }

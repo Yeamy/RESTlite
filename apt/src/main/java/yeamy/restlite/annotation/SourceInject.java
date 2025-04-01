@@ -134,7 +134,7 @@ class SourceInject {
             }
             return createByCreator(env.getAnnotationType(inject2:: creator), inject2.tag(), key);
         }
-        SourceInjectProvider p = env.getInject(typeName);
+        SourceInjectProvider p = env.getInjectProvider(typeName);
         if (p != null) {
             return success(key, p.create(servlet));
         } else if (type.getKind() == ElementKind.INTERFACE) {

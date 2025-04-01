@@ -2,11 +2,11 @@ package yeamy.restlite.annotation;
 
 import javax.lang.model.element.VariableElement;
 
-class SourceProcessorFail extends SourceProcessor {
+class SourceArgsFail extends SourceArgs {
 
-    final static SourceProcessorFail INSTANCE = new SourceProcessorFail();
+    final static SourceArgsFail INSTANCE = new SourceArgsFail();
 
-    private SourceProcessorFail() {
+    private SourceArgsFail() {
         super(null, null, null, null);
     }
 

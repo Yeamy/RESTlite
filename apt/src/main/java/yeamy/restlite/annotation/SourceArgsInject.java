@@ -10,11 +10,14 @@ import javax.lang.model.type.TypeMirror;
 import java.util.LinkedList;
 import java.util.List;
 
-class SourceProcessorInject extends SourceProcessor {
+class SourceArgsInject extends SourceArgs {
     private final SourceInject sourceInject;
 
-    public static SourceProcessor get(ProcessEnvironment env, SourceServlet servlet, VariableElement param, Inject ann) {
+    public static SourceArgs get(ProcessEnvironment env, SourceServlet servlet, VariableElement param, Inject ann) {
         TypeMirror type = param.asType();
+        SourceInjectProvider ip = env.getInjectProvider(type.toString());
+
+
         String factoryClz = ProcessEnvironment.getAnnotationType(ann::creator);
         if (TextUtils.isNotEmpty(factoryClz)) {
             TypeElement factoryType = env.getTypeElement(factoryClz);
@@ -29,10 +32,10 @@ class SourceProcessorInject extends SourceProcessor {
                             case 0:
                                 break;
                             case 1:
-                                return new SourceProcessorInject(env, factoryType, type, constructors.get(0), samePackage, elements);
+                                return new SourceArgsInject(env, factoryType, type, constructors.get(0), samePackage, elements);
                             default:
                                 env.error("More than one constructor in inject factory defend for type:" + type);
-                                return SourceProcessorFail.INSTANCE;
+                                return SourceArgsFail.INSTANCE;
                         }
                     }
                     LinkedList<ExecutableElement> methods = findMethodByType(env, type, elements, samePackage);
@@ -40,45 +43,45 @@ class SourceProcessorInject extends SourceProcessor {
                         case 0:
                             break;
                         case 1:
-                            return new SourceProcessorInject(env, factoryType, type, methods.get(0), samePackage, elements);
+                            return new SourceArgsInject(env, factoryType, type, methods.get(0), samePackage, elements);
                         default:
                             env.error("More than one method in inject factory defend for type:" + type + " " + param.getSimpleName());
-                            return SourceProcessorFail.INSTANCE;
+                            return SourceArgsFail.INSTANCE;
                     }
                 } else {
                     if (env.isAssignable(factoryType.asType(), type)) {
                         LinkedList<ExecutableElement> constructors = allConstructor(elements, samePackage);
                         ExecutableElement constructor = findConstructor(constructors, tag, samePackage);
                         if (constructor != null) {
-                            return new SourceProcessorInject(env, factoryType, type, constructor, samePackage, elements);
+                            return new SourceArgsInject(env, factoryType, type, constructor, samePackage, elements);
                         }
                     }
                     ExecutableElement method = findMethodByTag(elements, tag, samePackage);
                     if (method != null) {
-                        return new SourceProcessorInject(env, factoryType, type, method, samePackage, elements);
+                        return new SourceArgsInject(env, factoryType, type, method, samePackage, elements);
                     }
                 }
             }
         }
         env.error("No factory defend for inject type:" + type + " cause factory type is empty");
-        return SourceProcessorFail.INSTANCE;
+        return SourceArgsFail.INSTANCE;
     }
 
-    private SourceProcessorInject(ProcessEnvironment env,
-                                  TypeElement factoryType,
-                                  TypeMirror returnType,
-                                  ExecutableElement exec,
-                                  boolean samePackage,
-                                  List<? extends Element> elements) {
+    private SourceArgsInject(ProcessEnvironment env,
+                             TypeElement factoryType,
+                             TypeMirror returnType,
+                             ExecutableElement exec,
+                             boolean samePackage,
+                             List<? extends Element> elements) {
         super(env, factoryType, exec, returnType);
         init(exec, samePackage, elements);
         sourceInject = null;
     }
 
-    private SourceProcessorInject(SourceServlet servlet, VariableElement param) {
-        super(null, null, null, null);
-        sourceInject = new SourceInject(servlet, param);
-    }
+//    private SourceArgsInject(SourceServlet servlet, VariableElement param) {
+//        super(null, null, null, null);
+//        sourceInject = new SourceInject(servlet, param);
+//    }
 
     @Override
     public void addToArgs(SourceArguments args, SourceServlet servlet, VariableElement p, String name) {

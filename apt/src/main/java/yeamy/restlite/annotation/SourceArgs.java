@@ -12,15 +12,15 @@ import java.util.Set;
 import static yeamy.restlite.annotation.SupportType.*;
 
 /**
- * @see SourceProcessorHeader
- * @see SourceProcessorCookies
- * @see SourceProcessorParam
- * @see SourceProcessorPart
- * @see SourceProcessorBody
- * @see SourceProcessorInject
- * @see SourceProcessorFail
+ * @see SourceArgsHeader
+ * @see SourceArgsCookies
+ * @see SourceArgsParam
+ * @see SourceArgsPart
+ * @see SourceArgsBody
+ * @see SourceArgsInject
+ * @see SourceArgsFail
  */
-abstract class SourceProcessor {
+abstract class SourceArgs {
     protected final ProcessEnvironment env;
     private final TypeElement factoryType;
     private final ExecutableElement exec;
@@ -121,11 +121,11 @@ abstract class SourceProcessor {
 
     //----------------------------------------------------------------------
 
-    public SourceProcessor(ProcessEnvironment env, TypeElement factoryType, ExecutableElement exec, TypeMirror returnType) {
+    public SourceArgs(ProcessEnvironment env, TypeElement factoryType, ExecutableElement exec, TypeMirror returnType) {
         this(env, factoryType, exec, returnType, null);
     }
 
-    public SourceProcessor(ProcessEnvironment env, TypeElement factoryType, ExecutableElement exec, TypeMirror returnType, String charset) {
+    public SourceArgs(ProcessEnvironment env, TypeElement factoryType, ExecutableElement exec, TypeMirror returnType, String charset) {
         this.env = env;
         this.factoryType = factoryType;
         this.exec = exec;

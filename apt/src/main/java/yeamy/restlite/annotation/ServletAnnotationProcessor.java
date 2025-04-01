@@ -43,7 +43,7 @@ public class ServletAnnotationProcessor extends AbstractProcessor {
         }
         // inject provider
         for (Element element : roundEnv.getElementsAnnotatedWith(InjectProvider.class)) {
-            env.addInject(new SourceInjectProvider(env, element));
+            env.addInjectProvider(new SourceInjectProvider(env, element));
         }
         // embed
         TypeElement tomcatConfig = env.getTypeElement("yeamy.restlite.annotation.TomcatConfig");

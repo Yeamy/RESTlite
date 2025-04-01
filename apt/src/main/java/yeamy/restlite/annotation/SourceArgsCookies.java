@@ -13,11 +13,11 @@ import java.util.List;
 import static yeamy.restlite.annotation.SupportType.T_Cookie;
 import static yeamy.restlite.annotation.SupportType.T_Cookies;
 
-class SourceProcessorCookies extends SourceProcessor {
+class SourceArgsCookies extends SourceArgs {
     private static final String[] COOKIES_TYPES = {T_Cookies, T_Cookie};
     private final String type, alias;
 
-    public static SourceProcessor get(ProcessEnvironment env, SourceServlet servlet, VariableElement param, Header ann) {
+    public static SourceArgs get(ProcessEnvironment env, SourceServlet servlet, VariableElement param, Header ann) {
         String factoryClz = ProcessEnvironment.getAnnotationType(ann::processor);
         if (TextUtils.isEmpty(factoryClz)) {
             return null;
@@ -35,14 +35,14 @@ class SourceProcessorCookies extends SourceProcessor {
                     for (ExecutableElement constructor : allConstructor(elements, samePackage)) {
                         String paramType = paramType(constructor);
                         if (paramType != null) {
-                            return new SourceProcessorCookies(env, factoryType, type, constructor, samePackage, elements, paramType, name);
+                            return new SourceArgsCookies(env, factoryType, type, constructor, samePackage, elements, paramType, name);
                         }
                     }
                 }
                 for (ExecutableElement method : findMethodByType(env, type, elements, samePackage)) {
                     String paramType = paramType(method);
                     if (paramType != null) {
-                        return new SourceProcessorCookies(env, factoryType, type, method, samePackage, elements, paramType, name);
+                        return new SourceArgsCookies(env, factoryType, type, method, samePackage, elements, paramType, name);
                     }
                 }
             } else {
@@ -52,7 +52,7 @@ class SourceProcessorCookies extends SourceProcessor {
                     if (constructor != null) {
                         String paramType = paramType(constructor);
                         if (paramType != null) {
-                            return new SourceProcessorCookies(env, factoryType, type, constructor, samePackage, elements, paramType, name);
+                            return new SourceArgsCookies(env, factoryType, type, constructor, samePackage, elements, paramType, name);
                         }
                     }
                 }
@@ -60,13 +60,13 @@ class SourceProcessorCookies extends SourceProcessor {
                 if (method != null) {
                     String paramType = paramType(method);
                     if (paramType != null) {
-                        return new SourceProcessorCookies(env, factoryType, type, method, samePackage, elements, paramType, name);
+                        return new SourceArgsCookies(env, factoryType, type, method, samePackage, elements, paramType, name);
                     }
                 }
             }
         }
         env.error("No factory defend for type:" + type + " factory type:" + factoryClz);
-        return SourceProcessorFail.INSTANCE;
+        return SourceArgsFail.INSTANCE;
     }
 
     private static String paramType(ExecutableElement constructor) {
@@ -80,14 +80,14 @@ class SourceProcessorCookies extends SourceProcessor {
         return null;
     }
 
-    private SourceProcessorCookies(ProcessEnvironment env,
-                                   TypeElement factoryType,
-                                   TypeMirror returnType,
-                                   ExecutableElement exec,
-                                   boolean samePackage,
-                                   List<? extends Element> elements,
-                                   String type,
-                                   String alias) {
+    private SourceArgsCookies(ProcessEnvironment env,
+                              TypeElement factoryType,
+                              TypeMirror returnType,
+                              ExecutableElement exec,
+                              boolean samePackage,
+                              List<? extends Element> elements,
+                              String type,
+                              String alias) {
         super(env, factoryType, exec, returnType);
         this.type = type;
         this.alias = alias;

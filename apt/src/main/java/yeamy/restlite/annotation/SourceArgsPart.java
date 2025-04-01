@@ -10,10 +10,10 @@ import javax.lang.model.type.TypeMirror;
 import java.util.LinkedList;
 import java.util.List;
 
-class SourceProcessorPart extends SourceProcessor {
+class SourceArgsPart extends SourceArgs {
     private final String alias;
 
-    public static SourceProcessor get(ProcessEnvironment env, SourceServlet servlet, VariableElement param, Part ann) {
+    public static SourceArgs get(ProcessEnvironment env, SourceServlet servlet, VariableElement param, Part ann) {
         String name = ann.value();
         if (TextUtils.isEmpty(name)) name = param.getSimpleName().toString();
         TypeMirror type = param.asType();
@@ -28,13 +28,13 @@ class SourceProcessorPart extends SourceProcessor {
                     if (env.isAssignable(factoryType.asType(), type)) {
                         for (ExecutableElement constructor : allConstructor(elements, samePackage)) {
                             if (paramOk(constructor)) {
-                                return new SourceProcessorPart(env, factoryType, type, constructor, samePackage, elements, name, ann.charset());
+                                return new SourceArgsPart(env, factoryType, type, constructor, samePackage, elements, name, ann.charset());
                             }
                         }
                     }
                     for (ExecutableElement method : findMethodByType(env, type, elements, samePackage)) {
                         if (paramOk(method)) {
-                            return new SourceProcessorPart(env, factoryType, type, method, samePackage, elements, name, ann.charset());
+                            return new SourceArgsPart(env, factoryType, type, method, samePackage, elements, name, ann.charset());
                         }
                     }
                 } else {
@@ -42,18 +42,18 @@ class SourceProcessorPart extends SourceProcessor {
                         LinkedList<ExecutableElement> constructors = allConstructor(elements, samePackage);
                         ExecutableElement constructor = findConstructor(constructors, tag, samePackage);
                         if (constructor != null && paramOk(constructor)) {
-                            return new SourceProcessorPart(env, factoryType, type, constructor, samePackage, elements, name, ann.charset());
+                            return new SourceArgsPart(env, factoryType, type, constructor, samePackage, elements, name, ann.charset());
                         }
                     }
                     ExecutableElement method = findMethodByTag(elements, tag, samePackage);
                     if (method != null && paramOk(method)) {
-                        return new SourceProcessorPart(env, factoryType, type, method, samePackage, elements, name, ann.charset());
+                        return new SourceArgsPart(env, factoryType, type, method, samePackage, elements, name, ann.charset());
                     }
                 }
             }
         }
         env.error("No factory defend for type:" + type + " factory type:" + factoryClz);
-        return SourceProcessorFail.INSTANCE;
+        return SourceArgsFail.INSTANCE;
 
     }
 
@@ -66,14 +66,14 @@ class SourceProcessorPart extends SourceProcessor {
         return true;
     }
 
-    private SourceProcessorPart(ProcessEnvironment env,
-                                TypeElement factoryType,
-                                TypeMirror returnType,
-                                ExecutableElement exec,
-                                boolean samePackage,
-                                List<? extends Element> elements,
-                                String alias,
-                                String charset) {
+    private SourceArgsPart(ProcessEnvironment env,
+                           TypeElement factoryType,
+                           TypeMirror returnType,
+                           ExecutableElement exec,
+                           boolean samePackage,
+                           List<? extends Element> elements,
+                           String alias,
+                           String charset) {
         super(env, factoryType, exec, returnType, charset);
         this.alias = alias;
         init(exec, samePackage, elements);
