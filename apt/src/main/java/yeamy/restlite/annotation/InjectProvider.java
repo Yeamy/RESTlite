@@ -16,4 +16,9 @@ public @interface InjectProvider {
      * Class name for Provider to create, default empty using current class.
      */
     Class<?>[] provideFor() default {};
+
+    /**
+     * name
+     */
+    String value() default "";
 }

@@ -15,10 +15,7 @@ import javax.tools.Diagnostic.Kind;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.concurrent.Callable;
 
 class ProcessEnvironment {
@@ -33,7 +30,7 @@ class ProcessEnvironment {
     private final String pkg, response;
     private final TypeMirror closeable, httpResponse, inputStream, file;
     final TreeMap<String, Map<String, String>> names = new TreeMap<>();
-    private final HashMap<String, SourceInjectProvider> getInjectProviders = new HashMap<>();
+    private final HashMap<String, SourceInjectProvider> injectProviders = new HashMap<>();
 
     public ProcessEnvironment(ProcessingEnvironment env, Element init) {
         processingEnv = env;
@@ -166,14 +163,31 @@ class ProcessEnvironment {
         return names.entrySet();
     }
 
-    public void addInjectProvider(SourceInjectProvider inject) {
-        for (String type : inject.types) {
-            getInjectProviders.put(type, inject);
+    public void addInjectProvider(Element element, InjectProvider ann) {
+        String name = ann.value();
+        ElementKind kind = element.getKind();
+        ArrayList<String> keys = new ArrayList<>();
+        for (Class<?> t : ann.provideFor()) {
+            keys.add(t.getName());
+        }
+        if (kind == ElementKind.FIELD) {
+            keys.add(element.asType().toString());
+        } else {
+            keys.add(((ExecutableElement) element).getReturnType().toString());
+        }
+        SourceInjectProvider provider = new SourceInjectProvider(this, element, name);
+        for (String key : keys) {
+            injectProviders.put(key, provider);
+        }
+        if (TextUtils.isNotEmpty(name)) {
+            for (String key : keys) {
+                injectProviders.put(key + ":" + name, provider);
+            }
         }
     }
 
-    public SourceInjectProvider getInjectProvider(String type) {
-        return getInjectProviders.get(type);
+    public SourceInjectProvider getInjectProvider(String type, String name) {
+        return injectProviders.get(TextUtils.isEmpty(name) ? type : type + ":" + name);
     }
 
     public boolean responseAllType() {

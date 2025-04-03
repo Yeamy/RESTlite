@@ -11,6 +11,9 @@ import java.lang.annotation.Target;
  * declare to inject the field of {@link RESTfulResource}
  * or a param of http method such as {@link GET}, {@link POST}...<br>
  *
+ * <b>1.Lookup</b> @InjectProvider -> type's constructor<br>
+ * <b>2.Lookup</b> tag() -> type's static field, method, no param public constructor -> null
+ *
  * @see Inject#singleton()
  */
 @Target({ElementType.FIELD, ElementType.PARAMETER, ElementType.TYPE})
@@ -32,20 +35,10 @@ public @interface Inject {
     Singleton singleton() default Singleton.auto;
 
     /**
-     * class name of creator.<br>
-     * <br>
-     * <b>1.Lookup</b> field's creator() -> type's creator() -> @InjectProvider -> type's constructor<br>
-     * <b>2.Lookup</b> tag() -> type's static field, method, no param public constructor -> null
-     *
-     * @see #tag()
-     */
-    Class<?> creator() default void.class;
-
-    /**
      * tag the constructor/creator-method, suggest to use if more than one
      * constructor/method
      *
-     * @see LinkTag
+     * @see InjectProvider
      */
-    String tag() default "";
+    String provider() default "";
 }

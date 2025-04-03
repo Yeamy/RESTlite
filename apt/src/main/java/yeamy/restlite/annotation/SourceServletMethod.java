@@ -19,8 +19,9 @@ class SourceServletMethod {
         char[] out = new char[src.length + 2];
         out[0] = 'd';
         out[1] = 'o';
-        for (int i = 0; i < src.length; i++) {
-            out[i + 2] = (char) (src[i] - 32);
+        out[2] = src[0];
+        for (int i = 1; i < src.length; i++) {
+            out[i + 2] = (char) (src[i] + 32);
         }
         this.nameOfServlet = new String(out);
     }

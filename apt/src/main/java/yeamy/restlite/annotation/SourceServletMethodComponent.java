@@ -225,6 +225,15 @@ class SourceServletMethodComponent {
         return true;
     }
 
+    private boolean doInject(VariableElement p) {
+        Inject ann = p.getAnnotation(Inject.class);
+        if (ann == null) return false;
+        SourceInject inject = SourceHelper.getInject(env, servlet, p, ann);
+        args.addInject(p.getSimpleName().toString(), inject.isThrowable(), inject.isCloseable(), inject.isCloseThrow())
+                .write(inject.writeArg(servlet));
+        return true;
+    }
+
     private boolean doBody(VariableElement p) {
         if (args.containsBody()) {
             args.addFallback("null");
@@ -303,14 +312,6 @@ class SourceServletMethodComponent {
                 return true;
             }
         }
-        return true;
-    }
-
-    private boolean doInject(VariableElement p) {
-        Inject inject = p.getAnnotation(Inject.class);
-        if (inject == null) return false;
-        String name = p.getSimpleName().toString();
-        SourceArgsInject.get(env, servlet, p, inject).addToArgs(args, servlet, p, name);
         return true;
     }
 

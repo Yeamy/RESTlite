@@ -31,7 +31,7 @@ class SourceServlet extends SourceClass {
             if (kind == ElementKind.FIELD) {
                 Inject inject = li.getAnnotation(Inject.class);
                 if (inject != null) {
-                    injectFields.add(new SourceInject(this, (VariableElement) li));
+                    injectFields.add(SourceHelper.getInject(env, this, (VariableElement) li, inject));
                 }
             } else if (kind == ElementKind.METHOD) {
                 ExecutableElement eli = (ExecutableElement) li;
@@ -143,8 +143,8 @@ class SourceServlet extends SourceClass {
                     .append(" config) throws ServletException { super.init(config);");
             ArrayList<SourceInject> closeable = new ArrayList<>();
             for (SourceInject inject : injectFields) {
-                inject.createField(b);
-                if (inject.needClose()) {
+                inject.writeField(b, this);
+                if (inject.isCloseable()) {
                     closeable.add(inject);
                 }
             }
@@ -152,7 +152,7 @@ class SourceServlet extends SourceClass {
             if (closeable.size() > 0) {
                 b.append("@Override public void destroy() { super.destroy();");
                 for (SourceInject inject : closeable) {
-                    inject.createClose(b);
+                    inject.writeClose(b, this);
                 }
                 b.append('}');
             }
@@ -201,5 +201,10 @@ class SourceServlet extends SourceClass {
 
     public boolean containsError() {
         return error != null;
+    }
+
+    public boolean isSamePackage(TypeElement te) {
+        String fpk = ((PackageElement) te.getEnclosingElement()).getQualifiedName().toString();
+        return fpk.equals(pkg);
     }
 }
