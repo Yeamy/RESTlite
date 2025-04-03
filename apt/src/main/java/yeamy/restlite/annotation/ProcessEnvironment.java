@@ -165,17 +165,12 @@ class ProcessEnvironment {
     }
 
     public void addSourceHeaderProcessor(Element element, HeaderProcessor ann) {
+        String key = ((ExecutableElement) element).getReturnType().toString();
+        SourceHeaderProcessor processor = new SourceHeaderProcessor(this, element);
+        headerProcessors.put(key, processor);
         String name = ann.value();
-        ArrayList<String> keys = new ArrayList<>();
-        keys.add(((ExecutableElement) element).getReturnType().toString());
-        SourceInjectProvider provider = new SourceInjectProvider(this, element, name);
-        for (String key : keys) {
-            injectProviders.put(key, provider);
-        }
         if (TextUtils.isNotEmpty(name)) {
-            for (String key : keys) {
-                injectProviders.put(key + ":" + name, provider);
-            }
+            headerProcessors.put(key + ":" + name, processor);
         }
     }
 

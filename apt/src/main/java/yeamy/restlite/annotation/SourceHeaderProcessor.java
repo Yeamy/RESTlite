@@ -1,45 +1,47 @@
 package yeamy.restlite.annotation;
 
+import yeamy.utils.TextUtils;
+
 import javax.lang.model.element.*;
+import javax.lang.model.type.TypeMirror;
+import java.util.List;
 import java.util.Set;
 
-class SourceHeaderProcessor {
-    public final TypeElement importType;
-    public final ExecutableElement method;
-    public final ElementKind kind;
-    public final String name;
-    public final String content;
+import static yeamy.restlite.annotation.SupportType.*;
 
-    public SourceHeaderProcessor(ProcessEnvironment env, Element element, String name) {
-        this.importType = (TypeElement) element.getEnclosingElement();
-        this.name = name;
+class SourceHeaderProcessor {
+    static final String[] SUPPORT_HEADER_TYPE = new String[]{T_String, T_int, T_Integer, T_long, T_Long, T_Date};
+
+    public final TypeElement classType;
+    public final ExecutableElement method;
+    public final TypeMirror returnType;
+    public final ElementKind kind;
+
+    public SourceHeaderProcessor(ProcessEnvironment env, Element element) {
+        this.classType = (TypeElement) element.getEnclosingElement();
         ElementKind kind = this.kind = element.getKind();
         ExecutableElement method = (ExecutableElement) element;
-        if (method.getParameters().size() > 0) {
-            env.error("HeaderProcessor must be no parameter!");
+        this.returnType = method.getReturnType();
+        List<? extends VariableElement> parameters = method.getParameters();
+        if (parameters.size() != 1 || TextUtils.notIn(parameters.get(0).asType().toString(), SUPPORT_HEADER_TYPE)) {
+            env.error("HeaderProcessor " + element.getSimpleName() + " must have ONE param (one of String, Integer, int, Long, long, Date) !");
             this.method = null;
-            this.content = "null";
         } else if (kind == ElementKind.METHOD) {
             Set<Modifier> modifiers = element.getModifiers();
-            if (modifiers.contains(Modifier.PUBLIC)
-                    && modifiers.contains(Modifier.STATIC)) {
+            if (modifiers.contains(Modifier.PUBLIC) && modifiers.contains(Modifier.STATIC)) {
                 this.method = method;
-                this.content = importType + "." + element.getSimpleName() + "()";
             } else {
                 env.error("HeaderProcessor method must have the modifier public static:"
                         + element.asType().toString() + "." + element.getSimpleName());
                 this.method = null;
-                this.content = "null";
             }
         } else {// CONSTRUCTOR
             if (element.getModifiers().contains(Modifier.PUBLIC)) {
                 this.method = method;
-                this.content = "new " + importType.getSimpleName() + "()";
             } else {
                 env.error("HeaderProcessor constructor must have the modifier public:"
-                        + element.asType().toString() + "." + element.getSimpleName());
+                        + classType + "." + element.getSimpleName());
                 this.method = null;
-                this.content = "null";
             }
         }
     }

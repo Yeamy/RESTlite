@@ -2,6 +2,7 @@ package yeamy.restlite.annotation;
 
 import yeamy.utils.TextUtils;
 
+import static yeamy.restlite.annotation.SourceHeaderProcessor.SUPPORT_HEADER_TYPE;
 import javax.lang.model.element.*;
 import javax.lang.model.type.TypeMirror;
 import java.util.ArrayList;
@@ -52,37 +53,35 @@ abstract class SourceVariableHelper {
             TypeElement classType = ip.importType;
             boolean samePackage = servlet.isSamePackage(classType);
             return new SourceInjectByProvider(env, param, ip, samePackage, elements);
+        }
+        if (TextUtils.isNotEmpty(provider)) {
+            env.error("Cannot find InjectProvider with name: " + provider + " of type " + returnType);
+            return new SourceInjectNull(env, param, returnType);
+        }
+        TypeElement classType = env.getTypeElement(returnType.toString());
+        if (classType.getModifiers().contains(Modifier.ABSTRACT)) {
+            env.error("Cannot find creator without InjectProvider in abstract class: " + returnType);
+            return new SourceInjectNull(env, param, returnType);
+        }
+        boolean samePackage = servlet.isSamePackage(classType);
+        ExecutableElement exec = findInjectConstructor(elements, samePackage);
+        if (exec != null) {
+            return new SourceInjectByExecutable(env, param, classType, exec, returnType, samePackage, elements);
+        }
+        ArrayList<ExecutableElement> ms = findInjectStaticMethod(env, elements, returnType, samePackage);
+        if (ms.size() == 0) {
+            env.error("Cannot find Constructor nor Static-Factory-Method with no argument in type " + returnType);
+            return new SourceInjectNull(env, param, returnType);
+        } else if (ms.size() == 1) {
+            exec = ms.get(0);
+            return new SourceInjectByExecutable(env, param, classType, exec, returnType, samePackage, elements);
         } else {
-            if (TextUtils.isNotEmpty(provider)) {
-                env.error("Cannot find InjectProvider with name: " + provider + " of type " + returnType);
-                return new SourceInjectNull(env, param, returnType);
-            }
-            TypeElement classType = env.getTypeElement(returnType.toString());
-            if (classType.getModifiers().contains(Modifier.ABSTRACT)) {
-                env.error("Cannot find creator without InjectProvider in abstract class: " + returnType);
-                return new SourceInjectNull(env, param, returnType);
-            }
-            boolean samePackage = servlet.isSamePackage(classType);
-            ExecutableElement exec = findInjectConstructor(elements, samePackage);
-            if (exec != null) {
-                return new SourceInjectByExecutable(env, param, classType, exec, returnType, samePackage, elements);
-            }
-            ArrayList<ExecutableElement> ms = findInjectStaticMethod(env, elements, returnType, samePackage);
-            if (ms.size() == 0) {
-                env.error("Cannot find Constructor nor Static-Factory-Method with no argument in type " + returnType);
-                return new SourceInjectNull(env, param, returnType);
-            } else if (ms.size() == 1) {
-                exec = ms.get(0);
-                return new SourceInjectByExecutable(env, param, classType, exec, returnType, samePackage, elements);
-            } else {
-                env.error("More than one Static-Factory-Method in type:" + returnType + " " + param.getSimpleName());
-                return new SourceInjectNull(env, param, returnType);
-            }
+            env.error("More than one Static-Factory-Method in type:" + returnType + " " + param.getSimpleName());
+            return new SourceInjectNull(env, param, returnType);
         }
     }
 
     //----------------------------------------------
-    private static final String[] SUPPORT_HEADER_TYPE = new String[]{T_String, T_int, T_Integer, T_long, T_Long, T_Date};
 
     private static void findHeaderConstructor(ArrayList<ExecutableElement> list, List<? extends Element> elements, boolean samePackage) {
         for (Element element : elements) {
@@ -122,9 +121,9 @@ abstract class SourceVariableHelper {
         List<? extends Element> elements = param.getEnclosedElements();
         SourceHeaderProcessor hp = env.getHeaderProcessor(returnType.toString(), processor);
         if (hp != null) {
-            TypeElement classType = hp.importType;
-            boolean samePackage = servlet.isSamePackage(classType);
-            return new SourceHeaderByProcessor(env, param, hp, samePackage, elements);
+            if (hp.method == null) return null;
+            boolean samePackage = servlet.isSamePackage(hp.classType);
+            return new SourceHeaderByExecutable(env, param, hp.classType, hp.method, returnType, samePackage, elements);
         }
         if (TextUtils.isNotEmpty(processor)) {
             env.error("Cannot find HeaderProcessor with name: " + processor + " of type " + returnType);

@@ -6,11 +6,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * declare the method to create http param.<br>
- * Method with only one String param and return any type
- * Noted that the element must contain modifies public static.
+ * Declare the method to create http header.<br>
+ * For public static-method/constructor with one param (one of {@linkplain java.lang.String String},
+ * {@linkplain java.lang.Integer Integer}/int, {@linkplain java.lang.Long Long}/long(timeMiles),
+ * {@linkplain java.util.Date Date})
  */
-@Target(ElementType.METHOD)
+@Target({ElementType.METHOD, ElementType.CONSTRUCTOR})
 @Retention(RetentionPolicy.SOURCE)
 public @interface HeaderProcessor {
 

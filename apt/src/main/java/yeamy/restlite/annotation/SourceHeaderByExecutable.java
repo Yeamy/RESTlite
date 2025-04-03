@@ -1,12 +1,10 @@
 package yeamy.restlite.annotation;
 
 import javax.lang.model.element.*;
-import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import java.util.List;
 
-import static yeamy.restlite.annotation.SupportType.T_Date;
-import static yeamy.restlite.annotation.SupportType.T_String;
+import static yeamy.restlite.annotation.SupportType.*;
 
 class SourceHeaderByExecutable extends SourceHeader {
     private final TypeElement classType;
@@ -36,23 +34,14 @@ class SourceHeaderByExecutable extends SourceHeader {
         } else {
             b.append(servlet.imports(classType)).append('.').append(method.getSimpleName());
         }
-        b.append('(').append(writeArgument(servlet, name)).append(");");
+        switch (returnType.toString()) {
+            case T_int, T_Integer -> b.append("(_req.getIntHeader(\"").append(name).append("\"));");
+            case T_long, T_Long -> b.append("(_req.getDateHeader(\"").append(name).append("\");");
+            case T_String -> b.append("(_req.getHeader(\"").append(name).append("\");");
+            case T_Date -> b.append("(new ").append(servlet.imports(T_Date)).append("(_req.getDateHeader(\"")
+                    .append(name).append("\"));");
+        }
         return b;
     }
 
-    private String writeArgument(SourceServlet servlet, String name) {
-        TypeKind kind = returnType.getKind();
-        if (kind.equals(TypeKind.INT)) {
-            return "_req.getIntHeader(\"" + name + "\");";
-        } else if (kind.equals(TypeKind.LONG)) {
-            return "_req.getDateHeader(\"" + name + "\");";
-        }
-        String type = returnType.toString();
-        if (T_String.equals(type)) {
-            return "_req.getHeader(\"" + name + "\");";
-        } else if (T_Date.equals(type)) {
-            return "new " + servlet.imports(T_Date) + "(_req.getDateHeader(\"" + name + "\"));";
-        }
-        return "";
-    }
 }

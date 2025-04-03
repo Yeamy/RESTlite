@@ -7,7 +7,10 @@ import java.lang.annotation.Target;
 
 /**
  * declare the parameter is http request header.<br>
- * <b>support type:</b> {@linkplain String String}, int, long(timeMiles), {@linkplain java.util.Date Date},
+ * <b>support type:</b> {@linkplain String String}, {@linkplain java.lang.Integer Integer}/int,
+ * {@linkplain java.lang.Long Long}/long(timeMiles), {@linkplain java.util.Date Date},
+ * type have public static-method/constructor with one param (param type as above),
+ * type create by {@link HeaderProcessor},
  *
  * @author Yeamy
  * @see Cookies
@@ -15,6 +18,7 @@ import java.lang.annotation.Target;
  * @see Body
  * @see Part
  * @see Attribute
+ * @see HeaderProcessor
  */
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.SOURCE)
@@ -25,7 +29,7 @@ public @interface Header {
     String value() default "";
 
     /**
-     * distinguish the constructor/static-method with same return type
+     * Distinguish the constructor/static-method with same return type
      *
      * @see HeaderProcessor
      */
