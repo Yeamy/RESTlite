@@ -28,4 +28,9 @@ class SupportType {
     public static final String T_DoubleArray = T_Double + "[]";
     public static final String T_StringArray = T_String + "[]";
     public static final String T_TextPlainResponse = "yeamy.restlite.addition.TextPlainResponse";
+    public static final String T_boolean = "boolean";
+    public static final String T_int = "int";
+    public static final String T_long = "long";
+    public static final String T_float = "float";
+    public static final String T_double = "double";
 }

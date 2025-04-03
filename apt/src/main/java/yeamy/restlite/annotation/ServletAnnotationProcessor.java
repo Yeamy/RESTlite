@@ -41,6 +41,10 @@ public class ServletAnnotationProcessor extends AbstractProcessor {
         if (env == null) {
             return false;
         }
+        // header processor
+        for (Element element : roundEnv.getElementsAnnotatedWith(HeaderProcessor.class)) {
+            env.addSourceHeaderProcessor(element, element.getAnnotation(HeaderProcessor.class));
+        }
         // inject provider
         for (Element element : roundEnv.getElementsAnnotatedWith(InjectProvider.class)) {
             env.addInjectProvider(element, element.getAnnotation(InjectProvider.class));

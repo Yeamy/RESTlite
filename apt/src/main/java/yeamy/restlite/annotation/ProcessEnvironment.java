@@ -23,7 +23,7 @@ class ProcessEnvironment {
     private final Messager messager;
     private final Types typeUtils;
     private final Elements elementUtils;
-    private final HashMap<String, SourceArgs> paramCreator = new HashMap<>();
+    private final HashMap<String, SourceVariable> paramCreator = new HashMap<>();
     private final boolean responseAllType;
     private final String charset;
     private final SupportPatch supportPatch;
@@ -31,6 +31,7 @@ class ProcessEnvironment {
     private final TypeMirror closeable, httpResponse, inputStream, file;
     final TreeMap<String, Map<String, String>> names = new TreeMap<>();
     private final HashMap<String, SourceInjectProvider> injectProviders = new HashMap<>();
+    private final HashMap<String, SourceHeaderProcessor> headerProcessors = new HashMap<>();
 
     public ProcessEnvironment(ProcessingEnvironment env, Element init) {
         processingEnv = env;
@@ -161,6 +162,25 @@ class ProcessEnvironment {
 
     public Iterable<? extends Map.Entry<String, Map<String, String>>> serverNames() {
         return names.entrySet();
+    }
+
+    public void addSourceHeaderProcessor(Element element, HeaderProcessor ann) {
+        String name = ann.value();
+        ArrayList<String> keys = new ArrayList<>();
+        keys.add(((ExecutableElement) element).getReturnType().toString());
+        SourceInjectProvider provider = new SourceInjectProvider(this, element, name);
+        for (String key : keys) {
+            injectProviders.put(key, provider);
+        }
+        if (TextUtils.isNotEmpty(name)) {
+            for (String key : keys) {
+                injectProviders.put(key + ":" + name, provider);
+            }
+        }
+    }
+
+    public SourceHeaderProcessor getHeaderProcessor(String type, String name) {
+        return headerProcessors.get(TextUtils.isEmpty(name) ? type : type + ":" + name);
     }
 
     public void addInjectProvider(Element element, InjectProvider ann) {

@@ -153,12 +153,12 @@ class SourceServletMethodComponent {
     }
 
     private boolean doHeader(VariableElement p) {
-        Header header = p.getAnnotation(Header.class);
-        if (header == null) {
+        Header ann = p.getAnnotation(Header.class);
+        if (ann == null) {
             return false;
         }
         String alias = p.getSimpleName().toString();
-        String name = header.value();
+        String name = ann.value();
         if ("".equals(name)) {
             name = alias;
         }
@@ -169,21 +169,9 @@ class SourceServletMethodComponent {
             args.addExist(exist);
             return true;
         }
-        SourceArgs processor = SourceArgsHeader.get(env, servlet, p, header);
-        if (processor != null) {
-            processor.addToArgs(args, servlet, p, name);
-            return true;
-        }
-        TypeKind kind = tm.getKind();
-        if (kind.equals(TypeKind.INT)) {
-            args.addHeader(name, alias).write("int ", alias, " = _req.getIntHeader(\"", name, "\");");
-        } else if (kind.equals(TypeKind.LONG)) {
-            args.addHeader(name, alias).write("long ", alias, " = _req.getDateHeader(\"", name, "\");");
-        } else if (T_String.equals(type)) {
-            args.addHeader(name, alias).write("String ", alias, " = _req.getHeader(\"", name, "\");");
-        } else if (T_Date.equals(type)) {
-            String iType = servlet.imports(T_Date);
-            args.addHeader(name, alias).write(iType, " ", alias, " = new ", iType, "(_req.getDateHeader(\"", name, "\"));");
+        SourceHeader header = SourceVariableHelper.getHeader(env, servlet, p, ann);
+        if (header != null) {
+            args.addHeader(type, name, alias).write(header.write(servlet, name, alias));
         } else {
             args.addFallback("null/* not support type */");
             env.warning("not support header type " + type + " without annotation Creator");
@@ -228,7 +216,7 @@ class SourceServletMethodComponent {
     private boolean doInject(VariableElement p) {
         Inject ann = p.getAnnotation(Inject.class);
         if (ann == null) return false;
-        SourceInject inject = SourceHelper.getInject(env, servlet, p, ann);
+        SourceInject inject = SourceVariableHelper.getInject(env, servlet, p, ann);
         args.addInject(p.getSimpleName().toString(), inject.isThrowable(), inject.isCloseable(), inject.isCloseThrow())
                 .write(inject.writeArg(servlet));
         return true;

@@ -53,8 +53,8 @@ class SourceArguments {
         }
     }
 
-    public Impl addHeader(String name, String alias) {
-        Impl impl = new Impl(ArgType.header, "", name, alias);
+    public Impl addHeader(String type, String name, String alias) {
+        Impl impl = new Impl(ArgType.header, type, name, alias);
         list.add(impl);
         return impl;
     }

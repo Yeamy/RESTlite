@@ -31,7 +31,7 @@ class SourceServlet extends SourceClass {
             if (kind == ElementKind.FIELD) {
                 Inject inject = li.getAnnotation(Inject.class);
                 if (inject != null) {
-                    injectFields.add(SourceHelper.getInject(env, this, (VariableElement) li, inject));
+                    injectFields.add(SourceVariableHelper.getInject(env, this, (VariableElement) li, inject));
                 }
             } else if (kind == ElementKind.METHOD) {
                 ExecutableElement eli = (ExecutableElement) li;

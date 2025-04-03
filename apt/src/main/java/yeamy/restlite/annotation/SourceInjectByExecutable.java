@@ -4,18 +4,18 @@ import javax.lang.model.element.*;
 import javax.lang.model.type.TypeMirror;
 import java.util.List;
 
-class SourceInjectNoProvider extends SourceInject {
+class SourceInjectByExecutable extends SourceInject {
     private final TypeElement classType;
     private final ExecutableElement method;
     private final TypeMirror returnType;
 
-    SourceInjectNoProvider(ProcessEnvironment env,
-                           VariableElement param,
-                           TypeElement classType,
-                           ExecutableElement method,
-                           TypeMirror returnType,
-                           boolean samePackage,
-                           List<? extends Element> elements) {
+    SourceInjectByExecutable(ProcessEnvironment env,
+                             VariableElement param,
+                             TypeElement classType,
+                             ExecutableElement method,
+                             TypeMirror returnType,
+                             boolean samePackage,
+                             List<? extends Element> elements) {
         super(env, param);
         this.classType = classType;
         this.method = method;
