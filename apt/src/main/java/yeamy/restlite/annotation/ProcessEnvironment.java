@@ -32,6 +32,7 @@ class ProcessEnvironment {
     final TreeMap<String, Map<String, String>> names = new TreeMap<>();
     private final HashMap<String, SourceInjectProvider> injectProviders = new HashMap<>();
     private final HashMap<String, SourceHeaderProcessor> headerProcessors = new HashMap<>();
+    private final HashMap<String, SourceCookieProcessor> cookieProcessors = new HashMap<>();
 
     public ProcessEnvironment(ProcessingEnvironment env, Element init) {
         processingEnv = env;
@@ -176,6 +177,20 @@ class ProcessEnvironment {
 
     public SourceHeaderProcessor getHeaderProcessor(String type, String name) {
         return headerProcessors.get(TextUtils.isEmpty(name) ? type : type + ":" + name);
+    }
+
+    public void addSourceCookieProcessor(Element element, CookieProcessor ann) {
+        String key = ((ExecutableElement) element).getReturnType().toString();
+        SourceCookieProcessor processor = new SourceCookieProcessor(this, element);
+        cookieProcessors.put(key, processor);
+        String name = ann.value();
+        if (TextUtils.isNotEmpty(name)) {
+            cookieProcessors.put(key + ":" + name, processor);
+        }
+    }
+
+    public SourceCookieProcessor getCookieProcessor(String type, String name) {
+        return cookieProcessors.get(TextUtils.isEmpty(name) ? type : type + ":" + name);
     }
 
     public void addInjectProvider(Element element, InjectProvider ann) {

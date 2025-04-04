@@ -45,6 +45,10 @@ public class ServletAnnotationProcessor extends AbstractProcessor {
         for (Element element : roundEnv.getElementsAnnotatedWith(HeaderProcessor.class)) {
             env.addSourceHeaderProcessor(element, element.getAnnotation(HeaderProcessor.class));
         }
+        // cookie processor
+        for (Element element : roundEnv.getElementsAnnotatedWith(CookieProcessor.class)) {
+            env.addSourceCookieProcessor(element, element.getAnnotation(CookieProcessor.class));
+        }
         // inject provider
         for (Element element : roundEnv.getElementsAnnotatedWith(InjectProvider.class)) {
             env.addInjectProvider(element, element.getAnnotation(InjectProvider.class));

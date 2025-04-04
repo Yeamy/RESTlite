@@ -8,6 +8,7 @@ import javax.lang.model.type.TypeMirror;
 import java.util.ArrayList;
 import java.util.List;
 
+import static yeamy.restlite.annotation.SourceCookieProcessor.SUPPORT_COOKIE_TYPE;
 import static yeamy.restlite.annotation.SupportType.*;
 
 class SourceServletMethodComponent {
@@ -180,34 +181,38 @@ class SourceServletMethodComponent {
     }
 
     private boolean doCookie(VariableElement p) {
-        TypeMirror t = p.asType();
-        String type = t.toString();
-        if (T_Cookies.equals(type)) {
-            args.addExist("_req.getCookies()");
+        String type = p.asType().toString();
+//        if (T_Cookies.equals(type)) {
+//            args.addExist("_req.getCookies()");
+//            return true;
+//        }
+        Cookies ann = p.getAnnotation(Cookies.class);
+        if (ann == null) {
+            String name = p.getSimpleName().toString();
+            String exist = args.getCookieAlias(type, name);
+            if (exist != null) {
+                args.addExist(exist);
+                return true;
+            }
+            if (TextUtils.notIn(type, SUPPORT_COOKIE_TYPE)) {
+                return false;
+            }
+            SourceCookie cookie = new SourceCookieDefault(env, p, type);
+            args.addCookie(type, name, name).write(cookie.write(servlet, name, name));
             return true;
         }
-        Cookies cookie = p.getAnnotation(Cookies.class);
-        String name, alias;
-        if (cookie != null) {
-            alias = p.getSimpleName().toString();
-            name = TextUtils.isEmpty(cookie.value()) ? alias : cookie.value();
-        } else if (T_Cookie.equals(type)) {
-            name = alias = p.getSimpleName().toString();
-        } else {
-            return false;
-        }
+        String alias = p.getSimpleName().toString();
+        String name = TextUtils.isEmpty(ann.value()) ? alias : ann.value();
         String exist = args.getCookieAlias(type, name);
         if (exist != null) {
             args.addExist(exist);
             return true;
-        } else if (T_Cookie.equals(type)) {
-            String clz = servlet.imports(T_Cookie);
-            args.addCookie(type, name, alias).write(clz, "Cookie ", alias, " = _req.getCookie(\"", name, "\");");
-            return true;
-        } else if (T_String.equals(type)) {
-            args.addCookie(type, name, alias).write("String ", alias, " = _req.getCookieValue(\"", name, "\");");
+        }
+        SourceCookie cookie = SourceVariableHelper.getCookie(env, servlet, p, ann);
+        if (cookie != null) {
+            args.addCookie(type, name, alias).write(cookie.write(servlet, name, alias));
         } else {
-            args.addCookie(type, name, alias).write(type, " ", alias, " = null;/* not support type */");
+            args.addFallback("null/* not support cookie type */");
             env.warning("Not support cookie type " + type + " without annotation Creator");
         }
         return true;

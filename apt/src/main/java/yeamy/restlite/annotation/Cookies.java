@@ -6,9 +6,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * declare the parameter is http request cookies.<br>
- * <b>support type:</b> {@linkplain String String},
- * {@linkplain jakarta.servlet.http.Cookie Cookie[]}
+ * Declare the parameter is http request cookies.<br>
+ * <b>support param type:</b> {@linkplain String String},
+ * {@linkplain jakarta.servlet.http.Cookie Cookies},
+ * {@linkplain jakarta.servlet.http.Cookie Cookies[]}, any type with {@link Cookies#processor()}
  *
  * @author Yeamy
  * @see Header
@@ -16,6 +17,7 @@ import java.lang.annotation.Target;
  * @see Body
  * @see Part
  * @see Attribute
+ * @see CookieProcessor
  */
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.SOURCE)
@@ -26,20 +28,9 @@ public @interface Cookies {
     String value() default "";
 
     /**
-     * class name of processor to preprocess value.<br>
-     * <b>support executor:</b> constructor, static-method<br>
-     * <b>support param:</b> only one {@linkplain jakarta.servlet.http.Cookie Cookie} or Cookie[]<br>
-     * <b>support param:</b> any type
+     * distinguish the constructor/static-method with same return type
      *
-     * @see #tag()
+     * @see CookieProcessor
      */
-    Class<?> processor() default void.class;
-
-    /**
-     * tag the constructor/static-method, suggest to use if more than one
-     * constructor/method
-     *
-     * @see LinkTag
-     */
-    String tag() default "";
+    String processor() default "";
 }
