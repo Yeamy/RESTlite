@@ -10,6 +10,7 @@ import java.util.Set;
 
 import static yeamy.restlite.annotation.SourceCookieProcessor.SUPPORT_COOKIE_TYPE;
 import static yeamy.restlite.annotation.SourceHeaderProcessor.SUPPORT_HEADER_TYPE;
+import static yeamy.restlite.annotation.SourceParamProcessor.SUPPORT_PARAM_TYPE;
 
 abstract class SourceVariableHelper {
 
@@ -226,6 +227,83 @@ abstract class SourceVariableHelper {
         findCookieStaticMethod(list, env, elements, returnType, samePackage);
         if (list.size() == 1) {
             return new SourceCookieByExecutable(env, param, classType, list.get(0), returnType, samePackage, elements);
+        } else if (list.size() > 1) {
+            env.error("More than one Static-Factory-Method in type:" + returnType + " " + param.getSimpleName());
+            return null;
+        } else {
+            env.error("Cannot find Constructor nor Static-Factory-Method with no argument in type " + returnType);
+            return null;
+        }
+    }
+
+    //----------------------------------------------
+
+    private static void findParamConstructor(ArrayList<ExecutableElement> list, List<? extends Element> elements, boolean samePackage) {
+        for (Element element : elements) {
+            if (element.getKind() != ElementKind.CONSTRUCTOR) continue;
+            ExecutableElement constructor = (ExecutableElement) element;
+            Set<Modifier> modifiers = constructor.getModifiers();
+            if (modifiers.contains(Modifier.PRIVATE)) continue;
+            if (!samePackage && !modifiers.contains(Modifier.PUBLIC)) continue;
+            List<? extends VariableElement> parameters = constructor.getParameters();
+            if (parameters.size() != 1) continue;
+            if (TextUtils.in(parameters.get(0).asType().toString(), SUPPORT_PARAM_TYPE)) {
+                list.add(constructor);
+            }
+        }
+    }
+
+    private static void findParamStaticMethod(ArrayList<ExecutableElement> list, ProcessEnvironment env, List<? extends Element> elements, TypeMirror returnType, boolean samePackage) {
+        for (Element element : elements) {
+            if (element.getKind() != ElementKind.METHOD) continue;
+            ExecutableElement method = (ExecutableElement) element;
+            if (!env.isAssignable(returnType, method.getReturnType())) continue;
+            Set<Modifier> modifiers = element.getModifiers();
+            if (!modifiers.contains(Modifier.STATIC)) continue;
+            if (modifiers.contains(Modifier.PRIVATE)) continue;
+            if (!samePackage && !modifiers.contains(Modifier.PUBLIC)) continue;
+            List<? extends VariableElement> parameters = method.getParameters();
+            if (parameters.size() != 1) continue;
+            if (TextUtils.in(parameters.get(0).asType().toString(), SUPPORT_PARAM_TYPE)) {
+                list.add(method);
+            }
+        }
+    }
+
+    public static SourceParam getParam(ProcessEnvironment env, SourceServlet servlet, VariableElement param, Param ann) {
+        TypeMirror returnType = param.asType();
+        String processor = ann.processor();
+        SourceParamProcessor p = env.getParamProcessor(returnType.toString(), processor);
+        if (p != null) {
+            if (p.method == null) return null;
+            boolean samePackage = servlet.isSamePackage(p.classType);
+            List<? extends Element> elements = param.getEnclosedElements();
+            return new SourceParamByExecutable(env, param, p.classType, p.method, returnType, samePackage, elements);
+        }
+        if (TextUtils.isNotEmpty(processor)) {
+            env.error("Cannot find ParamProcessor with name: " + processor + " of type " + returnType);
+            return null;
+        }
+        String returnTypeName = returnType.toString();
+        if (TextUtils.in(returnTypeName, SUPPORT_PARAM_TYPE)) {
+            return new SourceParamDefault(env, param, returnTypeName);
+        }
+        TypeElement classType = env.getTypeElement(returnTypeName);
+        if (classType.getModifiers().contains(Modifier.ABSTRACT)) {
+            env.error("Cannot find creator without ParamProcessor in abstract class: " + returnType);
+            return null;
+        }
+        boolean samePackage = servlet.isSamePackage(classType);
+        ArrayList<ExecutableElement> list = new ArrayList<>();
+        List<? extends Element> elements = param.getEnclosedElements();
+        findParamConstructor(list, elements, samePackage);
+        if (list.size() > 1) {
+            env.error("More than one Constructor in type:" + returnType + " " + param.getSimpleName());
+            return null;
+        }
+        findParamStaticMethod(list, env, elements, returnType, samePackage);
+        if (list.size() == 1) {
+            return new SourceParamByExecutable(env, param, classType, list.get(0), returnType, samePackage, elements);
         } else if (list.size() > 1) {
             env.error("More than one Static-Factory-Method in type:" + returnType + " " + param.getSimpleName());
             return null;

@@ -33,6 +33,7 @@ class ProcessEnvironment {
     private final HashMap<String, SourceInjectProvider> injectProviders = new HashMap<>();
     private final HashMap<String, SourceHeaderProcessor> headerProcessors = new HashMap<>();
     private final HashMap<String, SourceCookieProcessor> cookieProcessors = new HashMap<>();
+    private final HashMap<String, SourceParamProcessor> paramProcessors = new HashMap<>();
 
     public ProcessEnvironment(ProcessingEnvironment env, Element init) {
         processingEnv = env;
@@ -191,6 +192,20 @@ class ProcessEnvironment {
 
     public SourceCookieProcessor getCookieProcessor(String type, String name) {
         return cookieProcessors.get(TextUtils.isEmpty(name) ? type : type + ":" + name);
+    }
+
+    public void addParamProcessor(Element element, ParamProcessor ann) {
+        String key = ((ExecutableElement) element).getReturnType().toString();
+        SourceParamProcessor processor = new SourceParamProcessor(this, element);
+        paramProcessors.put(key, processor);
+        String name = ann.value();
+        if (TextUtils.isNotEmpty(name)) {
+            paramProcessors.put(key + ":" + name, processor);
+        }
+    }
+
+    public SourceParamProcessor getParamProcessor(String type, String name) {
+        return paramProcessors.get(TextUtils.isEmpty(name) ? type : type + ":" + name);
     }
 
     public void addInjectProvider(Element element, InjectProvider ann) {

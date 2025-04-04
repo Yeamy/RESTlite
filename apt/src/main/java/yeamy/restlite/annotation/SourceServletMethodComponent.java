@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static yeamy.restlite.annotation.SourceCookieProcessor.SUPPORT_COOKIE_TYPE;
+import static yeamy.restlite.annotation.SourceParamProcessor.SUPPORT_PARAM_TYPE;
 import static yeamy.restlite.annotation.SupportType.*;
 
 class SourceServletMethodComponent {
@@ -163,8 +164,7 @@ class SourceServletMethodComponent {
         if ("".equals(name)) {
             name = alias;
         }
-        TypeMirror tm = p.asType();
-        String type = tm.toString();
+        String type = p.asType().toString();
         String exist = args.getHeaderAlias(type, name);
         if (exist != null) {
             args.addExist(exist);
@@ -182,10 +182,6 @@ class SourceServletMethodComponent {
 
     private boolean doCookie(VariableElement p) {
         String type = p.asType().toString();
-//        if (T_Cookies.equals(type)) {
-//            args.addExist("_req.getCookies()");
-//            return true;
-//        }
         Cookies ann = p.getAnnotation(Cookies.class);
         if (ann == null) {
             String name = p.getSimpleName().toString();
@@ -309,59 +305,35 @@ class SourceServletMethodComponent {
     }
 
     private void doParam(VariableElement p) {
-        TypeMirror t = p.asType();
-        String type = t.toString();
-        String alias = p.getSimpleName().toString();
-        String name;
-        Param param = p.getAnnotation(Param.class);
-        if (param != null) {
-            name = param.value().length() > 0 ? param.value() : alias;
-            SourceArgs processor = SourceArgsParam.get(env, servlet, p, param);
-            if (processor != null) {
-                processor.addToArgs(args, servlet, p, name);
+        String type = p.asType().toString();
+        Param ann = p.getAnnotation(Param.class);
+        if (ann == null) {
+            String name = p.getSimpleName().toString();
+            String exist = args.getParamAlias(type, name);
+            if (exist != null) {
+                args.addExist(exist);
                 return;
             }
-        } else {
-            name = alias;
+            if (TextUtils.notIn(type, SUPPORT_PARAM_TYPE)) {
+                return;
+            }
+            SourceParam param = new SourceParamDefault(env, p, type);
+            args.addParam(type, name, name).write(param.write(servlet, name, name));
+            return;
         }
-        SourceArguments.Impl arg = args.addParam(type, name, alias);
-        switch (t.getKind()) {
-            case INT -> arg.write("int ", alias, " = _req.getIntParam(\"", name, "\",0);");
-            case LONG -> arg.write("long ", alias, " = _req.getLongParam(\"", name, "\",0);");
-            case FLOAT -> arg.write("float ", alias, " = _req.getFloatParam(\"", name, "\",0);");
-            case DOUBLE -> arg.write("double ", alias, " = _req.getDoubleParam(\"", name, "\",0);");
-            case BOOLEAN -> arg.write("boolean ", alias, " = _req.getBoolParam(\"", name, "\",false);");
-            case DECLARED -> {
-                switch (type) {
-                    case T_String -> arg.write("String ", alias, " = _req.getParameter(\"", name, "\");");
-                    case T_Integer -> arg.write("Integer ", alias, " = _req.getIntegerParam(\"", name, "\");");
-                    case T_Long -> arg.write("Long ", alias, " = _req.getLongParam(\"", name, "\");");
-                    case T_Float -> arg.write("Float ", alias, " = _req.getFloatParam(\"", name, "\");");
-                    case T_Double -> arg.write("Double ", alias, " = _req.getDoubleParam(\"", name, "\");");
-                    case T_Boolean -> arg.write("Boolean ", alias, " = _req.getBooleanParam(\"", name, "\");");
-                    case T_Decimal ->
-                            arg.write(servlet.imports(T_Decimal), " ", alias, " = _req.getDecimalParam(\"", name, "\");");
-                    default -> {
-                        //TODO
-                        arg.write(type, " ", alias, " = null;/* not support type */");
-                        env.warning("not support param type " + type + " without annotation Creator");
-                    }
-                }
-            }
-            case ARRAY -> {
-                switch (type) {
-                    case T_IntegerArray -> arg.write("Integer[] ", alias, " = _req.getIntegerParams(\"", name, "\");");
-                    case T_LongArray -> arg.write("Long[] ", alias, " = _req.getLongParams(\"", name, "\");");
-                    case T_FloatArray -> arg.write("Float[] ", alias, " = _req.getFloatParams(\"", name, "\");");
-                    case T_DoubleArray -> arg.write("Double[] ", alias, " = _req.getDoubleParams(\"", name, "\");");
-                    case T_StringArray -> arg.write("String[] ", alias, " = _req.getParams(\"", name, "\");");
-                    case T_BooleanArray -> arg.write("Boolean[] ", alias, " = _req.getBoolParams(\"", name, "\");");
-                    case T_DecimalArray ->
-                            arg.write(servlet.imports(T_Decimal), "[] ", alias, " = _req.getDecimalParams(\"", name, "\");");
-                    default -> args.addFallback("null");
-                    //TODO
-                }
-            }
+        String alias = p.getSimpleName().toString();
+        String name = TextUtils.isEmpty(ann.value()) ? alias : ann.value();
+        String exist = args.getParamAlias(type, name);
+        if (exist != null) {
+            args.addExist(exist);
+            return;
+        }
+        SourceParam param = SourceVariableHelper.getParam(env, servlet, p, ann);
+        if (param != null) {
+            args.addParam(type, name, alias).write(param.write(servlet, name, alias));
+        } else {
+            args.addFallback("null/* not support param type */");
+            env.warning("Not support param type " + type + " without annotation Creator");
         }
     }
 

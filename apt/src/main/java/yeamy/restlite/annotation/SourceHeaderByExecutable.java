@@ -36,8 +36,8 @@ class SourceHeaderByExecutable extends SourceHeader {
         }
         switch (returnType.toString()) {
             case T_int, T_Integer -> b.append("(_req.getIntHeader(\"").append(name).append("\"));");
-            case T_long, T_Long -> b.append("(_req.getDateHeader(\"").append(name).append("\");");
-            case T_String -> b.append("(_req.getHeader(\"").append(name).append("\");");
+            case T_long, T_Long -> b.append("(_req.getDateHeader(\"").append(name).append("\"));");
+            case T_String -> b.append("(_req.getHeader(\"").append(name).append("\"));");
             case T_Date -> b.append("(new ").append(servlet.imports(T_Date)).append("(_req.getDateHeader(\"")
                     .append(name).append("\"));");
         }

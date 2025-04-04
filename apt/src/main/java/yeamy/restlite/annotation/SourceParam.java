@@ -6,10 +6,10 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 import java.util.Set;
 
-abstract class SourceCookie extends SourceVariable {
+abstract class SourceParam extends SourceVariable {
     private final TypeMirror typeMirror;
 
-    public SourceCookie(ProcessEnvironment env, VariableElement param) {
+    public SourceParam(ProcessEnvironment env, VariableElement param) {
         super(env, param);
         this.typeMirror = param.getEnclosingElement().asType();
     }

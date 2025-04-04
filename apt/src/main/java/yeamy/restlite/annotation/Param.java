@@ -6,16 +6,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * declare the parameter is http uri parameter or query parameter.<br>
+ * declare the parameter is http uri path parameter or query parameter.<br>
  * <b>Noted</b> that parameter(Java method) without annotation will be
  * treated as http parameter, too.<br>
  * <p>
- * support type: {@link String}, String[], int, {@link Integer}, Integer[], long, {@link Long}, Long[],
- * float, {@link Float}, Float[], double, {@link Double}, Double[], boolean, {@link Boolean}, Boolean[],
- * {@linkplain java.math.BigDecimal BigDecimal}, BigDecimal[],
- * {@linkplain yeamy.restlite.HttpRequestFile HttpRequestFile}, HttpRequestFile[],
- * {@linkplain yeamy.restlite.RESTfulRequest RESTfulRequest},
- * {@linkplain jakarta.servlet.http.HttpServletRequest HttpServletRequest},
+ * support type: {@link String}, int, {@link Integer}, long, {@link Long}, float, {@link Float}, double, {@link Double},
+ *  boolean, {@link Boolean}, {@linkplain java.math.BigDecimal BigDecimal}, an array of type as above
  *
  * @author Yeamy
  * @see Header
@@ -33,20 +29,9 @@ public @interface Param {
     boolean required() default true;
 
     /**
-     * class name of processor to create value.<br>
-     * <b>support executor:</b> constructor, method<br>
-     * <b>support param:</b> only one String<br>
-     * <b>support param:</b> any type
-     *
-     * @see #tag()
-     */
-    Class<?> processor() default void.class;
-
-    /**
-     * tag the constructor/static-method, suggest to use if more than one
-     * constructor/method
+     * tag the constructor/method, suggest to use if more than one processor
      *
      * @see LinkTag
      */
-    String tag() default "";
+    String processor() default "";
 }
