@@ -224,30 +224,34 @@ class SourceServletMethodComponent {
     }
 
     private boolean doBody(VariableElement p) {
-        if (args.containsBody()) {
+        Body ann = p.getAnnotation(Body.class);
+        if (ann != null || (ann = ProcessEnvironment.getBody(p)) != null) {
+            if (args.containsBodyOrPart()) {
+                args.addFallback("null");
+                env.error("cannot read body twice");
+                return true;
+            }
+            SourceBody body = SourceVariableHelper.getBody(env, servlet, p, ann);
+            if (body != null) {
+                String name = p.getSimpleName().toString();
+                args.addBody(name, true, true, true).write(body.write(servlet, name));
+            } else {
+                args.addFallback("null");
+            }
+            return true;
+        }
+        String type = p.asType().toString();
+        if (TextUtils.notIn(type, T_ServletInputStream, T_PartArray, T_FileArray)) {
+            return false;
+        }
+        if (args.containsBodyOrPart()) {
             args.addFallback("null");
             env.error("cannot read body twice");
             return true;
         }
-        TypeMirror t = p.asType();
-        String type = t.toString();
-        Body body = p.getAnnotation(Body.class);
-        if (body == null) {
-            if (!T_ServletInputStream.equals(type)) {
-                body = ProcessEnvironment.getBody(p);
-                if (body == null) return false;
-            }
-        }
+        SourceBody body = new SourceBodyDefault(env, p, type);
         String name = p.getSimpleName().toString();
-        switch (type) {
-            case T_InputStream, T_ServletInputStream -> args.addBody(name, true, true, true)
-                    .write(servlet.imports(T_ServletInputStream), " ", name, " = _req.getBody();");
-            case T_ByteArray -> args.addBody(name, false, false, false)
-                    .write("byte[] ", name, " = _req.getBodyAsByte();");
-            case T_String -> args.addBody(name, false, false, false)
-                    .write("String ", name, " = _req.getBodyAsText(\"", env.charset(body.charset()), "\");");
-            default -> SourceArgsBody.get(env, servlet, p, body).addToArgs(args, servlet, p, name);
-        }
+        args.addBody(name, true, true, true).write(body.write(servlet, name));
         return true;
     }
 

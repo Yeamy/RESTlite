@@ -31,7 +31,7 @@ public @interface Param {
     /**
      * tag the constructor/method, suggest to use if more than one processor
      *
-     * @see LinkTag
+     * @see ParamProcessor
      */
     String processor() default "";
 }

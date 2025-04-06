@@ -4,7 +4,7 @@ class SupportType {
     public static final String T_HttpServletRequest = "jakarta.servlet.http.HttpServletRequest";
     public static final String T_ServletInputStream = "jakarta.servlet.ServletInputStream";
     public static final String T_Cookie = "jakarta.servlet.http.Cookie";
-    public static final String T_Cookies = T_Cookie + "[]";
+    public static final String T_CookieArray = T_Cookie + "[]";
     public static final String T_HttpRequest = "yeamy.restlite.RESTfulRequest";
     public static final String T_File = "yeamy.restlite.HttpRequestFile";
     public static final String T_Files = T_File + "[]";
@@ -33,4 +33,5 @@ class SupportType {
     public static final String T_long = "long";
     public static final String T_float = "float";
     public static final String T_double = "double";
+    public static final String T_Charset = "java.nio.Charset";
 }

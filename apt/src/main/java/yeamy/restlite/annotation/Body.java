@@ -17,7 +17,7 @@ import java.lang.annotation.Target;
  * @see Header
  * @see Cookies
  * @see Param
- * @see Part
+ * @see Parts
  * @see Attribute
  */
 @Target({ElementType.PARAMETER, ElementType.TYPE})
@@ -25,23 +25,10 @@ import java.lang.annotation.Target;
 public @interface Body {
 
     /**
-     * Class name of static factory class. If empty, using type's Body annotation,
-     * if still empty, using type's constructor.<br>
-     * <b>support executor:</b> constructor, static-method<br>
-     * <b>support param:</b> {@linkplain jakarta.servlet.ServletInputStream ServletInputStream},
-     * {@linkplain jakarta.servlet.http.Part Part[]},
-     * {@linkplain yeamy.restlite.HttpRequestFile HttpRequestFile[]},<br>
-     * <b>support param:</b> any type
+     * distinguish the constructor/static-method with same return type
+     * @see BodyProcessor
      */
-    Class<?> processor() default void.class;
-
-    /**
-     * tag the constructor/creator-method, suggest to use if more than one
-     * constructor/method
-     *
-     * @see LinkTag
-     */
-    String tag() default "";
+    String processor() default "";
 
     /**
      * Only work when body is string rather than binary,

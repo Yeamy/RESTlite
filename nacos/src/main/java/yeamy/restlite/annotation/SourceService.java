@@ -15,6 +15,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import static yeamy.restlite.annotation.SupportType.T_Decimal;
+import static yeamy.restlite.annotation.SupportType.T_String;
+
 class SourceService extends SourceClass {
     private final ProcessingEnvironment env;
     private final Types typeUtils;
@@ -207,7 +210,7 @@ class SourceService extends SourceClass {
                 clz.append("this.").append(fieldName).append('=').append(paramName).append(';');
                 clz.append("configService.publishConfig(\"").append(convStr(setter.dataId())).append("\",\"")
                         .append(convStr(setter.group())).append("\",");
-                if (fieldType.equals("java.lang.String")) {
+                if (fieldType.equals(T_String)) {
                     clz.append(paramName);
                 } else {
                     clz.append("String.valueOf(").append(paramName).append(')');
@@ -288,8 +291,8 @@ class SourceService extends SourceClass {
             case DECLARED -> {
                 returnType = rtm.toString();
                 switch (returnType) {
-                    case "java.lang.String" -> returnType = "String";
-                    case "java.math.BigDecimal" -> {
+                    case T_String -> returnType = "String";
+                    case T_Decimal -> {
                         returnType = imports("java.math.BigDecimal");
                         expression = new String[]{imports("yeamy.utils.ValueUtils") + ".toBigDecimal(", ")"};
                     }

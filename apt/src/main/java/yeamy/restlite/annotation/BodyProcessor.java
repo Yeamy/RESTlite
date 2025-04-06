@@ -6,13 +6,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * declare the method to create http cookie.<br>
- * For public static-method/constructor with one param (one of {@link String},
- * {@linkplain jakarta.servlet.http.Cookie Cookie}, Cookie[])
+ * Declare the method to create http body.<br>
+ * For public static-method/constructor with one param (one of)
  */
-@Target(ElementType.METHOD)
+@Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.SOURCE)
-public @interface CookieProcessor {
+public @interface BodyProcessor {
 
     // name
     String value() default "";

@@ -7,8 +7,8 @@ import java.lang.annotation.Target;
 
 /**
  * Declare the method to create http header.<br>
- * For public static-method/constructor with one param (one of {@linkplain java.lang.String String},
- * {@linkplain java.lang.Integer Integer}/int, {@linkplain java.lang.Long Long}/long(timeMiles),
+ * For public static-method/constructor with one param (one of {@link  String},
+ * {@link Integer}/int, {@link Long}/long(timeMiles),
  * {@linkplain java.util.Date Date})
  */
 @Target({ElementType.METHOD, ElementType.CONSTRUCTOR})

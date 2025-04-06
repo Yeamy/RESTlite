@@ -8,7 +8,8 @@ import com.google.gson.stream.JsonWriter;
 import org.apache.commons.lang3.time.FastDateFormat;
 import yeamy.restlite.HttpRequestFile;
 import yeamy.restlite.RESTfulRequest;
-import yeamy.restlite.annotation.LinkTag;
+import yeamy.restlite.annotation.BodyProcessor;
+import yeamy.restlite.annotation.PartProcessor;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -112,12 +113,12 @@ public class GsonParser {
     /**
      * deserializes request body as JSON into an object of the specified class.
      */
-    @LinkTag("body")
+    @BodyProcessor("gsonBody")
     public static <T> T parse(RESTfulRequest request, Class<T> clz) throws IOException {
         return fromJson(request.getBodyAsText(), clz);
     }
 
-    @LinkTag("part")
+    @PartProcessor("gsonPart")
     public static <T> T parse(HttpRequestFile part, Class<T> clz) throws IOException {
         return fromJson(part.getAsText(), clz);
     }

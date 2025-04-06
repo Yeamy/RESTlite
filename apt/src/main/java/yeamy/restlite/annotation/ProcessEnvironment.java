@@ -23,7 +23,6 @@ class ProcessEnvironment {
     private final Messager messager;
     private final Types typeUtils;
     private final Elements elementUtils;
-    private final HashMap<String, SourceVariable> paramCreator = new HashMap<>();
     private final boolean responseAllType;
     private final String charset;
     private final SupportPatch supportPatch;
@@ -33,6 +32,7 @@ class ProcessEnvironment {
     private final HashMap<String, SourceInjectProvider> injectProviders = new HashMap<>();
     private final HashMap<String, SourceHeaderProcessor> headerProcessors = new HashMap<>();
     private final HashMap<String, SourceCookieProcessor> cookieProcessors = new HashMap<>();
+    private final HashMap<String, SourceBodyProcessor> bodyProcessors = new HashMap<>();
     private final HashMap<String, SourceParamProcessor> paramProcessors = new HashMap<>();
 
     public ProcessEnvironment(ProcessingEnvironment env, Element init) {
@@ -55,6 +55,22 @@ class ProcessEnvironment {
     }
 
     public boolean isAssignable(TypeMirror subType, TypeMirror type) {
+        return typeUtils.isAssignable(subType, type);
+    }
+
+    public boolean isAssignableVar(TypeMirror subType, TypeMirror type) {
+        if (type.getKind().equals(TypeKind.TYPEVAR)) {
+            Element e = asElement(type);
+            if (e instanceof TypeParameterElement ee) {
+                List<? extends TypeMirror> bounds = ee.getBounds();
+                for (TypeMirror bound : bounds) {
+                    if (typeUtils.isAssignable(subType, bound)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
         return typeUtils.isAssignable(subType, type);
     }
 
@@ -192,6 +208,20 @@ class ProcessEnvironment {
 
     public SourceCookieProcessor getCookieProcessor(String type, String name) {
         return cookieProcessors.get(TextUtils.isEmpty(name) ? type : type + ":" + name);
+    }
+
+    public void addBodyProcessor(Element element, BodyProcessor ann) {
+        String key = ((ExecutableElement) element).getReturnType().toString();
+        SourceBodyProcessor processor = new SourceBodyProcessor(this, element);
+        bodyProcessors.put(key, processor);
+        String name = ann.value();
+        if (TextUtils.isNotEmpty(name)) {
+            bodyProcessors.put(key + ":" + name, processor);
+        }
+    }
+
+    public SourceBodyProcessor getBodyProcessor(String type, String name) {
+        return bodyProcessors.get(TextUtils.isEmpty(name) ? type : type + ":" + name);
     }
 
     public void addParamProcessor(Element element, ParamProcessor ann) {

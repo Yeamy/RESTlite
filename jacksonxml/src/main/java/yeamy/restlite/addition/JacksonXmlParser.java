@@ -12,7 +12,8 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import org.apache.commons.lang3.time.FastDateFormat;
 import yeamy.restlite.HttpRequestFile;
 import yeamy.restlite.RESTfulRequest;
-import yeamy.restlite.annotation.LinkTag;
+import yeamy.restlite.annotation.BodyProcessor;
+import yeamy.restlite.annotation.PartProcessor;
 
 import java.io.IOException;
 import java.sql.Time;
@@ -114,7 +115,7 @@ public class JacksonXmlParser {
     /**
      * deserializes request body as XML into an object of the specified class.
      */
-    @LinkTag("body")
+    @BodyProcessor("jacksonXmlBody")
     public static <T> T parse(RESTfulRequest request, Class<T> clz) throws IOException {
         return fromXml(request.getBodyAsText(), clz);
     }
@@ -122,7 +123,7 @@ public class JacksonXmlParser {
     /**
      * deserializes request body-part as XML into an object of the specified class.
      */
-    @LinkTag("part")
+    @PartProcessor("jacksonXmlPart")
     public static <T> T parse(HttpRequestFile file, Class<T> clz) throws IOException {
         return fromXml(file.getAsText(), clz);
     }

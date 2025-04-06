@@ -24,7 +24,7 @@ class SourceHeaderProcessor {
         this.returnType = method.getReturnType();
         List<? extends VariableElement> parameters = method.getParameters();
         if (parameters.size() != 1 || TextUtils.notIn(parameters.get(0).asType().toString(), SUPPORT_HEADER_TYPE)) {
-            env.error("HeaderProcessor " + element.getSimpleName() + " must have ONE param (one of String, Integer, int, Long, long, Date) !");
+            env.error("HeaderProcessor " + element.getSimpleName() + " returns unsupported type!");
             this.method = null;
         } else if (kind == ElementKind.METHOD) {
             Set<Modifier> modifiers = element.getModifiers();

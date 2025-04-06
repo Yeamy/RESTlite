@@ -10,7 +10,7 @@ import java.util.Set;
 import static yeamy.restlite.annotation.SupportType.*;
 
 class SourceCookieProcessor {
-    static final String[] SUPPORT_COOKIE_TYPE = new String[]{T_String, T_Cookie, T_Cookies};
+    static final String[] SUPPORT_COOKIE_TYPE = new String[]{T_String, T_Cookie, T_CookieArray};
 
     public final TypeElement classType;
     public final ExecutableElement method;
@@ -24,7 +24,7 @@ class SourceCookieProcessor {
         this.returnType = method.getReturnType();
         List<? extends VariableElement> parameters = method.getParameters();
         if (parameters.size() != 1 || TextUtils.notIn(parameters.get(0).asType().toString(), SUPPORT_COOKIE_TYPE)) {
-            env.error("CookieProcessor " + element.getSimpleName() + " must have ONE param (one of String, Cookies, int, Long, long, Date) !");
+            env.error("CookieProcessor " + element.getSimpleName() + " returns unsupported type!");
             this.method = null;
         } else if (kind == ElementKind.METHOD) {
             Set<Modifier> modifiers = element.getModifiers();

@@ -33,7 +33,7 @@ public class RESTfulRequest implements Serializable {
     private HttpServletRequest req;
     private String resource = "", serviceName;
     private final HashMap<String, String> parameter = new HashMap<>();
-    private HashMap<String, HttpRequestFile> fields;
+    private HashMap<String, HttpRequestFile> files;
     private HashSet<String> accept;
     boolean dispatch = false;
 
@@ -44,8 +44,8 @@ public class RESTfulRequest implements Serializable {
         r.req = req;
         r.resource = resource;
         r.parameter.putAll(parameter);
-        if (fields != null) {
-            r.fields = new HashMap<>(fields);
+        if (files != null) {
+            r.files = new HashMap<>(files);
         }
         return r;
     }
@@ -78,11 +78,11 @@ public class RESTfulRequest implements Serializable {
         this.resource = resource;
     }
 
-    void addField(String name, HttpRequestFile file) {
-        if (fields == null) {
-            fields = new HashMap<>();
+    void addFile(String name, HttpRequestFile file) {
+        if (files == null) {
+            files = new HashMap<>();
         }
-        this.fields.put(name, file);
+        this.files.put(name, file);
     }
 
     public String getHeader(String name) {
@@ -167,13 +167,13 @@ public class RESTfulRequest implements Serializable {
     }
 
     public HttpRequestFile[] getFiles() {
-        return fields == null
+        return files == null
                 ? NO_FILE
-                : fields.values().toArray(HttpRequestFile[]::new);
+                : files.values().toArray(HttpRequestFile[]::new);
     }
 
     public HttpRequestFile getFile(String name) {
-        return fields == null ? null : fields.get(name);
+        return files == null ? null : files.get(name);
     }
 
     public Part getPart(String name) throws ServletException, IOException {
@@ -208,7 +208,13 @@ public class RESTfulRequest implements Serializable {
     }
 
     public String getBodyAsText() throws IOException {
-        return getBodyAsText(StandardCharsets.UTF_8);
+        Charset charset;
+        try {
+            charset = Charset.forName(getCharset());
+        } catch (Exception e) {
+            charset = StandardCharsets.UTF_8;
+        }
+        return getBodyAsText(charset);
     }
 
     public String getBodyAsText(String charset) throws IOException {

@@ -13,6 +13,8 @@ import javax.tools.Diagnostic;
 import java.io.IOException;
 import java.util.*;
 
+import static yeamy.restlite.annotation.SupportType.T_StringArray;
+
 class SourceMain extends SourceClass {
     private final ProcessingEnvironment env;
     private final TomcatConfig conf;
@@ -192,7 +194,7 @@ class SourceMain extends SourceClass {
                             break;
                         case 1:
                             VariableElement ve = params.get(0);
-                            if ("java.lang.String[]".equals(ve.asType().toString())) {
+                            if (T_StringArray.equals(ve.asType().toString())) {
                                 sb.append(imports(e.asType())).append(".").append(e.getSimpleName()).append("(args);");
                                 break;
                             }

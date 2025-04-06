@@ -141,9 +141,18 @@ class SourceArguments {
         return cell == null ? null : cell.type.equals(type) ? cell.jName : null;
     }
 
-    public boolean containsBody() {
+    public boolean containsBodyOrPart() {
         for (Impl a : list) {
             if (a.kind == ArgType.body || a.kind == ArgType.part) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean containsBody() {
+        for (Impl a : list) {
+            if (a.kind == ArgType.body) {
                 return true;
             }
         }
@@ -153,8 +162,6 @@ class SourceArguments {
     public boolean containsPart(String name) {
         for (Impl a : list) {
             if (a.kind == ArgType.part && a.name().equals(name)) {
-                return true;
-            } else if (a.kind == ArgType.body) {
                 return true;
             }
         }

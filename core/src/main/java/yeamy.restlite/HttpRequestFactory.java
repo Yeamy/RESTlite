@@ -61,10 +61,10 @@ public class HttpRequestFactory {
                 String name = part.getName();
                 String contentType = part.getContentType();
                 if (contentType == null) {
-                    String value = StreamUtils.readString(part.getInputStream(), "UTF-8");
+                    String value = StreamUtils.readString(part.getInputStream(), out.getCharset());
                     out.addParameter(name, value);
                 } else {
-                    out.addField(name, new HttpRequestFile(part));
+                    out.addFile(name, new HttpRequestFile(part));
                 }
             }
         } catch (IOException | ServletException e) {
