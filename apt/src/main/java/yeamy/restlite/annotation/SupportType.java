@@ -7,13 +7,13 @@ class SupportType {
     public static final String T_CookieArray = T_Cookie + "[]";
     public static final String T_HttpRequest = "yeamy.restlite.RESTfulRequest";
     public static final String T_File = "yeamy.restlite.HttpRequestFile";
-    public static final String T_Files = T_File + "[]";
+    public static final String T_FileArray = T_File + "[]";
     public static final String T_Decimal = "java.math.BigDecimal";
     public static final String T_DecimalArray = T_Decimal + "[]";
     public static final String T_String = "java.lang.String";
     public static final String T_Date = "java.util.Date";
-    public static final String T_Part = "jakarta.servlet.http.Part";
-    public static final String T_Parts = T_Part + "[]";
+    public static final String T_Part = "jakarta.servlet.http.Parts";
+    public static final String T_PartArray = T_Part + "[]";
     public static final String T_InputStream = "java.io.InputStream";
     public static final String T_Integer = "java.lang.Integer";
     public static final String T_Long = "java.lang.Long";

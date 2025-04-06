@@ -7,9 +7,7 @@ import static yeamy.restlite.annotation.SupportType.*;
 class SourceCookieDefault extends SourceCookie {
     private final String returnType;
 
-    SourceCookieDefault(ProcessEnvironment env,
-                        VariableElement param,
-                        String returnType) {
+    SourceCookieDefault(ProcessEnvironment env, VariableElement param, String returnType) {
         super(env, param);
         this.returnType = returnType;
     }

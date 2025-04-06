@@ -19,8 +19,7 @@ public abstract class PermissionManager {
     public abstract void destroy();
 
     public void setAccount(String id, Collection<String> roles) {
-        String[] array = new String[roles.size()];
-        roles.toArray(array);
+        String[] array = roles.toArray(String[]::new);
         setAccount(id, array);
     }
 

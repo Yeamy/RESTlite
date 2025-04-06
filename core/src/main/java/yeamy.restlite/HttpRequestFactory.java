@@ -64,7 +64,7 @@ public class HttpRequestFactory {
                     String value = StreamUtils.readString(part.getInputStream(), out.getCharset());
                     out.addParameter(name, value);
                 } else {
-                    out.addFile(name, new HttpRequestFile(part));
+                    out.addFile(name, new HttpRequestFile(part, out.getCharset()));
                 }
             }
         } catch (IOException | ServletException e) {

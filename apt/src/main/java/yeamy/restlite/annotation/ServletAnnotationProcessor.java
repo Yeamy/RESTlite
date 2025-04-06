@@ -22,6 +22,7 @@ public class ServletAnnotationProcessor extends AbstractProcessor {
         supportedAnnotationTypes.add(HeaderProcessor.class.getCanonicalName());
         supportedAnnotationTypes.add(CookieProcessor.class.getCanonicalName());
         supportedAnnotationTypes.add(BodyProcessor.class.getCanonicalName());
+        supportedAnnotationTypes.add(PartProcessor.class.getCanonicalName());
         supportedAnnotationTypes.add(ParamProcessor.class.getCanonicalName());
         supportedAnnotationTypes.add(InjectProvider.class.getCanonicalName());
     }
@@ -57,6 +58,10 @@ public class ServletAnnotationProcessor extends AbstractProcessor {
         // body processor
         for (Element element : roundEnv.getElementsAnnotatedWith(BodyProcessor.class)) {
             env.addBodyProcessor(element, element.getAnnotation(BodyProcessor.class));
+        }
+        // part processor
+        for (Element element : roundEnv.getElementsAnnotatedWith(PartProcessor.class)) {
+            env.addPartProcessor(element, element.getAnnotation(PartProcessor.class));
         }
         // param processor
         for (Element element : roundEnv.getElementsAnnotatedWith(ParamProcessor.class)) {

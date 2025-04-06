@@ -7,12 +7,12 @@ import java.util.List;
 
 import static yeamy.restlite.annotation.SupportType.*;
 
-class SourceBodyByExecutable extends SourceBody {
+class SourcePartByExecutable extends SourcePart {
     private final TypeElement classType;
     private final ExecutableElement method;
     private final TypeMirror returnType;
 
-    SourceBodyByExecutable(ProcessEnvironment env,
+    SourcePartByExecutable(ProcessEnvironment env,
                            VariableElement param,
                            TypeElement classType,
                            ExecutableElement method,
@@ -27,9 +27,9 @@ class SourceBodyByExecutable extends SourceBody {
     }
 
     @Override
-    public CharSequence write(SourceServlet servlet, String name) {
+    public CharSequence write(SourceServlet servlet, String name, String alias) {
         String typeName = servlet.imports(returnType);
-        StringBuilder b = new StringBuilder(typeName).append(" ").append(name).append(" = ");
+        StringBuilder b = new StringBuilder(typeName).append(" ").append(alias).append(" = ");
         if (method.getKind().equals(ElementKind.CONSTRUCTOR)) {
             b.append("new ").append(typeName);
         } else {
@@ -51,12 +51,14 @@ class SourceBodyByExecutable extends SourceBody {
                 continue;
             }
             switch (type) {
-                case T_InputStream, T_ServletInputStream -> b.append("_req.getBody()");
-                case T_ByteArray -> b.append("_req.getBodyAsByte()");
-                case T_String -> b.append("_req.getBodyAsText()");
-                case T_PartArray -> b.append("_req.getParts()");
-                case T_FileArray -> b.append("_req.getFiles()");
-                case T_Charset -> b.append("_req.getCharset()");
+                case T_Part -> b.append("_req.getPart(\"").append(alias).append("\")");
+                case T_File -> b.append("_req.getFile(\"").append(alias).append("\")");
+                case T_InputStream -> b.append(servlet.imports("yeamy.utils.IfNotNull"))
+                        .append(".invoke(_req.getFile(\"").append(alias).append("\"),a->a.get())");
+                case T_ByteArray -> b.append(servlet.imports("yeamy.utils.IfNotNull"))
+                        .append(".invoke(_req.getFile(\"").append(alias).append("\"),a->a.getAsByte())");
+                case T_String -> b.append(servlet.imports("yeamy.utils.IfNotNull"))
+                        .append(".invoke(_req.getFile(\"").append(alias).append("\"),a->a.getAsText())");
             }
         }
         b.append(");");

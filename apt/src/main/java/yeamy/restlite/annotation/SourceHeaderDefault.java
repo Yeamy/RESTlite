@@ -7,9 +7,7 @@ import static yeamy.restlite.annotation.SupportType.*;
 class SourceHeaderDefault extends SourceHeader {
     private final String returnType;
 
-    SourceHeaderDefault(ProcessEnvironment env,
-                        VariableElement param,
-                        String returnType) {
+    SourceHeaderDefault(ProcessEnvironment env, VariableElement param, String returnType) {
         super(env, param);
         this.returnType = returnType;
     }

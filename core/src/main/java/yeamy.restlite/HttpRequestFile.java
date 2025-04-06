@@ -12,7 +12,7 @@ import java.io.*;
  *
  * @author Yeamy
  */
-public record HttpRequestFile(Part part) implements Serializable {
+public record HttpRequestFile(Part part, String bodyCharset) implements Serializable {
     @Serial
     private static final long serialVersionUID = -3268287626476820927L;
 
@@ -55,23 +55,23 @@ public record HttpRequestFile(Part part) implements Serializable {
     }
 
     /**
-     * read the part as string with charset UTF-8
+     * read the part as string
      *
      * @see #getAsText(String)
      */
     public String getAsText() throws IOException {
-        return getAsText("UTF-8");
+        String cs = charset();
+        return getAsText(TextUtils.isNotEmpty(cs) ? cs : bodyCharset);
     }
 
     /**
-     * read the part as string with given charset if charset not defended
+     * read the part as string with given charset
      */
     public String getAsText(String charset) throws IOException {
         try (InputStream is = part.getInputStream()) {
             ByteArrayOutputStream os = new ByteArrayOutputStream(is.available());
             StreamUtils.writeWithoutClose(os, is);
-            String cs = charset();
-            return os.toString(TextUtils.isNotEmpty(cs) ? cs : charset);
+            return os.toString(charset);
         }
     }
 

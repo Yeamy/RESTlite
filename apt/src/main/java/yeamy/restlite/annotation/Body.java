@@ -29,10 +29,4 @@ public @interface Body {
      * @see BodyProcessor
      */
     String processor() default "";
-
-    /**
-     * Only work when body is string rather than binary,
-     * keep empty will be same as {@link Configuration}
-     */
-    String charset() default "";
 }

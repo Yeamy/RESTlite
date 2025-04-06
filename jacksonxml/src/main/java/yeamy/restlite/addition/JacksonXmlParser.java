@@ -115,7 +115,6 @@ public class JacksonXmlParser {
     /**
      * deserializes request body as XML into an object of the specified class.
      */
-    @BodyProcessor("jacksonXmlBody")
     public static <T> T parse(RESTfulRequest request, Class<T> clz) throws IOException {
         return fromXml(request.getBodyAsText(), clz);
     }
@@ -123,11 +122,12 @@ public class JacksonXmlParser {
     /**
      * deserializes request body-part as XML into an object of the specified class.
      */
-    @PartProcessor("jacksonXmlPart")
     public static <T> T parse(HttpRequestFile file, Class<T> clz) throws IOException {
         return fromXml(file.getAsText(), clz);
     }
 
+    @BodyProcessor("jacksonXmlBody")
+    @PartProcessor("jacksonXmlPart")
     public static <T> T fromXml(String xml, Class<T> clz) throws IOException {
         return mapper.readValue(xml, clz);
     }

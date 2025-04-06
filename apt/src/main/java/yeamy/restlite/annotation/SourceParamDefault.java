@@ -7,9 +7,7 @@ import static yeamy.restlite.annotation.SupportType.*;
 class SourceParamDefault extends SourceParam {
     private final String returnType;
 
-    SourceParamDefault(ProcessEnvironment env,
-                       VariableElement param,
-                       String returnType) {
+    SourceParamDefault(ProcessEnvironment env, VariableElement param, String returnType) {
         super(env, param);
         this.returnType = returnType;
     }

@@ -33,6 +33,7 @@ class ProcessEnvironment {
     private final HashMap<String, SourceHeaderProcessor> headerProcessors = new HashMap<>();
     private final HashMap<String, SourceCookieProcessor> cookieProcessors = new HashMap<>();
     private final HashMap<String, SourceBodyProcessor> bodyProcessors = new HashMap<>();
+    private final HashMap<String, SourcePartProcessor> partProcessors = new HashMap<>();
     private final HashMap<String, SourceParamProcessor> paramProcessors = new HashMap<>();
 
     public ProcessEnvironment(ProcessingEnvironment env, Element init) {
@@ -105,9 +106,9 @@ class ProcessEnvironment {
         return null;
     }
 
-    public static Part getPart(VariableElement e) {
+    public static Parts getPart(VariableElement e) {
         for (AnnotationMirror am : e.getAnnotationMirrors()) {
-            Part part = am.getAnnotationType().asElement().getAnnotation(Part.class);
+            Parts part = am.getAnnotationType().asElement().getAnnotation(Parts.class);
             if (part != null) {
                 return part;
             }
@@ -222,6 +223,20 @@ class ProcessEnvironment {
 
     public SourceBodyProcessor getBodyProcessor(String type, String name) {
         return bodyProcessors.get(TextUtils.isEmpty(name) ? type : type + ":" + name);
+    }
+
+    public void addPartProcessor(Element element, PartProcessor ann) {
+        String key = ((ExecutableElement) element).getReturnType().toString();
+        SourcePartProcessor processor = new SourcePartProcessor(this, element);
+        partProcessors.put(key, processor);
+        String name = ann.value();
+        if (TextUtils.isNotEmpty(name)) {
+            partProcessors.put(key + ":" + name, processor);
+        }
+    }
+
+    public SourcePartProcessor getPartProcessor(String type, String name) {
+        return partProcessors.get(TextUtils.isEmpty(name) ? type : type + ":" + name);
     }
 
     public void addParamProcessor(Element element, ParamProcessor ann) {

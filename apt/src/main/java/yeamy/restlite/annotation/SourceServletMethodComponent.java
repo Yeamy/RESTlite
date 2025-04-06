@@ -256,55 +256,45 @@ class SourceServletMethodComponent {
     }
 
     private boolean doPart(VariableElement p) {
+        Parts ann = p.getAnnotation(Parts.class);
+        if (ann != null || (ann = ProcessEnvironment.getPart(p)) != null) {
+            if (args.containsBody()) {
+                args.addFallback("null");
+                env.error("cannot read body twice");
+                return true;
+            }
+            String name = p.getSimpleName().toString();
+            String alias = TextUtils.isEmpty(ann.value()) ? name : ann.value();
+            if (args.containsPart(name)) {
+                args.addFallback("null");
+                env.error("cannot read part twice");
+                return true;
+            }
+            SourcePart part = SourceVariableHelper.getPart(env, servlet, p, ann);
+            if (part != null) {
+                args.addPart(name,  alias,true, true, true).write(part.write(servlet, name, alias));
+            } else {
+                args.addFallback("null");
+            }
+            return true;
+        }
+        String type = p.asType().toString();
+        if (TextUtils.notIn(type, T_InputStream, T_Part, T_File)) {
+            return false;
+        }
         if (args.containsBody()) {
+            args.addFallback("null");
+            env.error("cannot read body twice");
+            return true;
+        }
+        String name = p.getSimpleName().toString();
+        if (args.containsPart(name)) {
             args.addFallback("null");
             env.error("cannot read part twice");
             return true;
         }
-        String name = p.getSimpleName().toString();
-        TypeMirror t = p.asType();
-        String type = t.toString();
-        if (type.equals(T_Parts)) {
-            args.addPart(name, name, false, false, false)
-                    .write(servlet.imports(T_File), "[] ", name, " = _req.getParts();");
-            return true;
-        } else if (type.equals(T_Files)) {
-            args.addPart(name, name, false, false, false)
-                    .write(servlet.imports(T_File), "[] ", name, " = _req.getFiles();");
-            return true;
-        }
-        Part part = p.getAnnotation(Part.class);
-        if (part == null) {
-            if (type.equals(T_Part)) {
-                args.addPart(name, name, false, false, false)
-                        .write(servlet.imports(T_File), " ", name, " = _req.getPart(\"", name, "\");");
-                return true;
-            } else if (type.equals(T_File)) {
-                args.addPart(name, name, false, false, false)
-                        .write(servlet.imports(T_File), " ", name, " = _req.getFile(\"", name, "\");");
-                return true;
-            } else {
-                part = ProcessEnvironment.getPart(p);
-            }
-        }
-        if (part == null) return false;
-        String alias = TextUtils.isEmpty(part.value()) ? name : part.value();
-        switch (type) {
-            case T_Part -> args.addPart(name, alias, false, false, false)
-                    .write(servlet.imports(T_File), " ", name, " = _req.getPart(\"", alias, "\");");
-            case T_File -> args.addPart(name, alias, false, false, false)
-                    .write(servlet.imports(T_File), " ", name, " = _req.getFile(\"", alias, "\");");
-            case T_InputStream -> args.addPart(name, alias, true, true, true)
-                    .write(servlet.imports(T_InputStream), " ", name, " = ", servlet.imports("yeamy.utils.IfNotNull"), ".invoke(_req.getFile(\"", alias, "\"),a->a.get());");
-            case T_ByteArray -> args.addPart(name, alias, false, false, false)
-                    .write("byte[] ", name, " = ", servlet.imports("yeamy.utils.IfNotNull"), ".invoke(_req.getFile(\"", alias, "\"),a->a.getAsByte());");
-            case T_String -> args.addPart(name, alias, false, false, false)
-                    .write("String ", name, " = ", servlet.imports("yeamy.utils.IfNotNull"), ".invoke(_req.getFile(\"", alias, "\"),a->a.getAsText(\"", env.charset(part.charset()), "\");");
-            default -> {
-                SourceArgsPart.get(env, servlet, p, part).addToArgs(args, servlet, p, name);
-                return true;
-            }
-        }
+        SourcePart part = new SourcePartDefault(env, p, type);
+        args.addPart(name, name, true, true, true).write(part.write(servlet, name, name));
         return true;
     }
 

@@ -10,32 +10,32 @@ import java.util.Set;
 
 import static yeamy.restlite.annotation.SupportType.*;
 
-class SourceBodyProcessor {
-    static final String[] SUPPORT_BODY_TYPE = new String[]{T_ServletInputStream, T_InputStream, T_ByteArray, T_String, T_PartArray, T_FileArray};
+class SourcePartProcessor {
+    static final String[] SUPPORT_PART_TYPE = new String[]{T_Part, T_File, T_InputStream, T_ByteArray, T_String};
 
     public final TypeElement classType;
     public final ExecutableElement method;
     public final TypeMirror returnType;
 
-    public SourceBodyProcessor(ProcessEnvironment env, Element element) {
+    public SourcePartProcessor(ProcessEnvironment env, Element element) {
         this.classType = (TypeElement) element.getEnclosingElement();
         ExecutableElement method = (ExecutableElement) element;
         this.returnType = method.getReturnType();
         Set<Modifier> modifiers = element.getModifiers();
         if (!modifiers.contains(Modifier.PUBLIC)) {
-            env.error("BodyProcessor must be public:" + classType + "." + element.getSimpleName());
+            env.error("PartProcessor must be public:" + classType + "." + element.getSimpleName());
             this.method = null;
             return;
         }
         if (element.getKind() == ElementKind.METHOD && !modifiers.contains(Modifier.STATIC)) {
-            env.error("BodyProcessor must be static:" + classType + "." + element.getSimpleName());
+            env.error("PartProcessor must be static:" + classType + "." + element.getSimpleName());
             this.method = null;
             return;
         }
         if (checkParam(returnType, method.getParameters())) {
             this.method = method;
         } else {
-            env.error("BodyProcessor has invalid param type:" + classType + "." + element.getSimpleName());
+            env.error("PartProcessor has invalid param type:" + classType + "." + element.getSimpleName());
             this.method = null;
         }
     }
@@ -52,9 +52,9 @@ class SourceBodyProcessor {
                     return false;
                 }
                 pType++;
-            } else if (TextUtils.in(pts, SUPPORT_BODY_TYPE)) {
+            } else if (TextUtils.in(pts, SUPPORT_PART_TYPE)) {
                 pInput++;
-            } else if (!pts.equals(T_Charset)) {
+            } else {
                 pOthers++;
             }
         }

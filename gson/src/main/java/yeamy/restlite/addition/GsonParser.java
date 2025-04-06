@@ -113,16 +113,16 @@ public class GsonParser {
     /**
      * deserializes request body as JSON into an object of the specified class.
      */
-    @BodyProcessor("gsonBody")
     public static <T> T parse(RESTfulRequest request, Class<T> clz) throws IOException {
         return fromJson(request.getBodyAsText(), clz);
     }
 
-    @PartProcessor("gsonPart")
     public static <T> T parse(HttpRequestFile part, Class<T> clz) throws IOException {
         return fromJson(part.getAsText(), clz);
     }
 
+    @BodyProcessor("gsonBody")
+    @PartProcessor("gsonPart")
     public static <T> T fromJson(String json, Class<T> clz) {
         return gson.fromJson(json, clz);
     }

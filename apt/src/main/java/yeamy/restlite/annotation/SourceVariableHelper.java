@@ -8,9 +8,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import static yeamy.restlite.annotation.SourceBodyProcessor.SUPPORT_BODY_TYPE;
 import static yeamy.restlite.annotation.SourceCookieProcessor.SUPPORT_COOKIE_TYPE;
 import static yeamy.restlite.annotation.SourceHeaderProcessor.SUPPORT_HEADER_TYPE;
 import static yeamy.restlite.annotation.SourceParamProcessor.SUPPORT_PARAM_TYPE;
+import static yeamy.restlite.annotation.SourcePartProcessor.SUPPORT_PART_TYPE;
 
 abstract class SourceVariableHelper {
 
@@ -281,7 +283,7 @@ abstract class SourceVariableHelper {
             return null;
         }
         String returnTypeName = returnType.toString();
-        if (TextUtils.in(returnTypeName, SUPPORT_COOKIE_TYPE)) {
+        if (TextUtils.in(returnTypeName, SUPPORT_BODY_TYPE)) {
             return new SourceBodyDefault(env, param, returnTypeName);
         }
         TypeElement classType = env.getTypeElement(returnTypeName);
@@ -300,6 +302,79 @@ abstract class SourceVariableHelper {
         findBodyStaticMethod(list, env, elements, returnType, samePackage);
         if (list.size() == 1) {
             return new SourceBodyByExecutable(env, param, classType, list.get(0), returnType, samePackage, elements);
+        } else if (list.size() > 1) {
+            env.error("More than one Static-Factory-Method in type:" + returnType + " " + param.getSimpleName());
+            return null;
+        } else {
+            env.error("Cannot find Constructor nor Static-Factory-Method with no argument in type " + returnType);
+            return null;
+        }
+    }
+
+    //----------------------------------------------
+
+    private static void findPartConstructor(ArrayList<ExecutableElement> list, List<? extends Element> elements, TypeMirror type, boolean samePackage) {
+        for (Element element : elements) {
+            if (element.getKind() != ElementKind.CONSTRUCTOR) continue;
+            ExecutableElement constructor = (ExecutableElement) element;
+            Set<Modifier> modifiers = constructor.getModifiers();
+            if (!modifiers.contains(Modifier.STATIC)) continue;
+            if (modifiers.contains(Modifier.PRIVATE)) continue;
+            if (!samePackage && !modifiers.contains(Modifier.PUBLIC)) continue;
+            if (!SourcePartProcessor.checkParam(type, constructor.getParameters())) continue;
+            list.add(constructor);
+        }
+    }
+
+    private static void findPartStaticMethod(ArrayList<ExecutableElement> list, ProcessEnvironment env, List<? extends Element> elements, TypeMirror returnType, boolean samePackage) {
+        for (Element element : elements) {
+            if (element.getKind() != ElementKind.METHOD) continue;
+            ExecutableElement method = (ExecutableElement) element;
+            Set<Modifier> modifiers = element.getModifiers();
+            if (!modifiers.contains(Modifier.STATIC)) continue;
+            if (modifiers.contains(Modifier.PRIVATE)) continue;
+            if (!samePackage && !modifiers.contains(Modifier.PUBLIC)) continue;
+            TypeMirror mrt = method.getReturnType();
+            if (!env.isAssignableVar(returnType, mrt)) continue;
+            if (!SourcePartProcessor.checkParam(returnType, method.getParameters())) continue;
+            list.add(method);
+        }
+    }
+
+    public static SourcePart getPart(ProcessEnvironment env, SourceServlet servlet, VariableElement param, Parts ann) {
+        TypeMirror returnType = param.asType();
+        String processor = ann.processor();
+        SourcePartProcessor p = env.getPartProcessor(returnType.toString(), processor);
+        if (p != null) {
+            if (p.method == null) return null;
+            boolean samePackage = servlet.isSamePackage(p.classType);
+            List<? extends Element> elements = param.getEnclosedElements();
+            return new SourcePartByExecutable(env, param, p.classType, p.method, returnType, samePackage, elements);
+        }
+        if (TextUtils.isNotEmpty(processor)) {
+            env.error("Cannot find PartProcessor with name: " + processor + " of type " + returnType);
+            return null;
+        }
+        String returnTypeName = returnType.toString();
+        if (TextUtils.in(returnTypeName, SUPPORT_PART_TYPE)) {
+            return new SourcePartDefault(env, param, returnTypeName);
+        }
+        TypeElement classType = env.getTypeElement(returnTypeName);
+        if (classType.getModifiers().contains(Modifier.ABSTRACT)) {
+            env.error("Cannot find creator without PartProcessor in abstract class: " + returnType);
+            return null;
+        }
+        boolean samePackage = servlet.isSamePackage(classType);
+        List<? extends Element> elements = param.getEnclosedElements();
+        ArrayList<ExecutableElement> list = new ArrayList<>();
+        findPartConstructor(list, elements, returnType, samePackage);
+        if (list.size() > 1) {
+            env.error("More than one Constructor in type:" + returnType + " " + param.getSimpleName());
+            return null;
+        }
+        findPartStaticMethod(list, env, elements, returnType, samePackage);
+        if (list.size() == 1) {
+            return new SourcePartByExecutable(env, param, classType, list.get(0), returnType, samePackage, elements);
         } else if (list.size() > 1) {
             env.error("More than one Static-Factory-Method in type:" + returnType + " " + param.getSimpleName());
             return null;
