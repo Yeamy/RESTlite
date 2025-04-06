@@ -8,8 +8,9 @@ import java.lang.annotation.Target;
 /**
  * declare the parameter(or the type of parameter) is http request body.<br>
  * <b>support parameter:</b> {@linkplain java.io.InputStream InputStream},
- * {@linkplain jakarta.servlet.ServletInputStream ServletInputStream}, byte[],
- * {@linkplain String String} or any declared type with this annotation.<br>
+ * {@linkplain jakarta.servlet.ServletInputStream ServletInputStream}, {@linkplain jakarta.servlet.http.Part Part[]}
+ * {@linkplain yeamy.restlite.HttpRequestFile HttpRequestFile[]}, byte[], {@linkplain String String}
+ * or any declared type with construct param as above.<br>
  * <b>Noted</b> that only POST, PUT, PATCH contains body
  * and each request body(InputStream) can read only once.
  *
@@ -26,6 +27,7 @@ public @interface Body {
 
     /**
      * distinguish the constructor/static-method with same return type
+     *
      * @see BodyProcessor
      */
     String processor() default "";

@@ -31,7 +31,7 @@ class SourceParamProcessor {
         this.returnType = method.getReturnType();
         List<? extends VariableElement> parameters = method.getParameters();
         if (parameters.size() != 1 || TextUtils.notIn(parameters.get(0).asType().toString(), SUPPORT_PARAM_TYPE)) {
-            env.error("ParamProcessor " + element.getSimpleName() + " returns unsupported type!");
+            env.error("ParamProcessor " + element.getSimpleName() + " contains unsupported param type!");
             this.method = null;
         } else if (kind == ElementKind.METHOD) {
             Set<Modifier> modifiers = element.getModifiers();

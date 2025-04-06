@@ -24,7 +24,7 @@ class SourceCookieProcessor {
         this.returnType = method.getReturnType();
         List<? extends VariableElement> parameters = method.getParameters();
         if (parameters.size() != 1 || TextUtils.notIn(parameters.get(0).asType().toString(), SUPPORT_COOKIE_TYPE)) {
-            env.error("CookieProcessor " + element.getSimpleName() + " returns unsupported type!");
+            env.error("CookieProcessor " + element.getSimpleName() + " contains unsupported param type!");
             this.method = null;
         } else if (kind == ElementKind.METHOD) {
             Set<Modifier> modifiers = element.getModifiers();

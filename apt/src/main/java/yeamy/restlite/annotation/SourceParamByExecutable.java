@@ -34,7 +34,7 @@ class SourceParamByExecutable extends SourceParam {
         } else {
             b.append(servlet.imports(classType)).append('.').append(method.getSimpleName());
         }
-        switch (returnType.toString()) {
+        switch (method.getParameters().get(0).asType().toString()) {
             case T_int -> b.append("(_req.getIntParam(\"").append(name).append("\", 0));");
             case T_Integer -> b.append("(_req.getIntParam(\"").append(name).append("\"));");
             case T_IntegerArray -> b.append("(_req.getIntegerParams(\"").append(name).append("\"));");
@@ -52,8 +52,8 @@ class SourceParamByExecutable extends SourceParam {
             case T_BooleanArray -> b.append("(_req.getBooleanParams(\"").append(name).append("\"));");
             case T_Decimal -> b.append("(_req.getDecimalParam(\"").append(name).append("\"));");
             case T_DecimalArray -> b.append("(_req.getDecimalParams(\"").append(name).append("\"));");
-            case T_String -> b.append(alias).append("(_req.getParam(\"").append(name).append("\"));");
-            case T_StringArray -> b.append(alias).append("(_req.getParams(\"").append(name).append("\"));");
+            case T_String -> b.append("(_req.getParam(\"").append(name).append("\"));");
+            case T_StringArray -> b.append("(_req.getParams(\"").append(name).append("\"));");
         }
         return b;
     }

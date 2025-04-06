@@ -257,9 +257,6 @@ class ProcessEnvironment {
         String name = ann.value();
         ElementKind kind = element.getKind();
         ArrayList<String> keys = new ArrayList<>();
-        for (Class<?> t : ann.provideFor()) {
-            keys.add(t.getName());
-        }
         if (kind == ElementKind.FIELD) {
             keys.add(element.asType().toString());
         } else {

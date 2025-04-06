@@ -293,8 +293,8 @@ public class RESTfulRequest implements Serializable {
         return ValueUtils.allToBigDecimal(getParams(name));
     }
 
-    public String getParameter(String name, String fallback) {
-        String param = getParameter(name);
+    public String getParam(String name, String fallback) {
+        String param = getParam(name);
         return param == null ? fallback : param;
     }
 
@@ -302,7 +302,7 @@ public class RESTfulRequest implements Serializable {
      * @param name name of param
      * @return value of param, if fail return null
      */
-    public String getParameter(String name) {
+    public String getParam(String name) {
         String value = this.parameter.get(name);
         if (value != null) {
             return value;
@@ -315,16 +315,16 @@ public class RESTfulRequest implements Serializable {
      * @return BigDecimal type value, if fail return null
      */
     public BigDecimal getDecimalParam(String name) {
-        return ValueUtils.toBigDecimal(getParameter(name));
+        return ValueUtils.toBigDecimal(getParam(name));
     }
 
     public BigDecimal getDecimalParam(String name, BigDecimal fallback) {
-        BigDecimal param = ValueUtils.toBigDecimal(getParameter(name));
+        BigDecimal param = ValueUtils.toBigDecimal(getParam(name));
         return param != null ? param : fallback;
     }
 
     public boolean getBooleanParam(String name, boolean fallback) {
-        return ValueUtils.toBoolean(getParameter(name), fallback);
+        return ValueUtils.toBoolean(getParam(name), fallback);
     }
 
     /**
@@ -332,11 +332,11 @@ public class RESTfulRequest implements Serializable {
      * @return Boolean type value, if fail return null
      */
     public Boolean getBooleanParam(String name) {
-        return ValueUtils.toBoolean(getParameter(name));
+        return ValueUtils.toBoolean(getParam(name));
     }
 
     public int getIntParam(String name, int fallback) {
-        return ValueUtils.toInt(getParameter(name), fallback);
+        return ValueUtils.toInt(getParam(name), fallback);
     }
 
     /**
@@ -344,7 +344,7 @@ public class RESTfulRequest implements Serializable {
      * @return Integer type value, if fail return null
      */
     public Integer getIntegerParam(String name) {
-        return ValueUtils.toInteger(getParameter(name));
+        return ValueUtils.toInteger(getParam(name));
     }
 
     /**
@@ -352,27 +352,27 @@ public class RESTfulRequest implements Serializable {
      * @return Long type value, if fail return null
      */
     public Long getLongParam(String name) {
-        return ValueUtils.toLong(getParameter(name));
+        return ValueUtils.toLong(getParam(name));
     }
 
     public long getLongParam(String name, long fallback) {
-        return ValueUtils.toLong(getParameter(name), fallback);
+        return ValueUtils.toLong(getParam(name), fallback);
     }
 
     public Float getFloatParam(String name) {
-        return ValueUtils.toFloat(getParameter(name));
+        return ValueUtils.toFloat(getParam(name));
     }
 
     public float getFloatParam(String name, float fallback) {
-        return ValueUtils.toFloat(getParameter(name), fallback);
+        return ValueUtils.toFloat(getParam(name), fallback);
     }
 
     public Double getDoubleParam(String name) {
-        return ValueUtils.toDouble(getParameter(name));
+        return ValueUtils.toDouble(getParam(name));
     }
 
     public double getDoubleParam(String name, double fallback) {
-        return ValueUtils.toDouble(getParameter(name), fallback);
+        return ValueUtils.toDouble(getParam(name), fallback);
     }
 
     /**
@@ -386,7 +386,7 @@ public class RESTfulRequest implements Serializable {
      * @return parameter value of current Resource
      */
     public String getValue() {
-        return getParameter(resource);
+        return getParam(resource);
     }
 
     public String getPathParam(String name) {
