@@ -11,6 +11,14 @@ class SourceParamByExecutable extends SourceParam {
     private final ExecutableElement method;
     private final TypeMirror returnType;
 
+    SourceParamByExecutable(ProcessEnvironment env, VariableElement param, SourceParamProcessor p) {
+        super(env, param);
+        this.classType = p.classType;
+        this.method = p.method;
+        this.returnType = p.returnType;
+        init(p.throwable, p.closeable, p.closeThrow);
+    }
+
     SourceParamByExecutable(ProcessEnvironment env,
                             VariableElement param,
                             TypeElement classType,

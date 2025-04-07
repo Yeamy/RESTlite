@@ -6,11 +6,9 @@ import java.util.List;
 import java.util.Set;
 
 abstract class SourceInject extends SourceVariable {
-    private final TypeMirror typeMirror;
 
     public SourceInject(ProcessEnvironment env, VariableElement param) {
         super(env, param);
-        this.typeMirror = param.getEnclosingElement().asType();
     }
 
     /**
@@ -59,20 +57,21 @@ abstract class SourceInject extends SourceVariable {
         ExecutableElement setter = findSetter();
         if (setter != null) {
             b.append("_impl.").append(setter.getSimpleName()).append('(');
-            writeValue(b, servlet);
+            writeFieldValue(b, servlet);
             b.append(");");
         } else if (!param.getModifiers().contains(Modifier.PRIVATE)) {
             b.append("_impl.").append(param.getSimpleName()).append('=');
-            writeValue(b, servlet);
+            writeFieldValue(b, servlet);
             b.append(';');
         } else {
             String simpleName = param.getSimpleName().toString();
+            TypeMirror typeMirror = param.getEnclosingElement().asType();
             env.error("Cannot assign " + typeMirror + "." + simpleName + " cause it's private and no setter found");
             b.append("/* Cannot assign _impl.").append(simpleName).append(" cause it's private and no setter found*/");
         }
     }
 
-    protected abstract void writeValue(StringBuilder b, SourceServlet servlet);
+    protected abstract void writeFieldValue(StringBuilder b, SourceServlet servlet);
 
     public abstract CharSequence writeArg(SourceServlet servlet);
 

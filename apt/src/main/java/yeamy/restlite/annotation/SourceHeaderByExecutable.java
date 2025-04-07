@@ -11,6 +11,14 @@ class SourceHeaderByExecutable extends SourceHeader {
     private final ExecutableElement method;
     private final TypeMirror returnType;
 
+    SourceHeaderByExecutable(ProcessEnvironment env, VariableElement param, SourceHeaderProcessor p) {
+        super(env, param);
+        this.classType = p.classType;
+        this.method = p.method;
+        this.returnType = p.returnType;
+        init(p.throwable, p.closeable, p.closeThrow);
+    }
+
     SourceHeaderByExecutable(ProcessEnvironment env,
                              VariableElement param,
                              TypeElement classType,

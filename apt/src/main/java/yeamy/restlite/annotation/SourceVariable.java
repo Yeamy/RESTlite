@@ -17,6 +17,12 @@ abstract class SourceVariable {
         this.param = param;
     }
 
+    protected void init(boolean throwable, boolean closeable, boolean closeThrow) {
+        this.throwable = throwable;
+        this.closeable = closeable;
+        this.closeThrow = closeThrow;
+    }
+
     protected void init(ExecutableElement method, TypeMirror classType, boolean samePackage, List<? extends Element> elements) {
         if (method != null) {
             this.throwable = method.getThrownTypes().size() > 0;

@@ -7,6 +7,6 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.CLASS)
 @Target(ElementType.PARAMETER)
-@Body(processor = "jacksonPart")
+@PartFactory(processorClass = JacksonPart.class, processor = "jacksonPart", nameMethod = "value")
 public @interface JacksonPart {
 }

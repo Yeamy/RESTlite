@@ -12,6 +12,14 @@ class SourceBodyByExecutable extends SourceBody {
     private final ExecutableElement method;
     private final TypeMirror returnType;
 
+    SourceBodyByExecutable(ProcessEnvironment env, VariableElement param, SourceBodyProcessor p) {
+        super(env, param);
+        this.classType = p.classType;
+        this.method = p.method;
+        this.returnType = p.returnType;
+        init(p.throwable, p.closeable, p.closeThrow);
+    }
+
     SourceBodyByExecutable(ProcessEnvironment env,
                            VariableElement param,
                            TypeElement classType,
@@ -28,7 +36,8 @@ class SourceBodyByExecutable extends SourceBody {
 
     @Override
     public CharSequence write(SourceServlet servlet, String name) {
-        String typeName = servlet.imports(returnType);
+        boolean isTypeVar = returnType.getKind().equals(TypeKind.TYPEVAR);
+        String typeName = servlet.imports(isTypeVar ? param.asType() : returnType);
         StringBuilder b = new StringBuilder(typeName).append(" ").append(name).append(" = ");
         if (method.getKind().equals(ElementKind.CONSTRUCTOR)) {
             b.append("new ").append(typeName);
@@ -46,7 +55,7 @@ class SourceBodyByExecutable extends SourceBody {
             }
             TypeMirror tm = p.asType();
             String type = tm.toString();
-            if (tm.getKind().equals(TypeKind.TYPEVAR) && CLASS.equals(type)) {
+            if (isTypeVar && CLASS.equals(type)) {
                 b.append(typeName).append(".class");
                 continue;
             }

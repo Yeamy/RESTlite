@@ -7,6 +7,6 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.CLASS)
 @Target(ElementType.PARAMETER)
-@Body(processor = "jacksonXmlBody")
+@BodyFactory(processorClass = JacksonXmlPart.class, processor = "jacksonXmlBody")
 public @interface JacksonXmlBody {
 }

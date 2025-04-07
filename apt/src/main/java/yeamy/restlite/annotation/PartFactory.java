@@ -6,13 +6,20 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Declare the method to create http body part.<br>
+ * Declare the method to create http body.<br>
  * For public static-method/constructor with one param (one of)
  */
-@Target({ElementType.METHOD, ElementType.CONSTRUCTOR})
+@Target(ElementType.TYPE)
 @Retention(RetentionPolicy.CLASS)
-public @interface PartProcessor {
+public @interface PartFactory {
+
+    /**
+     * Class name of static factory class.
+     */
+    Class<?> processorClass();
 
     // name
-    String value() default "";
+    String processor();
+
+    String nameMethod();
 }

@@ -1,33 +1,25 @@
 package yeamy.restlite.annotation;
 
-import javax.lang.model.element.Element;
 import javax.lang.model.element.VariableElement;
-import java.util.List;
 
 class SourceInjectByProvider extends SourceInject {
     private final SourceInjectProvider injectProvider;
 
-    SourceInjectByProvider(ProcessEnvironment env,
-                           VariableElement param,
-                           SourceInjectProvider injectProvider,
-                           boolean samePackage,
-                           List<? extends Element> elements) {
+    SourceInjectByProvider(ProcessEnvironment env, VariableElement param, SourceInjectProvider p) {
         super(env, param);
-        this.injectProvider = injectProvider;
-        init(injectProvider.method, injectProvider.importType.asType(), samePackage, elements);
-    }
-
-    @Override
-    public void writeValue(StringBuilder b, SourceServlet servlet) {
-        b.append(injectProvider.content);
+        this.injectProvider = p;
+        init(p.throwable, p.closeable, p.closeThrow);
     }
 
     @Override
     public CharSequence writeArg(SourceServlet servlet) {
-        StringBuilder b = new StringBuilder().append(servlet.imports(injectProvider.importType)).append(' ')
-                .append(param.getSimpleName()).append('=');
-        writeValue(b, servlet);
-        b.append(';');
-        return b;
+        return new StringBuilder().append(servlet.imports(injectProvider.importType)).append(' ')
+                .append(param.getSimpleName()).append('=').append(injectProvider.content).append(';');
+    }
+
+    @Override
+    protected void writeFieldValue(StringBuilder b, SourceServlet servlet) {
+        servlet.imports(injectProvider.importType);
+        b.append(injectProvider.content);
     }
 }

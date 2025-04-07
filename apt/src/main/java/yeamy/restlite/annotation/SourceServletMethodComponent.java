@@ -218,14 +218,15 @@ class SourceServletMethodComponent {
         Inject ann = p.getAnnotation(Inject.class);
         if (ann == null) return false;
         SourceInject inject = SourceVariableHelper.getInject(env, servlet, p, ann);
-        args.addInject(p.getSimpleName().toString(), inject.isThrowable(), inject.isCloseable(), inject.isCloseThrow())
+        String name = p.getSimpleName().toString();
+        args.addInject(name, inject.isThrowable(), inject.isCloseable(), inject.isCloseThrow())
                 .write(inject.writeArg(servlet));
         return true;
     }
 
     private boolean doBody(VariableElement p) {
         Body ann = p.getAnnotation(Body.class);
-        if (ann != null || (ann = ProcessEnvironment.getBody(p)) != null) {
+        if (ann != null) {
             if (args.containsBodyOrPart()) {
                 args.addFallback("null");
                 env.error("cannot read body twice");
@@ -234,37 +235,53 @@ class SourceServletMethodComponent {
             SourceBody body = SourceVariableHelper.getBody(env, servlet, p, ann);
             if (body != null) {
                 String name = p.getSimpleName().toString();
-                args.addBody(name, true, true, true).write(body.write(servlet, name));
+                args.addBody(name, body.isThrowable(), body.isCloseable(), body.isCloseThrow()).write(body.write(servlet, name));
             } else {
                 args.addFallback("null");
             }
             return true;
         }
         String type = p.asType().toString();
-        if (TextUtils.notIn(type, T_ServletInputStream, T_PartArray, T_FileArray)) {
-            return false;
-        }
-        if (args.containsBodyOrPart()) {
-            args.addFallback("null");
-            env.error("cannot read body twice");
+        if (TextUtils.in(type, T_ServletInputStream, T_PartArray, T_FileArray)) {
+            if (args.containsBodyOrPart()) {
+                args.addFallback("null");
+                env.error("cannot read body twice");
+                return true;
+            }
+            SourceBody body = new SourceBodyDefault(env, p, type);
+            String name = p.getSimpleName().toString();
+            args.addBody(name, body.isThrowable(), body.isCloseable(), body.isCloseThrow()).write(body.write(servlet, name));
             return true;
         }
-        SourceBody body = new SourceBodyDefault(env, p, type);
-        String name = p.getSimpleName().toString();
-        args.addBody(name, true, true, true).write(body.write(servlet, name));
-        return true;
+        BodyFactory factory = ProcessEnvironment.getBodyFactory(p);
+        if (factory != null) {
+            if (args.containsBodyOrPart()) {
+                args.addFallback("null");
+                env.error("cannot read body twice");
+                return true;
+            }
+            SourceBody body = SourceVariableHelper.getBody(env, p, factory);
+            if (body != null) {
+                String name = p.getSimpleName().toString();
+                args.addBody(name, body.isThrowable(), body.isCloseable(), body.isCloseThrow()).write(body.write(servlet, name));
+            } else {
+                args.addFallback("null");
+            }
+            return true;
+        }
+        return false;
     }
 
     private boolean doPart(VariableElement p) {
         Parts ann = p.getAnnotation(Parts.class);
-        if (ann != null || (ann = ProcessEnvironment.getPart(p)) != null) {
+        if (ann != null) {
             if (args.containsBody()) {
                 args.addFallback("null");
                 env.error("cannot read body twice");
                 return true;
             }
-            String name = p.getSimpleName().toString();
-            String alias = TextUtils.isEmpty(ann.value()) ? name : ann.value();
+            String alias = p.getSimpleName().toString();
+            String name = TextUtils.isEmpty(ann.value()) ? alias : ann.value();
             if (args.containsPart(name)) {
                 args.addFallback("null");
                 env.error("cannot read part twice");
@@ -272,30 +289,55 @@ class SourceServletMethodComponent {
             }
             SourcePart part = SourceVariableHelper.getPart(env, servlet, p, ann);
             if (part != null) {
-                args.addPart(name,  alias,true, true, true).write(part.write(servlet, name, alias));
+                args.addPart(name, alias, part.isThrowable(), part.isCloseable(), part.isCloseThrow())
+                        .write(part.write(servlet, name, alias));
             } else {
                 args.addFallback("null");
             }
             return true;
         }
         String type = p.asType().toString();
-        if (TextUtils.notIn(type, T_InputStream, T_Part, T_File)) {
-            return false;
-        }
-        if (args.containsBody()) {
-            args.addFallback("null");
-            env.error("cannot read body twice");
+        if (TextUtils.in(type, T_InputStream, T_Part, T_File)) {
+            if (args.containsBody()) {
+                args.addFallback("null");
+                env.error("cannot read body twice");
+                return true;
+            }
+            String name = p.getSimpleName().toString();
+            if (args.containsPart(name)) {
+                args.addFallback("null");
+                env.error("cannot read part twice");
+                return true;
+            }
+            SourcePart part = new SourcePartDefault(env, p, type);
+            args.addPart(name, name, part.isThrowable(), part.isCloseable(), part.isCloseThrow())
+                    .write(part.write(servlet, name, name));
             return true;
         }
-        String name = p.getSimpleName().toString();
-        if (args.containsPart(name)) {
-            args.addFallback("null");
-            env.error("cannot read part twice");
+        PartFactoryBean factory = PartFactoryBean.get(p);
+        if (factory != null) {
+            if (args.containsBody()) {
+                args.addFallback("null");
+                env.error("cannot read body twice");
+                return true;
+            }
+            String alias = p.getSimpleName().toString();
+            String name = TextUtils.isEmpty(factory.name()) ? alias : factory.name();
+            if (args.containsPart(name)) {
+                args.addFallback("null");
+                env.error("cannot read part twice");
+                return true;
+            }
+            SourcePartByExecutable part = SourceVariableHelper.getPartByFactory(env, p, factory);
+            if (part != null) {
+                args.addPart(name, alias, part.isThrowable(), part.isCloseable(), part.isCloseThrow())
+                        .write(part.write(servlet, name, alias));
+            } else {
+                args.addFallback("null");
+            }
             return true;
         }
-        SourcePart part = new SourcePartDefault(env, p, type);
-        args.addPart(name, name, true, true, true).write(part.write(servlet, name, name));
-        return true;
+        return false;
     }
 
     private void doParam(VariableElement p) {

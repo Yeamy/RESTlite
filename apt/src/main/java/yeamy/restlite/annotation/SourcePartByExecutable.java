@@ -12,6 +12,14 @@ class SourcePartByExecutable extends SourcePart {
     private final ExecutableElement method;
     private final TypeMirror returnType;
 
+    SourcePartByExecutable(ProcessEnvironment env, VariableElement param, SourcePartProcessor p) {
+        super(env, param);
+        this.classType = p.classType;
+        this.method = p.method;
+        this.returnType = p.returnType;
+        init(p.throwable, p.closeable, p.closeThrow);
+    }
+
     SourcePartByExecutable(ProcessEnvironment env,
                            VariableElement param,
                            TypeElement classType,
@@ -28,7 +36,8 @@ class SourcePartByExecutable extends SourcePart {
 
     @Override
     public CharSequence write(SourceServlet servlet, String name, String alias) {
-        String typeName = servlet.imports(returnType);
+        boolean isTypeVar = returnType.getKind().equals(TypeKind.TYPEVAR);
+        String typeName = servlet.imports(isTypeVar ? param.asType() : returnType);;
         StringBuilder b = new StringBuilder(typeName).append(" ").append(alias).append(" = ");
         if (method.getKind().equals(ElementKind.CONSTRUCTOR)) {
             b.append("new ").append(typeName);
@@ -46,19 +55,19 @@ class SourcePartByExecutable extends SourcePart {
             }
             TypeMirror tm = p.asType();
             String type = tm.toString();
-            if (tm.getKind().equals(TypeKind.TYPEVAR) && CLASS.equals(type)) {
+            if (isTypeVar && CLASS.equals(type)) {
                 b.append(typeName).append(".class");
                 continue;
             }
             switch (type) {
-                case T_Part -> b.append("_req.getPart(\"").append(alias).append("\")");
-                case T_File -> b.append("_req.getFile(\"").append(alias).append("\")");
+                case T_Part -> b.append("_req.getPart(\"").append(name).append("\")");
+                case T_File -> b.append("_req.getFile(\"").append(name).append("\")");
                 case T_InputStream -> b.append(servlet.imports("yeamy.utils.IfNotNull"))
-                        .append(".invoke(_req.getFile(\"").append(alias).append("\"),a->a.get())");
+                        .append(".invoke(_req.getFile(\"").append(name).append("\"),a->a.get())");
                 case T_ByteArray -> b.append(servlet.imports("yeamy.utils.IfNotNull"))
-                        .append(".invoke(_req.getFile(\"").append(alias).append("\"),a->a.getAsByte())");
+                        .append(".invoke(_req.getFile(\"").append(name).append("\"),a->a.getAsByte())");
                 case T_String -> b.append(servlet.imports("yeamy.utils.IfNotNull"))
-                        .append(".invoke(_req.getFile(\"").append(alias).append("\"),a->a.getAsText())");
+                        .append(".invoke(_req.getFile(\"").append(name).append("\"),a->a.getAsText())");
             }
         }
         b.append(");");

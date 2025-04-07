@@ -20,7 +20,7 @@ class SourceInjectNull extends SourceInject {
     }
 
     @Override
-    public void writeValue(StringBuilder b, SourceServlet servlet) {
+    protected void writeFieldValue(StringBuilder b, SourceServlet servlet) {
         b.append("null");
     }
 }

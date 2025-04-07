@@ -21,8 +21,8 @@ import java.lang.annotation.Target;
  * @see Parts
  * @see Attribute
  */
-@Target({ElementType.PARAMETER, ElementType.TYPE})
-@Retention(RetentionPolicy.CLASS) // ANNOTATION_TYPE need CLASS
+@Target(ElementType.PARAMETER)
+@Retention(RetentionPolicy.SOURCE)
 public @interface Body {
 
     /**

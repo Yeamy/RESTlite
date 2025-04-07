@@ -9,8 +9,8 @@ import java.lang.annotation.Target;
  * Declare the method to create http body.<br>
  * For public static-method/constructor with one param (one of)
  */
-@Target({ElementType.METHOD, ElementType.TYPE})
-@Retention(RetentionPolicy.SOURCE)
+@Target({ElementType.METHOD, ElementType.CONSTRUCTOR})
+@Retention(RetentionPolicy.CLASS)
 public @interface BodyProcessor {
 
     // name

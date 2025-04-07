@@ -22,7 +22,8 @@ class SourceServiceName {
                     && a.getAnnotation(Parts.class) == null//
                     && a.getAnnotation(Body.class) == null//
                     && a.getAnnotation(Inject.class) == null//
-                    && ProcessEnvironment.getBody(a) == null) {
+                    && ProcessEnvironment.getBodyFactory(a) == null//
+                    && ProcessEnvironment.getPartFactory(a) == null) {
                 params.add(a.getSimpleName().toString());
             }
         }

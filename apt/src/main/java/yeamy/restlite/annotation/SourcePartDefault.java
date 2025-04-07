@@ -15,14 +15,14 @@ class SourcePartDefault extends SourcePart {
     @Override
     public CharSequence write(SourceServlet servlet, String name, String alias) {
         return switch (returnType) {
-            case T_Part -> servlet.imports(T_File) + " " + name + " = _req.getPart(\"" + alias + "\");";
-            case T_File -> servlet.imports(T_File) + " " + name + " = _req.getFile(\"" + alias + "\");";
-            case T_InputStream -> servlet.imports(T_InputStream) + " " + name + " = "
-                    + servlet.imports("yeamy.utils.IfNotNull") + ".invoke(_req.getFile(\"" + alias + "\"),a->a.get());";
-            case T_ByteArray -> "byte[] " + name + " = " + servlet.imports("yeamy.utils.IfNotNull")
-                    + ".invoke(_req.getFile(\"" + alias + "\"),a->a.getAsByte());";
-            case T_String -> "String " + name + " = " + servlet.imports("yeamy.utils.IfNotNull")
-                    + ".invoke(_req.getFile(\"" + alias + "\"),a->a.getAsText());";
+            case T_Part -> servlet.imports(T_File) + " " + alias + " = _req.getPart(\"" + name + "\");";
+            case T_File -> servlet.imports(T_File) + " " + alias + " = _req.getFile(\"" + name + "\");";
+            case T_InputStream -> servlet.imports(T_InputStream) + " " + alias + " = "
+                    + servlet.imports("yeamy.utils.IfNotNull") + ".invoke(_req.getFile(\"" + name + "\"),a->a.get());";
+            case T_ByteArray -> "byte[] " + alias + " = " + servlet.imports("yeamy.utils.IfNotNull")
+                    + ".invoke(_req.getFile(\"" + name + "\"),a->a.getAsByte());";
+            case T_String -> "String " + alias + " = " + servlet.imports("yeamy.utils.IfNotNull")
+                    + ".invoke(_req.getFile(\"" + name + "\"),a->a.getAsText());";
             default -> "";
         };
     }

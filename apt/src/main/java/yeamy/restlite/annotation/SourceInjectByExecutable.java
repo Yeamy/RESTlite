@@ -37,7 +37,7 @@ class SourceInjectByExecutable extends SourceInject {
     }
 
     @Override
-    public void writeValue(StringBuilder b, SourceServlet servlet) {
+    protected void writeFieldValue(StringBuilder b, SourceServlet servlet) {
         if (method.getKind().equals(ElementKind.CONSTRUCTOR)) {
             b.append("new ").append(servlet.imports(returnType)).append("()");
         } else {

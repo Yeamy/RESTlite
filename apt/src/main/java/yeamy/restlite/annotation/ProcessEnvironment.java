@@ -29,12 +29,12 @@ class ProcessEnvironment {
     private final String pkg, response;
     private final TypeMirror closeable, httpResponse, inputStream, file;
     final TreeMap<String, Map<String, String>> names = new TreeMap<>();
-    private final HashMap<String, SourceInjectProvider> injectProviders = new HashMap<>();
-    private final HashMap<String, SourceHeaderProcessor> headerProcessors = new HashMap<>();
-    private final HashMap<String, SourceCookieProcessor> cookieProcessors = new HashMap<>();
-    private final HashMap<String, SourceBodyProcessor> bodyProcessors = new HashMap<>();
-    private final HashMap<String, SourcePartProcessor> partProcessors = new HashMap<>();
-    private final HashMap<String, SourceParamProcessor> paramProcessors = new HashMap<>();
+    private final ProcessorMap<SourceInjectProvider> injectProviders = new ProcessorMap<>();
+    private final ProcessorMap<SourceHeaderProcessor> headerProcessors = new ProcessorMap<>();
+    private final ProcessorMap<SourceCookieProcessor> cookieProcessors = new ProcessorMap<>();
+    private final ProcessorMap<SourceBodyProcessor> bodyProcessors = new ProcessorMap<>();
+    private final ProcessorMap<SourcePartProcessor> partProcessors = new ProcessorMap<>();
+    private final ProcessorMap<SourceParamProcessor> paramProcessors = new ProcessorMap<>();
 
     public ProcessEnvironment(ProcessingEnvironment env, Element init) {
         processingEnv = env;
@@ -47,7 +47,7 @@ class ProcessEnvironment {
         responseAllType = ann.responseAllType();
         charset = ann.charset();
         supportPatch = ann.supportPatch();
-        this.response = getAnnotationType(ann::response);
+        this.response = getClassInAnnotation(ann::response);
         //
         closeable = elementUtils.getTypeElement("java.io.Closeable").asType();
         httpResponse = elementUtils.getTypeElement("yeamy.restlite.HttpResponse").asType();
@@ -79,8 +79,26 @@ class ProcessEnvironment {
         return typeUtils.asElement(t);
     }
 
+    public static boolean isThrowable(ExecutableElement element) {
+        return element.getThrownTypes().size() > 0;
+    }
+
     public boolean isCloseable(TypeMirror t) {
         return typeUtils.isSubtype(t, closeable);
+    }
+
+    public static boolean isCloseThrow(TypeElement type) {
+        for (Element element : type.getEnclosedElements()) { // find close method
+            if (element.getKind() != ElementKind.METHOD) continue;//
+            if (!element.getSimpleName().toString().equals("close")) continue;
+            Set<Modifier> modifiers = element.getModifiers();
+            if (modifiers.contains(Modifier.STATIC)) continue;
+            if (!modifiers.contains(Modifier.PUBLIC)) continue;
+            ExecutableElement close = (ExecutableElement) element;
+            if (close.getParameters().size() != 0) continue;
+            return close.getThrownTypes().size() > 0;
+        }
+        return false;
     }
 
     public boolean isHttpResponse(TypeMirror t) {
@@ -96,9 +114,9 @@ class ProcessEnvironment {
         return elementUtils.getTypeElement(clz);
     }
 
-    public static Body getBody(VariableElement e) {
+    public static BodyFactory getBodyFactory(VariableElement e) {
         for (AnnotationMirror am : e.getAnnotationMirrors()) {
-            Body body = am.getAnnotationType().asElement().getAnnotation(Body.class);
+            BodyFactory body = am.getAnnotationType().asElement().getAnnotation(BodyFactory.class);
             if (body != null) {
                 return body;
             }
@@ -106,9 +124,9 @@ class ProcessEnvironment {
         return null;
     }
 
-    public static Parts getPart(VariableElement e) {
+    public static PartFactory getPartFactory(VariableElement e) {
         for (AnnotationMirror am : e.getAnnotationMirrors()) {
-            Parts part = am.getAnnotationType().asElement().getAnnotation(Parts.class);
+            PartFactory part = am.getAnnotationType().asElement().getAnnotation(PartFactory.class);
             if (part != null) {
                 return part;
             }
@@ -184,104 +202,58 @@ class ProcessEnvironment {
     }
 
     public void addSourceHeaderProcessor(Element element, HeaderProcessor ann) {
-        String key = ((ExecutableElement) element).getReturnType().toString();
-        SourceHeaderProcessor processor = new SourceHeaderProcessor(this, element);
-        headerProcessors.put(key, processor);
-        String name = ann.value();
-        if (TextUtils.isNotEmpty(name)) {
-            headerProcessors.put(key + ":" + name, processor);
-        }
+        headerProcessors.add(element, ann.value(), new SourceHeaderProcessor(this, element));
     }
 
     public SourceHeaderProcessor getHeaderProcessor(String type, String name) {
-        return headerProcessors.get(TextUtils.isEmpty(name) ? type : type + ":" + name);
+        return headerProcessors.get(type, name);
     }
 
     public void addSourceCookieProcessor(Element element, CookieProcessor ann) {
-        String key = ((ExecutableElement) element).getReturnType().toString();
-        SourceCookieProcessor processor = new SourceCookieProcessor(this, element);
-        cookieProcessors.put(key, processor);
-        String name = ann.value();
-        if (TextUtils.isNotEmpty(name)) {
-            cookieProcessors.put(key + ":" + name, processor);
-        }
+        cookieProcessors.add(element, ann.value(), new SourceCookieProcessor(this, element));
     }
 
     public SourceCookieProcessor getCookieProcessor(String type, String name) {
-        return cookieProcessors.get(TextUtils.isEmpty(name) ? type : type + ":" + name);
+        return cookieProcessors.get(type, name);
     }
 
     public void addBodyProcessor(Element element, BodyProcessor ann) {
-        String key = ((ExecutableElement) element).getReturnType().toString();
-        SourceBodyProcessor processor = new SourceBodyProcessor(this, element);
-        bodyProcessors.put(key, processor);
-        String name = ann.value();
-        if (TextUtils.isNotEmpty(name)) {
-            bodyProcessors.put(key + ":" + name, processor);
-        }
+        bodyProcessors.add(element, ann.value(), new SourceBodyProcessor(this, element));
     }
 
     public SourceBodyProcessor getBodyProcessor(String type, String name) {
-        return bodyProcessors.get(TextUtils.isEmpty(name) ? type : type + ":" + name);
+        return bodyProcessors.get(type, name);
     }
 
     public void addPartProcessor(Element element, PartProcessor ann) {
-        String key = ((ExecutableElement) element).getReturnType().toString();
-        SourcePartProcessor processor = new SourcePartProcessor(this, element);
-        partProcessors.put(key, processor);
-        String name = ann.value();
-        if (TextUtils.isNotEmpty(name)) {
-            partProcessors.put(key + ":" + name, processor);
-        }
+        partProcessors.add(element, ann.value(), new SourcePartProcessor(this, element));
     }
 
     public SourcePartProcessor getPartProcessor(String type, String name) {
-        return partProcessors.get(TextUtils.isEmpty(name) ? type : type + ":" + name);
+        return partProcessors.get(type, name);
     }
 
     public void addParamProcessor(Element element, ParamProcessor ann) {
-        String key = ((ExecutableElement) element).getReturnType().toString();
-        SourceParamProcessor processor = new SourceParamProcessor(this, element);
-        paramProcessors.put(key, processor);
-        String name = ann.value();
-        if (TextUtils.isNotEmpty(name)) {
-            paramProcessors.put(key + ":" + name, processor);
-        }
+        paramProcessors.add(element, ann.value(), new SourceParamProcessor(this, element));
     }
 
     public SourceParamProcessor getParamProcessor(String type, String name) {
-        return paramProcessors.get(TextUtils.isEmpty(name) ? type : type + ":" + name);
+        return paramProcessors.get(type, name);
     }
 
     public void addInjectProvider(Element element, InjectProvider ann) {
-        String name = ann.value();
-        ElementKind kind = element.getKind();
-        ArrayList<String> keys = new ArrayList<>();
-        if (kind == ElementKind.FIELD) {
-            keys.add(element.asType().toString());
-        } else {
-            keys.add(((ExecutableElement) element).getReturnType().toString());
-        }
-        SourceInjectProvider provider = new SourceInjectProvider(this, element, name);
-        for (String key : keys) {
-            injectProviders.put(key, provider);
-        }
-        if (TextUtils.isNotEmpty(name)) {
-            for (String key : keys) {
-                injectProviders.put(key + ":" + name, provider);
-            }
-        }
+        injectProviders.add(element, ann.value(), new SourceInjectProvider(this, element));
     }
 
     public SourceInjectProvider getInjectProvider(String type, String name) {
-        return injectProviders.get(TextUtils.isEmpty(name) ? type : type + ":" + name);
+        return injectProviders.get(type, name);
     }
 
     public boolean responseAllType() {
         return responseAllType;
     }
 
-    public static String getAnnotationType(Callable<Class<?>> runnable) {
+    public static String getClassInAnnotation(Callable<Class<?>> runnable) {
         try {
             return runnable.call().getName();
         } catch (MirroredTypeException e) {
