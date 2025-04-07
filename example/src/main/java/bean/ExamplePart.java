@@ -1,5 +1,5 @@
 package bean;
 
-public class ExampleBody {
+public class ExamplePart {
 	public String value;
 }

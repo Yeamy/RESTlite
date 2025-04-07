@@ -1,6 +1,5 @@
 package example;
 
-import yeamy.restlite.RESTfulRequest;
 import yeamy.restlite.annotation.ParamProcessor;
 
 public class MaxTo15 {

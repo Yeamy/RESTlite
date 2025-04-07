@@ -4,5 +4,5 @@ import yeamy.restlite.annotation.InjectProvider;
 
 public class InjectField {
 	@InjectProvider
-	public static final String OK = "";
+	public static final InjectField OK = null;
 }

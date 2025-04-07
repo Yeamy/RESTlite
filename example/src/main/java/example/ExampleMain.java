@@ -16,34 +16,39 @@ public class ExampleMain {
     InjectCreator creator;
 
 	@GET
-	public String get(@Inject(creator = MaxTo15.class) long size, String p) {
-		return "get";
-	}
-
-	@GET
-	public String get2(@Param(processor = MaxTo15.class) int size, String p) {
+	public String get(@Param(processor = "maxTo15") long size, String p) {
 		return "get";
 	}
 
 //	@GET
-//	public String get(@Param(required = false) String p) {
+//	public String get2(@Param int size, String p) {
 //		return "get";
 //	}
 
+	@GET
+	public String get(@Param(required = false) String p) {
+		return "get";
+	}
+
 //    @POST
-//    public String post1(@Body(creator = yeamy.restlite.addition.GsonParser.class) ExampleBody bean) {
+//    public String post1(@Body(processor = "") ExampleBody bean) {
 //        return null;
 //    }
 
     @POST
-    public String post1(@Part(processor = yeamy.restlite.addition.GsonParser.class) ExampleBody bean) {
+    public String post1(@GsonBody ExampleBody bean) {
         return null;
     }
 
-//    @POST
-//    public String post2(@Param String p1, @Cookies String c, @Header String h, @GsonBody int b2) {
-//        return null;
-//    }
+    @POST
+    public String post1(@GsonPart("part1") ExamplePart bean) {
+        return null;
+    }
+
+    @POST
+    public String post2(@Param String p1, @Cookies String c, @Header String h, @GsonBody int b2) {
+        return null;
+    }
 
 //    @POST
 //    public String post3(@Param String p1) {
@@ -59,11 +64,6 @@ public class ExampleMain {
     public Object error(Exception e) {
         return new TextPlainResponse(e.toString());
     }
-
-//    @POST
-//    public String post3(@Body(creator = "xxx.XXX") ExampleBody bean) {
-//        return null;
-//    }
 
 //	@GET
 //	public String get(GsonFeign client) {

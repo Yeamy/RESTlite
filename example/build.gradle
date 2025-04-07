@@ -23,7 +23,7 @@ dependencies {
 //    implementation project(':jackson')
     implementation project(':gson')
     implementation project(':tomcat')
-    implementation 'com.alibaba.nacos:nacos-client:2.5.1'
+//    implementation 'com.alibaba.nacos:nacos-client:2.5.1'
 
     annotationProcessor project(':apt')
     annotationProcessor project(':nacos')
