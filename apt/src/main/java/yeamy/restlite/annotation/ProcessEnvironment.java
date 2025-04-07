@@ -25,7 +25,6 @@ class ProcessEnvironment {
     private final Elements elementUtils;
     private final boolean responseAllType;
     private final String charset;
-    private final SupportPatch supportPatch;
     private final String pkg, response;
     private final TypeMirror closeable, httpResponse, inputStream, file;
     final TreeMap<String, Map<String, String>> names = new TreeMap<>();
@@ -46,7 +45,6 @@ class ProcessEnvironment {
         Configuration ann = init.getAnnotation(Configuration.class);
         responseAllType = ann.responseAllType();
         charset = ann.charset();
-        supportPatch = ann.supportPatch();
         this.response = getClassInAnnotation(ann::response);
         //
         closeable = elementUtils.getTypeElement("java.io.Closeable").asType();
@@ -161,10 +159,6 @@ class ProcessEnvironment {
 
     public String getResponse() {
         return response;
-    }
-
-    public SupportPatch supportPatch() {
-        return supportPatch;
     }
 
     public void error(String msg) {

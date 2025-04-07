@@ -13,11 +13,7 @@ class SourceWebListener extends SourceClass {
         this.env = env;
         this.embed = embed;
         this.className = env.getFileName(pkg, "RESTliteWebListener");
-        if (SupportPatch.tomcat.equals(env.supportPatch())) {
-            parentName = imports("yeamy.restlite.addition.TomcatListener");
-        } else {
-            parentName = imports("yeamy.restlite.RESTfulListener");
-        }
+        parentName = imports("yeamy.restlite.RESTfulListener");
         imports("jakarta.servlet.annotation.WebListener");
         imports("yeamy.restlite.RESTfulRequest");
     }

@@ -23,11 +23,6 @@ public @interface Configuration {
     String charset() default "UTF-8";
 
     /**
-     * support http method PATCH (only support <b>Tomcat</b> yet)
-     */
-    SupportPatch supportPatch() default SupportPatch.undefined;
-
-    /**
      * Subclass of {@linkplain RESTfulRequest HttpResponse}, the class must have a one-parameter-constructor,
      * and the only one parameter will accept data.<br>
      * <br>
