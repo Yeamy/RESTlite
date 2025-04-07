@@ -15,13 +15,9 @@ class SourceCookieDefault extends SourceCookie {
     @Override
     public CharSequence write(SourceServlet servlet, String name, String alias) {
         return switch (returnType) {
-            case T_int, T_Integer -> "int " + alias + " = _req.getIntHeader(\"" + name + "\");";
-            case T_long, T_Long -> "long " + alias + " = _req.getDateHeader(\"" + name + "\");";
-            case T_String -> "String " + alias + " = _req.getHeader(\"" + name + "\");";
-            case T_Date -> {
-                String iType = servlet.imports(T_Date);
-                yield iType + " " + alias + " = new " + iType + "(_req.getDateHeader(\"" + name + "\"));";
-            }
+            case T_String -> "String " + alias + " = _req.getCookieValue(\"" + name + "\");";
+            case T_Cookie -> servlet.imports(T_Cookie) + " " + alias + " = _req.getCookie(\"" + name + "\");";
+            case T_CookieArray -> servlet.imports(T_Cookie) + "[] " + alias + " = _req.getCookies();";
             default -> "";
         };
     }

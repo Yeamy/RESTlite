@@ -6,7 +6,6 @@ import javax.lang.model.element.*;
 import javax.lang.model.type.TypeMirror;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import static yeamy.restlite.annotation.SourceBodyProcessor.SUPPORT_BODY_TYPE;

@@ -8,7 +8,6 @@ import javax.lang.model.type.TypeMirror;
 import java.util.ArrayList;
 import java.util.List;
 
-import static yeamy.restlite.annotation.SourceCookieProcessor.SUPPORT_COOKIE_TYPE;
 import static yeamy.restlite.annotation.SourceParamProcessor.SUPPORT_PARAM_TYPE;
 import static yeamy.restlite.annotation.SupportType.*;
 
@@ -184,14 +183,14 @@ class SourceServletMethodComponent {
         String type = p.asType().toString();
         Cookies ann = p.getAnnotation(Cookies.class);
         if (ann == null) {
+            if (TextUtils.notIn(type, T_Cookie, T_CookieArray)) {
+                return false;
+            }
             String name = p.getSimpleName().toString();
             String exist = args.getCookieAlias(type, name);
             if (exist != null) {
                 args.addExist(exist);
                 return true;
-            }
-            if (TextUtils.notIn(type, SUPPORT_COOKIE_TYPE)) {
-                return false;
             }
             SourceCookie cookie = new SourceCookieDefault(env, p, type);
             args.addCookie(type, name, name).write(cookie.write(servlet, name, name));

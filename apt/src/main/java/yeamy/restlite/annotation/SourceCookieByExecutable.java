@@ -35,11 +35,9 @@ class SourceCookieByExecutable extends SourceCookie {
             b.append(servlet.imports(classType)).append('.').append(method.getSimpleName());
         }
         switch (method.getParameters().get(0).asType().toString()) {
-            case T_int, T_Integer -> b.append("(_req.getIntHeader(\"").append(name).append("\"));");
-            case T_long, T_Long -> b.append("(_req.getDateHeader(\"").append(name).append("\");");
-            case T_String -> b.append("(_req.getHeader(\"").append(name).append("\");");
-            case T_Date -> b.append("(new ").append(servlet.imports(T_Date)).append("(_req.getDateHeader(\"")
-                    .append(name).append("\"));");
+            case T_String -> b.append("(_req.getCookieValue(\"").append(name).append("\");");
+            case T_Cookie -> b.append("(_req.getCookie(\"").append(name).append("\");");
+            case T_CookieArray -> b.append("(_req.getCookies();");
         }
         return b;
     }

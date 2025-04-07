@@ -37,7 +37,7 @@ class SourcePartByExecutable extends SourcePart {
     @Override
     public CharSequence write(SourceServlet servlet, String name, String alias) {
         boolean isTypeVar = returnType.getKind().equals(TypeKind.TYPEVAR);
-        String typeName = servlet.imports(isTypeVar ? param.asType() : returnType);;
+        String typeName = servlet.imports(isTypeVar ? param.asType() : returnType);
         StringBuilder b = new StringBuilder(typeName).append(" ").append(alias).append(" = ");
         if (method.getKind().equals(ElementKind.CONSTRUCTOR)) {
             b.append("new ").append(typeName);
