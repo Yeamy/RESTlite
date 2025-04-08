@@ -18,7 +18,7 @@ import java.lang.annotation.Target;
 public @interface Configuration {
 
     /**
-     * set default response text encoding
+     * @return default response text encoding
      */
     String charset() default "UTF-8";
 
@@ -33,7 +33,7 @@ public @interface Configuration {
      * Subtype of HttpResponse  → keep it<br>
      * others → currently set type
      *
-     * <pre>
+     * <pre>{@code
      *
      * public class MyResponse implements HttpResponse {
      *
@@ -41,13 +41,15 @@ public @interface Configuration {
      *         super(data);
      *     }
      *
-     *     &#64;Override
+     *     @Override
      *     public void write(HttpServletResponse resp) throws IOException {
      *         resp.setStatus(200);
      *         ... // do serialize here
      *     }
      * }
-     * </pre>
+     * }</pre>
+     *
+     * @return subclass of HttpResponse
      * @see #responseAllType()
      */
     Class<? extends HttpResponse> response();
@@ -59,6 +61,8 @@ public @interface Configuration {
      * BigDecimal → {@linkplain yeamy.restlite.addition.TextPlainResponse TextPlainResponse}<br>
      * String → {@linkplain yeamy.restlite.addition.TextPlainResponse TextPlainResponse}<br>
      * OutputStream → {@linkplain yeamy.restlite.addition.StreamResponse StreamResponse}<br>
+     *
+     * @return if serialize all return type
      */
     boolean responseAllType() default true;
 

@@ -3,7 +3,7 @@ plugins {
 }
 var $groupId = 'io.github.yeamy'
 var $artifactId = 'restlite-tomcat'
-var $version = '1.0-RC1'
+var $version = '1.0-RC2'
 
 group $groupId
 version $version
@@ -44,7 +44,7 @@ javadoc {// create document
         charSet 'UTF-8'
         author true
         version true
-        links "http://docs.oracle.com/javase/17/docs/api"
+        links "https://docs.oracle.com/en/java/javase/17/docs/api"
     }
 }
 tasks.register('generateJavadoc', Jar) { // package document as jar

@@ -10,6 +10,9 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Annotation processor to generate program code
+ */
 public class ServletAnnotationProcessor extends AbstractProcessor {
 
     private final Set<String> supportedAnnotationTypes = new HashSet<>();

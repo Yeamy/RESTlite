@@ -8,11 +8,18 @@ import java.lang.annotation.Target;
 /**
  * Declare the method to create http body.<br>
  * For public static-method/constructor with one param (one of)
+ *
+ * @see Body
+ * @see BodyFactory
  */
 @Target({ElementType.METHOD, ElementType.CONSTRUCTOR})
 @Retention(RetentionPolicy.CLASS)
 public @interface BodyProcessor {
 
-    // name
+    /**
+     * distinguish the constructor/static-method with same return type
+     *
+     * @return name of this processor
+     */
     String value() default "";
 }

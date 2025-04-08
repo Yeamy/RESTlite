@@ -24,12 +24,13 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.SOURCE)
 public @interface Parts {
 
+    /**
+     * @return name of part, can be empty if same with parameter
+     */
     String value() default "";
 
     /**
-     * distinguish the constructor/static-method with same return type
-     *
-     * @see PartProcessor
+     * @return Specify which {@link PartProcessor} to create this http-part parameter
      */
     String processor() default "";
 }

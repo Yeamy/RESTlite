@@ -30,15 +30,13 @@ public @interface Inject {
      * <b>PARAMETER:</b><br>
      * take it as no.<br>
      *
+     * @return Whether inject instance is singleton.
      * @see SingletonPool
      */
     Singleton singleton() default Singleton.auto;
 
     /**
-     * tag the constructor/creator-method, suggest to use if more than one
-     * constructor/method
-     *
-     * @see InjectProvider
+     * @return Specify which {@link InjectProvider} to create this http-body parameter
      */
     String provider() default "";
 }

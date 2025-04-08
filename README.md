@@ -26,8 +26,10 @@ dependencies {
 - 内嵌Tomcat支持properties文件替换jar包内配置；
 
 ## 如何使用
-注意：*代码内包含的RESTful相关内容，此处不展开讲解。  
-本框架并不遵循JAX-RS，如来自UrlPath的Param与来自UrlQuery的Param具有相同的地位。*
+注意：
+*代码内包含的RESTful相关内容，此处不展开讲解。*
+*本框架并不遵循JAX-RS，如来自UrlPath的Param与来自UrlQuery的Param具有相同的地位。*
+*来自其他Module的代码在编译前会被编译器提前编译，导致APT注解失效*
 ### 1.配置
 ```java
 package example;
@@ -38,8 +40,7 @@ import yeamy.restlite.annotation.TomcatConfig;
 
 @TomcatConfig(connector = @Connector(port = 80))// 需要内嵌tomcat时，添加此配置
 @Configuration(response = GsonResponse.class,   // 配置默认HttpResponse类
-        responseAllType = false, // int等基本类型,String,BigDecimal,InputStream不通过response()序列化
-        supportPatch = SupportPatch.tomcat)     // 允许http PATCH方法，PUT, PATCH, POST支持body
+        responseAllType = false) // int等基本类型,String,BigDecimal,InputStream不通过response()序列化
 public class Config {
 }
 ```
@@ -57,8 +58,8 @@ public class ExampleMain {
     @POST
     public String getColor(@Param String p,    // 来自URI的请求数据
                            String p2,          // 无注解，当必要Param处理
-                           @Param(required=false)String p3, // 可选（非必要）Param
-                           @Param(processor=Max15.class)int p4, // 通过processor读取
+                           @Param(required=false) String p3, // 可选（非必要）Param
+                           @Param(processor="MaxTo15") int p4, // 通过processor读取
                            @Cookies String c,  // 来自cookie的数据
                            @Header String h,   // 来自header的数据
                            @Body String b) {   // 来自body的数据
@@ -84,7 +85,7 @@ public class ExampleMain {
     }
 }
 ```
-注意：@Inject只在资源类有效，且创建单例的静态函数或构造函数必须为无参函数。
+注意：@Inject只在@RESTfulResource资源类有效，且创建的静态函数或构造函数必须为无参函数。
 
 **成员变量**  
 使用@Inject注解为@RESTfulResource资源对象添加成员变量，成员变量默认为RESTLite创建并缓存的单例，@Inject注解的创建顺序如下：
@@ -110,15 +111,16 @@ public class B implements A {
 ```
 
 ### 4.预处理请求参数
-在@Param, @Header, @Cookies, @Body和@Inject等注解中为了预处理请求参数，可以使用processor()或creator()来指定预处理类，并使用tag()来标记指定函数，当tag()为空时，processor()或creator()指定的类内必须存在唯一一个返回该类型的静态方法或构造函数；否则必须存在与tag()返回值相同的@LinkTag.value()注解。如:
+在@Param, @Header, @Cookies, @Body和@Inject等注解中为了预处理请求参数，可以使用processor()或provider()来指定预处理函数，当为空时，
+processor()或provider()指定的类内必须存在唯一一个返回该类型的静态方法或构造函数；否则必须存在与@Inject.provider()返回值相同的@InjectProvider.value()注解。如:
 ```java
-@Inject(creator=B.class, tag="xx")
+@Inject(provider="xx")
 public class A {
 }
 ```
 ```java
 public class B {
-    @LinkTag("xx")
+    @InjectProvider("xx")
     public static final A XX = new A();
 }
 ```
@@ -126,7 +128,7 @@ public class B {
 ### 5.对JSON的支持
 RESTLite提供了GSON跟Jackson两套解决方案，通过选择添加`restlite-gson`或者`restlite-jackson`依赖实现。  
 - 分别提供解析request body为JSON格式的@GsonBody和@JacksonBody注解，  
-- 返回JSON格式的GsonResponse和@JacksonResponse（可以作为函数返回值，或者在@Configuration声明为默认返回值）  
+- 返回JSON格式的GsonResponse和JacksonResponse（可以作为函数返回值，或者在@Configuration声明为默认返回值）  
 - 默认时间格式为“yyyy-MM-dd HH:mm:ss”的GsonParser和JacksonParser类，支持替换为自定义的GSON/Jackson实体。
 ```java
 @RESTfulResource("apple")// RESTful注解，该资源名为apple

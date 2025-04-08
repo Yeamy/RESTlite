@@ -20,12 +20,15 @@ import java.lang.annotation.Target;
 public @interface GET {
 
     /**
-     * asyncSupported
+     * @return if asyncSupported
      *
      * @see jakarta.servlet.annotation.WebServlet
      */
     boolean async() default false;
 
+    /**
+     * @return async timeout in millisecond
+     */
     long asyncTimeout() default 0;
 
 }

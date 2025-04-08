@@ -8,6 +8,7 @@ import java.lang.annotation.Target;
 /**
  * declare the parameter is http request attribute.<br>
  * <b>support type:</b> the given type or null
+ *
  * @author Yeamy
  * @see Header
  * @see Cookies
@@ -18,6 +19,9 @@ import java.lang.annotation.Target;
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.SOURCE)
 public @interface Attribute {
-	/** name of Attribute if same with parameter */
-	String value() default "";
+
+    /**
+     * @return name of Attribute, can be empty if same with parameter
+     */
+    String value() default "";
 }

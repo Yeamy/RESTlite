@@ -13,12 +13,14 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.SOURCE)
 public @interface InjectProvider {
     /**
-     * Class name for Provider to create, default empty using current class.
+     * @return superclass of current class, keep empty if only for current class.
      */
     Class<?>[] provideFor() default {};
 
     /**
-     * name
+     * distinguish the constructor/static-method with same return type
+     *
+     * @return name of this provider
      */
     String value() default "";
 }

@@ -26,7 +26,10 @@ dependencies {
 - Embedded Tomcat supports replacing annotation configuration with outside properties file;
 
 ## How to use
-note: *no more explain about RESTful below, RESTlite not following JAX-RS, for example Param from Url Path is the same with Param from Url Query.*
+note:
+*no more explain about RESTful below.*
+*RESTlite not following JAX-RS, for example Param from Url Path is the same with Param from Url Query.*
+*Code from other modules will be pre compiled before compilation, causing APT annotations to become invalid*
 ### 1.Configuration
 ```java
 package example;
@@ -37,8 +40,7 @@ import yeamy.restlite.annotation.TomcatConfig;
 
 @TomcatConfig(connector = @Connector(port = 80))// necessary, for embed tomcat
 @Configuration(response = GsonResponse.class,   // class of HttpResponse
-        responseAllType = false, // String,BigDecimal,InputStream and base type like int, long~ not serialize with response()
-        supportPatch = SupportPatch.tomcat)     // allow http PATCH，PUT, PATCH, POST to support body
+        responseAllType = false) // String,BigDecimal,InputStream and base type like int, long~ not serialize with response()
 public class Config {
 }
 ```
@@ -56,8 +58,8 @@ public class ExampleMain {
     @POST
     public String getColor(@Param String p,    // param data
                            String p2,          // no annotation, take it as necessary Param
-                           @Param(required=false)String p3, // optional Param
-                           @Param(processor=Max15.class)int p4, // read via processor
+                           @Param(required=false) String p3, // optional Param
+                           @Param(processor="MaxTo15") int p4, // read via processor
                            @Cookies String c,  // cookie data
                            @Header String h,   // header data
                            @Body String b) {   // body data
@@ -83,7 +85,7 @@ public class ExampleMain {
     }
 }
 ```
-note: @Inject only work in @RESTfulResource, and constructor/static-method of singleton must with no parameter.
+note: @Inject only work in @RESTfulResource, and constructor/static-method must with no parameter.
 
 **For field:**  
 create field of @RESTfulResource with @Inject, create singleton by default:
@@ -109,15 +111,16 @@ public class B implements A {
 ```
 
 ### 4.preprocess request parameter
-Preprocess request parameter(such as @Param, @Header, @Cookies, @Body, @Inject) by processor() or creator() and mark executor with tag(), if tag() is empty, there must only one executor(static-method or constructor) return same type, otherwise there must be only one executor with @LinkTag.value() match the tag():
+Preprocess request parameter(such as @Param, @Header, @Cookies, @Body, @Inject) by processor() or provider(), if empty,
+there must only one executor(static-method or constructor) return same type, otherwise there must be only one executor with @InjectProvider.provider() match the @Inject.processor():
 ```java
-@Inject(creator=B.class, tag="xx")
+@Inject(provider="xx")
 public class A {
 }
 ```
 ```java
 public class B {
-    @LinkTag("xx")
+    @InjectProvider("xx")
     public static final A XX = new A();
 }
 ```

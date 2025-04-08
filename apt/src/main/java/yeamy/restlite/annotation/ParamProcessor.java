@@ -15,6 +15,10 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.SOURCE)
 public @interface ParamProcessor {
 
-    // name
+    /**
+     * distinguish the constructor/static-method with same return type
+     *
+     * @return name of this processor
+     */
     String value() default "";
 }

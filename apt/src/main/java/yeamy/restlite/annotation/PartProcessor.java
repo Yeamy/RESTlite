@@ -8,11 +8,18 @@ import java.lang.annotation.Target;
 /**
  * Declare the method to create http body part.<br>
  * For public static-method/constructor with one param (one of)
+ *
+ * @see Parts
+ * @see PartProcessor
  */
 @Target({ElementType.METHOD, ElementType.CONSTRUCTOR})
 @Retention(RetentionPolicy.CLASS)
 public @interface PartProcessor {
 
-    // name
+    /**
+     * distinguish the constructor/static-method with same return type
+     *
+     * @return name of this processor
+     */
     String value() default "";
 }

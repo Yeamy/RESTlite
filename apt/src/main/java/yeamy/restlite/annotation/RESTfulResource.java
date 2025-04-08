@@ -22,12 +22,17 @@ public @interface RESTfulResource {
     // @WebServlet ---------------------
 
     /**
-     * name of REST resource
+     * for example:
+     * <pre>{@code
+     *     url:      http://abc.com/house/1/room/2
+     *     resource: house, room
+     * }</pre>
+     * @return resource of REST-API
      */
     String value();
 
     /**
-     * array of initialization params for this Servlet
+     * @return array of initialization params for this Servlet
      *
      * @see WebServlet#initParams()
      */
@@ -36,28 +41,28 @@ public @interface RESTfulResource {
     // @MultipartConfig ---------------------
 
     /**
-     * location in which the Container stores temporary files
+     * @return location in which the Container stores temporary files
      *
      * @see MultipartConfig#location()
      */
     String tempLocation() default "";
 
     /**
-     * the maximum size of the request allowed for multipart/form-data
+     * @return the maximum size of the request allowed for multipart/form-data
      *
      * @see MultipartConfig#maxRequestSize()
      */
     long maxRequestSize() default -1L;
 
     /**
-     * the maximum size allowed for uploaded files (in bytes)
+     * @return the maximum size allowed for uploaded files (in bytes)
      *
      * @see MultipartConfig#maxFileSize()
      */
     long maxFileSize() default -1L;
 
     /**
-     * the size threshold at which the file will be written to the disk
+     * @return the size threshold at which the file will be written to the disk
      *
      * @see MultipartConfig#fileSizeThreshold()
      */

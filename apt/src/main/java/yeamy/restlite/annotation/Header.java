@@ -24,13 +24,12 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.SOURCE)
 public @interface Header {
     /**
-     * name of Header if same with parameter
+     * @return name of Header, can be empty if same with parameter
      */
     String value() default "";
 
     /**
-     * Distinguish the constructor/static-method with same return type
-     *
+     * @return Specify which HeaderProcessor to create this http-body parameter
      * @see HeaderProcessor
      */
     String processor() default "";

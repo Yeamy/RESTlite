@@ -20,15 +20,15 @@ import java.lang.annotation.Target;
  * @see Param
  * @see Parts
  * @see Attribute
+ * @see BodyProcessor
+ * @see BodyFactory
  */
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.SOURCE)
 public @interface Body {
 
     /**
-     * distinguish the constructor/static-method with same return type
-     *
-     * @see BodyProcessor
+     * @return Specify which {@link BodyProcessor} to create this http-body parameter
      */
     String processor() default "";
 }

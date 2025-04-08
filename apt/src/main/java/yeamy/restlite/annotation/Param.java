@@ -24,14 +24,18 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Param {
 
+    /**
+     * @return name of http-parameter, can be empty if same with method parameter
+     */
     String value() default "";
 
+    /**
+     * @return requested or optional
+     */
     boolean required() default true;
 
     /**
-     * tag the constructor/method, suggest to use if more than one processor
-     *
-     * @see ParamProcessor
+     * @return Specify which {@link BodyProcessor} to create this http-body parameter
      */
     String processor() default "";
 }

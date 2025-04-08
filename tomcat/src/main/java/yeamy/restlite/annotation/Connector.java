@@ -6,29 +6,31 @@ package yeamy.restlite.annotation;
 public @interface Connector {
 
     /**
-     * Set the port for the connector.
+     * @return Network port number of the connector.
      */
     int port();
 
     /**
-     * Set the name of the host, "" for default value 'localhost'.
+     * @return name of the host, "" for default value 'localhost'.
      */
     String hostName() default "";
 
     /**
-     * Set the redirect port number. (non-SSL to SSL)
+     * @return redirect port number. (non-SSL to SSL)
      */
     int redirectPort() default 0;
 
     /**
-     * Set the secure connection flag that will be assigned to requests
-     * received through this connector.
+     * turn on secure options, include sslProtocol(), ciphers(), keyStoreType(), keyStoreFile(), keyStorePass()
+     *
+     * @return turn on or not
      */
     boolean secure() default false;
 
     /**
-     * e.g. TLSv1.1+TLSv1.2+TLSv1.3
+     * ssl protocol type e.g. TLSv1.1+TLSv1.2+TLSv1.3
      *
+     * @return ssl protocol type
      * @see org.apache.tomcat.util.net.Constants
      */
     String sslProtocol() default "TSL";
@@ -42,7 +44,7 @@ public @interface Connector {
     String ciphers() default "";
 
     /**
-     * keystore type e.g. PKCS12
+     * @return keystore type e.g. PKCS12
      */
     String keyStoreType() default "";
 
@@ -50,11 +52,13 @@ public @interface Connector {
      * keystore file path, if in current jar file withing prefix "!":<br>
      * <b>!a/b/c/keystore.pfx</b> // keystore in package: a.b.c<br>
      * <b>/home/keystore.pfx</b> // keystore in local storage: /home
+     *
+     * @return keystore file path
      */
     String keyStoreFile() default "";
 
     /**
-     * keystore password
+     * @return keystore password
      */
     String keyStorePass() default "";
 }
