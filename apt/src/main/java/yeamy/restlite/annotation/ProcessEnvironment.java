@@ -6,6 +6,7 @@ import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.*;
 import javax.lang.model.type.MirroredTypeException;
+import javax.lang.model.type.MirroredTypesException;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
@@ -236,7 +237,26 @@ class ProcessEnvironment {
     }
 
     public void addInjectProvider(Element element, InjectProvider ann) {
-        injectProviders.add(element, ann.value(), new SourceInjectProvider(this, element));
+        SourceInjectProvider p = new SourceInjectProvider(this, element);
+        injectProviders.add(element, ann.value(), p);
+        if (p.method == null) return;
+        try {
+            for (Class<?> clz : ann.provideFor()) {
+                String type = clz.getName();
+                if (isAssignable(p.outType, getTypeElement(type).asType())) {
+                    injectProviders.add(type, ann.value(), p);
+                }
+            }
+        } catch (MirroredTypesException e) {
+            List<? extends TypeMirror> tms = e.getTypeMirrors();
+            tms.forEach(tm -> {
+                if (isAssignable(p.outType, tm)) {
+                    injectProviders.add(tm.toString(), ann.value(), p);
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public SourceInjectProvider getInjectProvider(String type, String name) {

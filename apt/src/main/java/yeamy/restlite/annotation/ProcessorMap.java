@@ -24,7 +24,10 @@ class ProcessorMap<T> {
     }
 
     public void add(Element element, String name, T t) {
-        String type = getType(element);
+        add(getType(element), name, t);
+    }
+
+    public void add(String type, String name, T t) {
         HashMap<String, T> subMap = map.computeIfAbsent(type, k -> new HashMap<>());
         subMap.put(name, t);
     }

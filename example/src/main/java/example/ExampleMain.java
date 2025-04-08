@@ -16,7 +16,7 @@ public class ExampleMain {
     InjectCreator creator;
 
 	@GET
-	public String get(@Param(processor = "maxTo15") long size, String p) {
+	public String get(@Inject InjectA injectA, @Param(processor = "maxTo15") long size, String p) {
 		return "get";
 	}
 
@@ -41,7 +41,7 @@ public class ExampleMain {
     }
 
     @POST
-    public String post1(@GsonPart("part1") ExamplePart bean) {
+    public String post1(int oo, @GsonPart("part1") ExamplePart bean) {
         return null;
     }
 

@@ -13,7 +13,7 @@ class SourceInjectByProvider extends SourceInject {
 
     @Override
     public CharSequence writeArg(SourceServlet servlet) {
-        return new StringBuilder().append(servlet.imports(injectProvider.importType)).append(' ')
+        return new StringBuilder().append(servlet.imports(injectProvider.outType)).append(' ')
                 .append(param.getSimpleName()).append('=').append(injectProvider.content).append(';');
     }
 
