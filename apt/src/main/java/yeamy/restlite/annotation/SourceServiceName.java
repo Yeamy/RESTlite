@@ -1,7 +1,8 @@
 package yeamy.restlite.annotation;
 
-import javax.lang.model.element.VariableElement;
+import javax.lang.model.element.*;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeSet;
 
 class SourceServiceName {
@@ -11,19 +12,7 @@ class SourceServiceName {
         this.resource = resource;
         TreeSet<String> params = new TreeSet<>();
         for (VariableElement a : arguments) {
-            Param pa = a.getAnnotation(Param.class);
-            if (pa != null) {
-                if (pa.required()) {
-                    params.add(a.getSimpleName().toString());
-                }
-            } else if (a.getAnnotation(Header.class) == null//
-                    && a.getAnnotation(Cookies.class) == null//
-                    && a.getAnnotation(Attribute.class) == null//
-                    && a.getAnnotation(Parts.class) == null//
-                    && a.getAnnotation(Body.class) == null//
-                    && a.getAnnotation(Inject.class) == null//
-                    && ProcessEnvironment.getBodyFactory(a) == null//
-                    && ProcessEnvironment.getPartFactory(a) == null) {
+            if (hasParam(a)) {
                 params.add(a.getSimpleName().toString());
             }
         }
@@ -57,4 +46,28 @@ class SourceServiceName {
         return resource + ':' + httpMethod + ':' + params;
     }
 
+    private static boolean hasParam(VariableElement e) {
+        Param pa = e.getAnnotation(Param.class);
+        if (pa != null) return pa.required();
+        if (e.getAnnotation(Header.class) != null) return false;
+        if (e.getAnnotation(Cookies.class) != null) return false;
+        if (e.getAnnotation(Attribute.class) != null) return false;
+        if (e.getAnnotation(Parts.class) != null) return false;
+        if (e.getAnnotation(Body.class) != null) return false;
+        if (e.getAnnotation(Inject.class) != null) return false;
+        for (AnnotationMirror am : e.getAnnotationMirrors()) {
+            Element annType = am.getAnnotationType().asElement();
+            if (annType.getAnnotation(BodyFactory.class) != null) return false;
+            if (annType.getAnnotation(PartFactory.class) != null) return false;
+            ParamFactory ann = annType.getAnnotation(ParamFactory.class);
+            if (ann == null) continue;
+            for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : am.getElementValues().entrySet()) {
+                if (entry.getKey().getSimpleName().toString().equals(ann.requiredMethod())) {
+                    Object v = entry.getValue().getValue();
+                    return (v instanceof Boolean b) ? b : Boolean.parseBoolean(v.toString());
+                }
+            }
+        }
+        return false;
+    }
 }

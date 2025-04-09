@@ -313,7 +313,7 @@ class SourceServletMethodComponent {
                     .write(part.write(servlet, name, name));
             return true;
         }
-        PartFactoryBean factory = PartFactoryBean.get(p);
+        PartFactoryBean factory = ProcessEnvironment.getPartFactory(p);
         if (factory != null) {
             if (args.containsBody()) {
                 args.addFallback("null");
@@ -327,7 +327,7 @@ class SourceServletMethodComponent {
                 env.error("cannot read part twice");
                 return true;
             }
-            SourcePartByExecutable part = SourceVariableHelper.getPartByFactory(env, p, factory);
+            SourcePart part = SourceVariableHelper.getPartByFactory(env, p, factory);
             if (part != null) {
                 args.addPart(name, alias, part.isThrowable(), part.isCloseable(), part.isCloseThrow())
                         .write(part.write(servlet, name, alias));
@@ -354,6 +354,23 @@ class SourceServletMethodComponent {
             }
             SourceParam param = new SourceParamDefault(env, p, type);
             args.addParam(type, name, name).write(param.write(servlet, name, name));
+            return;
+        }
+        ParamFactoryBean factory = ProcessEnvironment.getParamFactory(p);
+        if (factory != null) {
+            String alias = p.getSimpleName().toString();
+            String name = TextUtils.isNotEmpty(factory.name()) ? factory.name() : alias;
+            String exist = args.getParamAlias(type, name);
+            if (exist != null) {
+                args.addExist(exist);
+                return;
+            }
+            SourceParam param = SourceVariableHelper.getParamByFactory(env, p, factory);
+            if (param != null) {
+                args.addParam(type, name, alias).write(param.write(servlet, name, alias));
+            } else {
+                args.addFallback("null");
+            }
             return;
         }
         String alias = p.getSimpleName().toString();

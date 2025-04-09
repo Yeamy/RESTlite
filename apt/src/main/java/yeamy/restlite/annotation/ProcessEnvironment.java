@@ -123,11 +123,29 @@ class ProcessEnvironment {
         return null;
     }
 
-    public static PartFactory getPartFactory(VariableElement e) {
-        for (AnnotationMirror am : e.getAnnotationMirrors()) {
-            PartFactory part = am.getAnnotationType().asElement().getAnnotation(PartFactory.class);
-            if (part != null) {
-                return part;
+    public static PartFactoryBean getPartFactory(VariableElement param) {
+        for (AnnotationMirror am : param.getAnnotationMirrors()) {
+            PartFactory ann = am.getAnnotationType().asElement().getAnnotation(PartFactory.class);
+            if (ann == null) continue;
+            String method = ann.nameMethod();
+            for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : am.getElementValues().entrySet()) {
+                if (entry.getKey().getSimpleName().toString().equals(method)) {
+                    return new PartFactoryBean(ann, entry.getValue().getValue().toString());
+                }
+            }
+        }
+        return null;
+    }
+
+    public static ParamFactoryBean getParamFactory(VariableElement param) {
+        for (AnnotationMirror am : param.getAnnotationMirrors()) {
+            ParamFactory ann = am.getAnnotationType().asElement().getAnnotation(ParamFactory.class);
+            if (ann == null) continue;
+            String method = ann.nameMethod();
+            for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : am.getElementValues().entrySet()) {
+                if (entry.getKey().getSimpleName().toString().equals(method)) {
+                    return new ParamFactoryBean(ann, entry.getValue().getValue().toString());
+                }
             }
         }
         return null;

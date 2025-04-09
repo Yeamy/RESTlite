@@ -510,4 +510,31 @@ abstract class SourceVariableHelper {
             return new SourceParamByExecutable(env, param, classType, list.get(0), returnType, samePackage, elements);
         }
     }
+
+    public static SourceParamByExecutable getParamByFactory(ProcessEnvironment env, VariableElement param, ParamFactoryBean bean) {
+        TypeMirror returnType = param.asType();
+        String processor = bean.ann().processor();
+        SourceParamProcessor p = env.getParamProcessor(returnType.toString(), processor);
+        if (p != null) {
+            if (p.method == null) return null;
+            return new SourceParamByExecutable(env, param, p);
+        }
+        String factoryClz = ProcessEnvironment.getClassInAnnotation(bean.ann()::processorClass);
+        TypeElement classType = env.getTypeElement(factoryClz);
+        List<? extends Element> elements = classType.getEnclosedElements();
+        for (Element element : elements) {
+            if (element instanceof ExecutableElement e) {
+                ParamProcessor pn = e.getAnnotation(ParamProcessor.class);
+                if (pn != null && pn.value().equals(processor)) {
+                    env.addParamProcessor(e, pn);
+                }
+            }
+        }
+        p = env.getParamProcessor(returnType.toString(), processor);
+        if (p != null) {
+            if (p.method == null) return null;
+            return new SourceParamByExecutable(env, param, p);
+        }
+        return null;
+    }
 }
