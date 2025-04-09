@@ -183,11 +183,6 @@ class SourceImplMethodDispatcher {
         if (ann != null) {
             String alias = p.getSimpleName().toString();
             String name = TextUtils.isEmpty(ann.value()) ? alias : ann.value();
-            String exist = args.getCookieAlias(type, name);
-            if (exist != null) {
-                args.addExist(exist);
-                return true;
-            }
             SourceCookie cookie = SourceVariableHelper.getCookie(env, servlet, p, ann);
             if (cookie != null) {
                 args.addCookie(type, name, alias).write(cookie.write(servlet, name, alias));
@@ -353,11 +348,6 @@ class SourceImplMethodDispatcher {
         Param ann = p.getAnnotation(Param.class);
         if (ann == null) {
             String name = p.getSimpleName().toString();
-            String exist = args.getParamAlias(type, name);
-            if (exist != null) {
-                args.addExist(exist);
-                return;
-            }
             if (TextUtils.notIn(type, SUPPORT_PARAM_TYPE)) {
                 return;
             }
@@ -369,11 +359,6 @@ class SourceImplMethodDispatcher {
         if (factory != null) {
             String alias = p.getSimpleName().toString();
             String name = TextUtils.isNotEmpty(factory.name()) ? factory.name() : alias;
-            String exist = args.getParamAlias(type, name);
-            if (exist != null) {
-                args.addExist(exist);
-                return;
-            }
             SourceParam param = SourceVariableHelper.getParamByFactory(env, p, factory);
             if (param != null) {
                 args.addParam(type, name, alias).write(param.write(servlet, name, alias));
@@ -384,11 +369,6 @@ class SourceImplMethodDispatcher {
         }
         String alias = p.getSimpleName().toString();
         String name = TextUtils.isEmpty(ann.value()) ? alias : ann.value();
-        String exist = args.getParamAlias(type, name);
-        if (exist != null) {
-            args.addExist(exist);
-            return;
-        }
         SourceParam param = SourceVariableHelper.getParam(env, servlet, p, ann);
         if (param != null) {
             args.addParam(type, name, alias).write(param.write(servlet, name, alias));
