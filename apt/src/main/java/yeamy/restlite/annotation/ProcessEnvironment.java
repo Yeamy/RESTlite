@@ -118,6 +118,20 @@ class ProcessEnvironment {
         return null;
     }
 
+    public static CookieFactoryBean getCookieFactory(VariableElement param) {
+        for (AnnotationMirror am : param.getAnnotationMirrors()) {
+            CookieFactory ann = am.getAnnotationType().asElement().getAnnotation(CookieFactory.class);
+            if (ann == null) continue;
+            String method = ann.nameMethod();
+            for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : am.getElementValues().entrySet()) {
+                if (entry.getKey().getSimpleName().toString().equals(method)) {
+                    return new CookieFactoryBean(ann, entry.getValue().getValue().toString());
+                }
+            }
+        }
+        return null;
+    }
+
     public static PartFactoryBean getPartFactory(VariableElement param) {
         for (AnnotationMirror am : param.getAnnotationMirrors()) {
             PartFactory ann = am.getAnnotationType().asElement().getAnnotation(PartFactory.class);
@@ -209,7 +223,7 @@ class ProcessEnvironment {
         return implMethodNames;
     }
 
-    public void addSourceHeaderProcessor(Element element, HeaderProcessor ann) {
+    public void addHeaderProcessor(Element element, HeaderProcessor ann) {
         headerProcessors.add(element, ann.value(), new SourceHeaderProcessor(this, element));
     }
 
@@ -217,7 +231,7 @@ class ProcessEnvironment {
         return headerProcessors.get(type, name);
     }
 
-    public void addSourceCookieProcessor(Element element, CookieProcessor ann) {
+    public void addCookieProcessor(Element element, CookieProcessor ann) {
         cookieProcessors.add(element, ann.value(), new SourceCookieProcessor(this, element));
     }
 

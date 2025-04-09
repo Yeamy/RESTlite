@@ -11,6 +11,14 @@ class SourceCookieByExecutable extends SourceCookie {
     private final ExecutableElement method;
     private final TypeMirror returnType;
 
+    SourceCookieByExecutable(ProcessEnvironment env, VariableElement param, SourceCookieProcessor p) {
+        super(env, param);
+        this.classType = p.classType;
+        this.method = p.method;
+        this.returnType = p.returnType;
+        init(p.throwable, p.closeable, p.closeThrow);
+    }
+
     SourceCookieByExecutable(ProcessEnvironment env,
                              VariableElement param,
                              TypeElement classType,

@@ -59,6 +59,7 @@ class SourceImplMethodName {
             Element annType = am.getAnnotationType().asElement();
             if (annType.getAnnotation(BodyFactory.class) != null) return false;
             if (annType.getAnnotation(PartFactory.class) != null) return false;
+            if (annType.getAnnotation(CookieFactory.class) != null) return false;
             ParamFactory ann = annType.getAnnotation(ParamFactory.class);
             if (ann == null) continue;
             for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : am.getElementValues().entrySet()) {

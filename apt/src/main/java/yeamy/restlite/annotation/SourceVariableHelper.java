@@ -196,9 +196,7 @@ abstract class SourceVariableHelper {
         SourceCookieProcessor p = env.getCookieProcessor(returnType.toString(), processor);
         if (p != null) {
             if (p.method == null) return null;
-            boolean samePackage = servlet.isSamePackage(p.classType);
-            List<? extends Element> elements = p.classType.getEnclosedElements();
-            return new SourceCookieByExecutable(env, param, p.classType, p.method, returnType, samePackage, elements);
+            return new SourceCookieByExecutable(env, param, p);
         }
         if (TextUtils.isNotEmpty(processor)) {
             env.error("Cannot find CookieProcessor with name: " + processor + " of type " + returnType);
@@ -232,6 +230,33 @@ abstract class SourceVariableHelper {
         } else {
             return new SourceCookieByExecutable(env, param, classType, list.get(0), returnType, samePackage, elements);
         }
+    }
+
+    public static SourceCookieByExecutable getCookieByFactory(ProcessEnvironment env, VariableElement param, CookieFactoryBean bean) {
+        TypeMirror returnType = param.asType();
+        String processor = bean.ann().processor();
+        SourceCookieProcessor p = env.getCookieProcessor(returnType.toString(), processor);
+        if (p != null) {
+            if (p.method == null) return null;
+            return new SourceCookieByExecutable(env, param, p);
+        }
+        String factoryClz = ProcessEnvironment.getClassInAnnotation(bean.ann()::processorClass);
+        TypeElement classType = env.getTypeElement(factoryClz);
+        List<? extends Element> elements = classType.getEnclosedElements();
+        for (Element element : elements) {
+            if (element instanceof ExecutableElement e) {
+                CookieProcessor pn = e.getAnnotation(CookieProcessor.class);
+                if (pn != null && pn.value().equals(processor)) {
+                    env.addCookieProcessor(e, pn);
+                }
+            }
+        }
+        p = env.getCookieProcessor(returnType.toString(), processor);
+        if (p != null) {
+            if (p.method == null) return null;
+            return new SourceCookieByExecutable(env, param, p);
+        }
+        return null;
     }
 
     //----------------------------------------------

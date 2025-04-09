@@ -180,10 +180,35 @@ class SourceImplMethodDispatcher {
     private boolean doCookie(VariableElement p) {
         String type = p.asType().toString();
         Cookies ann = p.getAnnotation(Cookies.class);
-        if (ann == null) {
-            if (TextUtils.notIn(type, T_Cookie, T_CookieArray)) {
-                return false;
+        if (ann != null) {
+            String alias = p.getSimpleName().toString();
+            String name = TextUtils.isEmpty(ann.value()) ? alias : ann.value();
+            String exist = args.getCookieAlias(type, name);
+            if (exist != null) {
+                args.addExist(exist);
+                return true;
             }
+            SourceCookie cookie = SourceVariableHelper.getCookie(env, servlet, p, ann);
+            if (cookie != null) {
+                args.addCookie(type, name, alias).write(cookie.write(servlet, name, alias));
+            } else {
+                args.addFallback("null/* not support cookie type */");
+                env.warning("Not support cookie type " + type + " without annotation Creator");
+            }
+        }
+        CookieFactoryBean factory = ProcessEnvironment.getCookieFactory(p);
+        if (factory != null) {
+            String alias = p.getSimpleName().toString();
+            String name = TextUtils.isEmpty(factory.name()) ? alias : factory.name();
+            SourceCookie cookie = SourceVariableHelper.getCookieByFactory(env, p, factory);
+            if (cookie != null) {
+                args.addCookie(type, name, alias).write(cookie.write(servlet, name, alias));
+            } else {
+                args.addFallback("null");
+            }
+            return true;
+        }
+        if (TextUtils.in(type, T_Cookie, T_CookieArray)) {
             String name = p.getSimpleName().toString();
             String exist = args.getCookieAlias(type, name);
             if (exist != null) {
@@ -194,21 +219,7 @@ class SourceImplMethodDispatcher {
             args.addCookie(type, name, name).write(cookie.write(servlet, name, name));
             return true;
         }
-        String alias = p.getSimpleName().toString();
-        String name = TextUtils.isEmpty(ann.value()) ? alias : ann.value();
-        String exist = args.getCookieAlias(type, name);
-        if (exist != null) {
-            args.addExist(exist);
-            return true;
-        }
-        SourceCookie cookie = SourceVariableHelper.getCookie(env, servlet, p, ann);
-        if (cookie != null) {
-            args.addCookie(type, name, alias).write(cookie.write(servlet, name, alias));
-        } else {
-            args.addFallback("null/* not support cookie type */");
-            env.warning("Not support cookie type " + type + " without annotation Creator");
-        }
-        return true;
+        return false;
     }
 
     private boolean doInject(VariableElement p) {
