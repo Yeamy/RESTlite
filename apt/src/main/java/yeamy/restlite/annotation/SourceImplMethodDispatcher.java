@@ -11,24 +11,24 @@ import java.util.List;
 import static yeamy.restlite.annotation.SourceParamProcessor.SUPPORT_PARAM_TYPE;
 import static yeamy.restlite.annotation.SupportType.*;
 
-class SourceServletMethodComponent {
+class SourceImplMethodDispatcher {
     private final ProcessEnvironment env;
     private final SourceServlet servlet;
     private final ExecutableElement method;
     private final List<? extends VariableElement> arguments;
-    private final SourceServiceName serverName;
+    private final SourceImplMethodName serverName;
     private final boolean async;
     private final long asyncTimeout;
 
     private final SourceArguments args = new SourceArguments();
 
-    public SourceServletMethodComponent(ProcessEnvironment env, SourceServlet servlet, ExecutableElement method,
-                                        boolean async, long asyncTimeout) {
+    public SourceImplMethodDispatcher(ProcessEnvironment env, SourceServlet servlet, ExecutableElement method,
+                                      boolean async, long asyncTimeout) {
         this.env = env;
         this.servlet = servlet;
         this.method = method;
         this.arguments = method.getParameters();
-        this.serverName = new SourceServiceName(servlet.getRESTfulResource(), arguments);
+        this.serverName = new SourceImplMethodName(servlet.getRESTfulResource(), arguments);
         this.async = async;
         this.asyncTimeout = asyncTimeout;
     }
@@ -49,7 +49,7 @@ class SourceServletMethodComponent {
                 doParam(a);
             }
         }
-        String key = env.addServerName(httpMethod, serverName);
+        String key = env.addImplMethod(httpMethod, serverName);
         // check arguments
         if (serverName.isNoParam()) {
             servlet.append("default:{");
@@ -67,9 +67,7 @@ class SourceServletMethodComponent {
                 servlet.append("_asyncContext.start(() -> {try {");
             }
             // get arguments
-            for (CharSequence g : args.getNormal()) {
-                servlet.append(g);
-            }
+            args.getNormal().forEach(servlet::append);
             // try
             ArrayList<CharSequence> closeable = args.getCloseable();
             if (closeable.size() > 0) {

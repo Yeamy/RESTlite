@@ -31,13 +31,13 @@ import java.io.IOException;
 
 /**
  * Servlet filter that integrates with Sentinel.
- * <pre>
- * &#64;WebFilter(urlPatterns = "/*",
+ * <pre>{@code
+ * @WebFilter(urlPatterns = "/*",
  *         filterName = "sentinelFilter",
  *         dispatcherTypes = DispatcherType.FORWARD)
  * public class SentinelFilter extends CommonFilter {
  * }
- * </pre>
+ * }</pre>
  */
 public class CommonFilter implements Filter {
 

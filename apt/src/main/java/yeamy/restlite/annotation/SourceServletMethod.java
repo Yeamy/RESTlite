@@ -8,7 +8,7 @@ import static yeamy.restlite.annotation.SupportType.T_TextPlainResponse;
 class SourceServletMethod {
     protected final ProcessEnvironment env;
     protected final SourceServlet servlet;
-    private final ArrayList<SourceServletMethodComponent> components = new ArrayList<>();
+    private final ArrayList<SourceImplMethodDispatcher> components = new ArrayList<>();
     protected final String httpMethod, nameOfServlet;
 
     public SourceServletMethod(ProcessEnvironment env, SourceServlet servlet, String httpMethod) {
@@ -26,11 +26,11 @@ class SourceServletMethod {
         this.nameOfServlet = new String(out);
     }
 
-    public final void addComponent(SourceServletMethodComponent component) {
+    public final void addComponent(SourceImplMethodDispatcher component) {
         components.add(component);
     }
 
-    protected void create(boolean containException, ArrayList<SourceServletMethodComponent> components) {
+    protected void create(boolean containException, ArrayList<SourceImplMethodDispatcher> components) {
         servlet.imports(T_HttpRequest);
         servlet.imports("jakarta.servlet.http.HttpServletResponse");
         servlet.imports("jakarta.servlet.ServletException");
@@ -39,7 +39,7 @@ class SourceServletMethod {
                 .append("(RESTfulRequest _req, HttpServletResponse _resp) throws ServletException, IOException {");
         if (containException) servlet.append("try{");
         servlet.append("switch(_req.getServiceName()){");
-        for (SourceServletMethodComponent component : components) {
+        for (SourceImplMethodDispatcher component : components) {
             component.create(httpMethod);
         }
         if (components.size() >= 1 && allMethodHasArg()) {
@@ -86,9 +86,9 @@ class SourceServletMethod {
         });
         boolean ok = true;
         String cache = null;
-        ArrayList<SourceServletMethodComponent> conflicts = new ArrayList<>();
+        ArrayList<SourceImplMethodDispatcher> conflicts = new ArrayList<>();
         for (int i = 0, max = components.size() - 1; i <= max; i++) {
-            SourceServletMethodComponent component = components.get(i);
+            SourceImplMethodDispatcher component = components.get(i);
             boolean eq = component.orderKey().equals(cache);
             if (eq) {
                 conflicts.add(component);
@@ -97,7 +97,7 @@ class SourceServletMethod {
                 ok = false;
                 StringBuilder msg = new StringBuilder("Conflict cause methods in class ").append(servlet.getImplClass())
                         .append(" with same request parameter(s):");
-                for (SourceServletMethodComponent conflict : conflicts) {
+                for (SourceImplMethodDispatcher conflict : conflicts) {
                     msg.append(conflict.name()).append(", ");
                 }
                 env.error(msg.substring(0, msg.length() - 2));
@@ -116,7 +116,7 @@ class SourceServletMethod {
     }
 
     public boolean allMethodHasArg() {
-        for (SourceServletMethodComponent component : components) {
+        for (SourceImplMethodDispatcher component : components) {
             if (component.orderKey().length() == 0) {
                 return false;
             }

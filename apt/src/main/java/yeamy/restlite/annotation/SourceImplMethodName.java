@@ -5,10 +5,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
-class SourceServiceName {
+class SourceImplMethodName {
     public final String resource, params, ifHas;
 
-    public SourceServiceName(String resource, List<? extends VariableElement> arguments) {
+    public SourceImplMethodName(String resource, List<? extends VariableElement> arguments) {
         this.resource = resource;
         TreeSet<String> params = new TreeSet<>();
         for (VariableElement a : arguments) {

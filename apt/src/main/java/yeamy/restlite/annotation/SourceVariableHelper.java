@@ -318,10 +318,7 @@ abstract class SourceVariableHelper {
         TypeElement classType = env.getTypeElement(factoryClz);
         List<? extends Element> elements = classType.getEnclosedElements();
         for (Element element : elements) {
-//            ElementKind kind = element.getKind();
             if (element instanceof ExecutableElement e) {
-//            if (kind.equals(ElementKind.METHOD) || kind.equals(ElementKind.CONSTRUCTOR)) {
-//                ExecutableElement e = (ExecutableElement) element;
                 BodyProcessor pn = e.getAnnotation(BodyProcessor.class);
                 if (pn != null && pn.value().equals(processor)) {
                     env.addBodyProcessor(e, pn);

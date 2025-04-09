@@ -11,7 +11,6 @@ import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
-import javax.tools.Diagnostic;
 import javax.tools.Diagnostic.Kind;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -28,7 +27,7 @@ class ProcessEnvironment {
     private final String charset;
     private final String pkg, response;
     private final TypeMirror closeable, httpResponse, inputStream, file;
-    final TreeMap<String, Map<String, String>> names = new TreeMap<>();
+    private final TreeMap<String, Map<String, String>> implMethodNames = new TreeMap<>();
     private final ProcessorMap<SourceInjectProvider> injectProviders = new ProcessorMap<>();
     private final ProcessorMap<SourceHeaderProcessor> headerProcessors = new ProcessorMap<>();
     private final ProcessorMap<SourceCookieProcessor> cookieProcessors = new ProcessorMap<>();
@@ -78,10 +77,6 @@ class ProcessEnvironment {
         return typeUtils.asElement(t);
     }
 
-    public static boolean isThrowable(ExecutableElement element) {
-        return element.getThrownTypes().size() > 0;
-    }
-
     public boolean isCloseable(TypeMirror t) {
         return typeUtils.isSubtype(t, closeable);
     }
@@ -113,8 +108,8 @@ class ProcessEnvironment {
         return elementUtils.getTypeElement(clz);
     }
 
-    public static BodyFactory getBodyFactory(VariableElement e) {
-        for (AnnotationMirror am : e.getAnnotationMirrors()) {
+    public static BodyFactory getBodyFactory(VariableElement param) {
+        for (AnnotationMirror am : param.getAnnotationMirrors()) {
             BodyFactory body = am.getAnnotationType().asElement().getAnnotation(BodyFactory.class);
             if (body != null) {
                 return body;
@@ -188,7 +183,7 @@ class ProcessEnvironment {
         try (ByteArrayOutputStream os = new ByteArrayOutputStream();
              PrintStream ps = new PrintStream(os)) {
             e.printStackTrace(ps);
-            messager.printMessage(Diagnostic.Kind.ERROR, os.toString());
+            messager.printMessage(Kind.ERROR, os.toString());
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
@@ -202,16 +197,16 @@ class ProcessEnvironment {
         messager.printMessage(Kind.NOTE, msg);
     }
 
-    public String addServerName(String httpMethod, SourceServiceName serverName) {
-        String key = serverName.resource + ':' + httpMethod;
-        Map<String, String> value = names.computeIfAbsent(key, k -> new TreeMap<>(Comparator.reverseOrder()));
-        String key2 = serverName.getName(httpMethod);
-        value.put(key2, serverName.ifHas);
-        return key2;
+    public String addImplMethod(String httpMethod, SourceImplMethodName methodName) {
+        String key = methodName.resource + ':' + httpMethod;
+        Map<String, String> value = implMethodNames.computeIfAbsent(key, k -> new TreeMap<>(Comparator.reverseOrder()));
+        String name = methodName.getName(httpMethod);
+        value.put(name, methodName.ifHas);
+        return name;
     }
 
-    public Iterable<? extends Map.Entry<String, Map<String, String>>> serverNames() {
-        return names.entrySet();
+    public TreeMap<String, Map<String, String>> implMethodNames() {
+        return implMethodNames;
     }
 
     public void addSourceHeaderProcessor(Element element, HeaderProcessor ann) {

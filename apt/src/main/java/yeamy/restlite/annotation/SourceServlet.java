@@ -64,7 +64,7 @@ class SourceServlet extends SourceClass {
 
     private void addMethodComponent(String ann, ExecutableElement element, boolean async, long asyncTimeout) {
         if (async) asyncSupported = true;
-        SourceServletMethodComponent method = new SourceServletMethodComponent(env, this, element, async, asyncTimeout);
+        SourceImplMethodDispatcher method = new SourceImplMethodDispatcher(env, this, element, async, asyncTimeout);
         SourceServletMethod httpMethod = httpMethods.get(ann);
         if (httpMethod == null) {
             httpMethod = new SourceServletMethod(env, this, ann);
