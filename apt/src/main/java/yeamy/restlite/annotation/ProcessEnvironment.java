@@ -26,7 +26,7 @@ class ProcessEnvironment {
     private final boolean responseAllType;
     private final String charset;
     private final String pkg, response;
-    private final TypeMirror closeable, httpResponse, inputStream, file;
+    private final TypeMirror CLOSEABLE, HTTP_RESPONSE, INPUT_STREAM, FILE;
     private final TreeMap<String, Map<String, String>> implMethodNames = new TreeMap<>();
     private final ProcessorMap<SourceInjectProvider> injectProviders = new ProcessorMap<>();
     private final ProcessorMap<SourceHeaderProcessor> headerProcessors = new ProcessorMap<>();
@@ -47,10 +47,10 @@ class ProcessEnvironment {
         charset = ann.charset();
         this.response = getClassInAnnotation(ann::response);
         //
-        closeable = elementUtils.getTypeElement("java.io.Closeable").asType();
-        httpResponse = elementUtils.getTypeElement("yeamy.restlite.HttpResponse").asType();
-        inputStream = elementUtils.getTypeElement("java.io.InputStream").asType();
-        file = elementUtils.getTypeElement("java.io.File").asType();
+        CLOSEABLE = elementUtils.getTypeElement("java.io.Closeable").asType();
+        HTTP_RESPONSE = elementUtils.getTypeElement("yeamy.restlite.HttpResponse").asType();
+        INPUT_STREAM = elementUtils.getTypeElement("java.io.InputStream").asType();
+        FILE = elementUtils.getTypeElement("java.io.File").asType();
     }
 
     public boolean isAssignable(TypeMirror subType, TypeMirror type) {
@@ -78,7 +78,7 @@ class ProcessEnvironment {
     }
 
     public boolean isCloseable(TypeMirror t) {
-        return typeUtils.isSubtype(t, closeable);
+        return typeUtils.isSubtype(t, CLOSEABLE);
     }
 
     public static boolean isCloseThrow(TypeElement type) {
@@ -96,12 +96,12 @@ class ProcessEnvironment {
     }
 
     public boolean isHttpResponse(TypeMirror t) {
-        return typeUtils.isSubtype(t, httpResponse);
+        return typeUtils.isSubtype(t, HTTP_RESPONSE);
     }
 
     public boolean isStream(TypeMirror t) {
-        return typeUtils.isSubtype(t, inputStream) || typeUtils.isSameType(t, inputStream)//
-                || typeUtils.isSameType(t, file) || typeUtils.isSubtype(t, file);
+        return typeUtils.isSubtype(t, INPUT_STREAM) || typeUtils.isSameType(t, INPUT_STREAM)//
+                || typeUtils.isSameType(t, FILE) || typeUtils.isSubtype(t, FILE);
     }
 
     public TypeElement getTypeElement(String clz) {
@@ -118,42 +118,42 @@ class ProcessEnvironment {
         return null;
     }
 
-    public static CookieFactoryBean getCookieFactory(VariableElement param) {
+    public static SourceFactory<CookieFactory> getCookieFactory(VariableElement param) {
         for (AnnotationMirror am : param.getAnnotationMirrors()) {
             CookieFactory ann = am.getAnnotationType().asElement().getAnnotation(CookieFactory.class);
             if (ann == null) continue;
             String method = ann.nameMethod();
             for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : am.getElementValues().entrySet()) {
                 if (entry.getKey().getSimpleName().toString().equals(method)) {
-                    return new CookieFactoryBean(ann, entry.getValue().getValue().toString());
+                    return new SourceFactory<>(ann, entry.getValue().getValue().toString());
                 }
             }
         }
         return null;
     }
 
-    public static PartFactoryBean getPartFactory(VariableElement param) {
+    public static SourceFactory<PartFactory> getPartFactory(VariableElement param) {
         for (AnnotationMirror am : param.getAnnotationMirrors()) {
             PartFactory ann = am.getAnnotationType().asElement().getAnnotation(PartFactory.class);
             if (ann == null) continue;
             String method = ann.nameMethod();
             for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : am.getElementValues().entrySet()) {
                 if (entry.getKey().getSimpleName().toString().equals(method)) {
-                    return new PartFactoryBean(ann, entry.getValue().getValue().toString());
+                    return new SourceFactory<>(ann, entry.getValue().getValue().toString());
                 }
             }
         }
         return null;
     }
 
-    public static ParamFactoryBean getParamFactory(VariableElement param) {
+    public static SourceFactory<ParamFactory> getParamFactory(VariableElement param) {
         for (AnnotationMirror am : param.getAnnotationMirrors()) {
             ParamFactory ann = am.getAnnotationType().asElement().getAnnotation(ParamFactory.class);
             if (ann == null) continue;
             String method = ann.nameMethod();
             for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : am.getElementValues().entrySet()) {
                 if (entry.getKey().getSimpleName().toString().equals(method)) {
-                    return new ParamFactoryBean(ann, entry.getValue().getValue().toString());
+                    return new SourceFactory<>(ann, entry.getValue().getValue().toString());
                 }
             }
         }

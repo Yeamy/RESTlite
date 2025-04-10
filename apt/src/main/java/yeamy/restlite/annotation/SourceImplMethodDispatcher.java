@@ -192,7 +192,7 @@ class SourceImplMethodDispatcher {
             }
             return true;
         }
-        CookieFactoryBean factory = ProcessEnvironment.getCookieFactory(p);
+        SourceFactory<CookieFactory> factory = ProcessEnvironment.getCookieFactory(p);
         if (factory != null) {
             String alias = p.getSimpleName().toString();
             String name = TextUtils.isEmpty(factory.name()) ? alias : factory.name();
@@ -318,7 +318,7 @@ class SourceImplMethodDispatcher {
                     .write(part.write(servlet, name, name));
             return true;
         }
-        PartFactoryBean factory = ProcessEnvironment.getPartFactory(p);
+        SourceFactory<PartFactory> factory = ProcessEnvironment.getPartFactory(p);
         if (factory != null) {
             if (args.containsBody()) {
                 args.addFallback("null");
@@ -356,11 +356,11 @@ class SourceImplMethodDispatcher {
             args.addParam(type, name, name).write(param.write(servlet, name, name));
             return;
         }
-        ParamFactoryBean factory = ProcessEnvironment.getParamFactory(p);
+        SourceFactory<ParamFactory> factory = ProcessEnvironment.getParamFactory(p);
         if (factory != null) {
             String alias = p.getSimpleName().toString();
             String name = TextUtils.isNotEmpty(factory.name()) ? factory.name() : alias;
-            SourceParam param = SourceVariableHelper.getParamByFactory(env, p, factory);
+            SourceParam param = SourceVariableHelper.getParam(env, p, factory);
             if (param != null) {
                 args.addParam(type, name, alias).write(param.write(servlet, name, alias));
             } else {

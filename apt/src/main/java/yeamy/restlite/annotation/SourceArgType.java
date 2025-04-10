@@ -1,5 +1,5 @@
 package yeamy.restlite.annotation;
 
-enum ArgType {
+enum SourceArgType {
     attribute, header, cookie, param, body, part, inject, exist, fallback
 }

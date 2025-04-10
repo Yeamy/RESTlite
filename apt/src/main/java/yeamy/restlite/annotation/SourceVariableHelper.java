@@ -232,15 +232,15 @@ abstract class SourceVariableHelper {
         }
     }
 
-    public static SourceCookieByExecutable getCookieByFactory(ProcessEnvironment env, VariableElement param, CookieFactoryBean bean) {
+    public static SourceCookieByExecutable getCookieByFactory(ProcessEnvironment env, VariableElement param, SourceFactory<CookieFactory> factory) {
         TypeMirror returnType = param.asType();
-        String processor = bean.ann().processor();
+        String processor = factory.ann().processor();
         SourceCookieProcessor p = env.getCookieProcessor(returnType.toString(), processor);
         if (p != null) {
             if (p.method == null) return null;
             return new SourceCookieByExecutable(env, param, p);
         }
-        String factoryClz = ProcessEnvironment.getClassInAnnotation(bean.ann()::processorClass);
+        String factoryClz = ProcessEnvironment.getClassInAnnotation(factory.ann()::processorClass);
         TypeElement classType = env.getTypeElement(factoryClz);
         List<? extends Element> elements = classType.getEnclosedElements();
         for (Element element : elements) {
@@ -430,15 +430,15 @@ abstract class SourceVariableHelper {
         }
     }
 
-    public static SourcePartByExecutable getPartByFactory(ProcessEnvironment env, VariableElement param, PartFactoryBean bean) {
+    public static SourcePartByExecutable getPartByFactory(ProcessEnvironment env, VariableElement param, SourceFactory<PartFactory> factory) {
         TypeMirror returnType = param.asType();
-        String processor = bean.ann().processor();
+        String processor = factory.ann().processor();
         SourcePartProcessor p = env.getPartProcessor(returnType.toString(), processor);
         if (p != null) {
             if (p.method == null) return null;
             return new SourcePartByExecutable(env, param, p);
         }
-        String factoryClz = ProcessEnvironment.getClassInAnnotation(bean.ann()::processorClass);
+        String factoryClz = ProcessEnvironment.getClassInAnnotation(factory.ann()::processorClass);
         TypeElement classType = env.getTypeElement(factoryClz);
         List<? extends Element> elements = classType.getEnclosedElements();
         for (Element element : elements) {
@@ -533,15 +533,15 @@ abstract class SourceVariableHelper {
         }
     }
 
-    public static SourceParamByExecutable getParamByFactory(ProcessEnvironment env, VariableElement param, ParamFactoryBean bean) {
+    public static SourceParamByExecutable getParam(ProcessEnvironment env, VariableElement param, SourceFactory<ParamFactory> factory) {
         TypeMirror returnType = param.asType();
-        String processor = bean.ann().processor();
+        String processor = factory.ann().processor();
         SourceParamProcessor p = env.getParamProcessor(returnType.toString(), processor);
         if (p != null) {
             if (p.method == null) return null;
             return new SourceParamByExecutable(env, param, p);
         }
-        String factoryClz = ProcessEnvironment.getClassInAnnotation(bean.ann()::processorClass);
+        String factoryClz = ProcessEnvironment.getClassInAnnotation(factory.ann()::processorClass);
         TypeElement classType = env.getTypeElement(factoryClz);
         List<? extends Element> elements = classType.getEnclosedElements();
         for (Element element : elements) {

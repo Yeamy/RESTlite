@@ -16,14 +16,18 @@ public class ExampleMain {
     InjectCreator creator;
 
 	@GET
-	public String get(@Inject InjectA injectA, @Param(processor = "maxTo15") long size, String p) {
+//	public String get(@Inject InjectA injectA, @Param(processor = "maxTo15") long size, String p) {
+//		return "get";
+//	}
+
+	public String get(@Inject InjectA injectA, @MaxTo15Param long longSize, String p) {
 		return "get";
 	}
 
-//	@GET
-//	public String get2(@Param int size, String p) {
-//		return "get";
-//	}
+	@GET
+	public String get2(@Param int size, String p) {
+		return "get";
+	}
 
 	@GET
 	public String get(@Param(required = false) String p) {
