@@ -69,6 +69,6 @@ class SourceImplMethodName {
                 }
             }
         }
-        return false;
+        return true;
     }
 }

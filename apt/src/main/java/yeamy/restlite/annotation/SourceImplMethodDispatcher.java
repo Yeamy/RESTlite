@@ -190,6 +190,7 @@ class SourceImplMethodDispatcher {
                 args.addFallback("null/* not support cookie type */");
                 env.warning("Not support cookie type " + type + " without annotation Creator");
             }
+            return true;
         }
         CookieFactoryBean factory = ProcessEnvironment.getCookieFactory(p);
         if (factory != null) {
