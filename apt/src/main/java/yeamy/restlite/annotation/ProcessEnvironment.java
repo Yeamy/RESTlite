@@ -128,6 +128,7 @@ class ProcessEnvironment {
                     return new SourceFactory<>(ann, entry.getValue().getValue().toString());
                 }
             }
+            return new SourceFactory<>(ann, param.getSimpleName().toString());
         }
         return null;
     }
@@ -142,11 +143,12 @@ class ProcessEnvironment {
                     return new SourceFactory<>(ann, entry.getValue().getValue().toString());
                 }
             }
+            return new SourceFactory<>(ann, param.getSimpleName().toString());
         }
         return null;
     }
 
-    public static SourceFactory<ParamFactory> getParamFactory(VariableElement param) {
+    public static SourceFactory<ParamFactory> getParamFactory(ProcessEnvironment env, VariableElement param) {
         for (AnnotationMirror am : param.getAnnotationMirrors()) {
             ParamFactory ann = am.getAnnotationType().asElement().getAnnotation(ParamFactory.class);
             if (ann == null) continue;
@@ -156,6 +158,7 @@ class ProcessEnvironment {
                     return new SourceFactory<>(ann, entry.getValue().getValue().toString());
                 }
             }
+            return new SourceFactory<>(ann, param.getSimpleName().toString());
         }
         return null;
     }

@@ -34,6 +34,12 @@ class SourceImplMethodDispatcher {
         this.serverName = new SourceImplMethodName(servlet.getRESTfulResource(), arguments);
         this.async = async;
         this.asyncTimeout = asyncTimeout;
+        arguments.forEach(a -> {
+            if (doRequest(a) || doAttribute(a) || doHeader(a) || doCookie(a) || doInject(a) || doBody(a) || doPart(a)) {
+                return;
+            }
+            doParam(a);
+        });
     }
 
     final String orderKey() {
@@ -41,17 +47,6 @@ class SourceImplMethodDispatcher {
     }
 
     public void create(String httpMethod) {
-        for (VariableElement a : arguments) {
-            if (!doRequest(a)
-                    && !doAttribute(a)
-                    && !doHeader(a)
-                    && !doCookie(a)
-                    && !doInject(a)
-                    && !doBody(a)
-                    && !doPart(a)) {
-                doParam(a);
-            }
-        }
         String key = env.addImplMethod(httpMethod, serverName);
         // check arguments
         if (serverName.isNoParam()) {
@@ -361,17 +356,20 @@ class SourceImplMethodDispatcher {
     private void doParam(VariableElement p) {
         String type = p.asType().toString();
         Param ann = p.getAnnotation(Param.class);
-        if (ann == null) {
-            String name = p.getSimpleName().toString();
-            if (TextUtils.notIn(type, SUPPORT_PARAM_TYPE)) {
-                return;
+        if (ann != null) {
+            String alias = p.getSimpleName().toString();
+            String name = TextUtils.isEmpty(ann.value()) ? alias : ann.value();
+            SourceParam param = SourceVariableHelper.getParam(env, servlet, p, ann);
+            if (param != null) {
+                throwTypes.addAll(param.throwTypes());
+                args.addParam(type, name, alias).write(param.write(servlet, name, alias));
+            } else {
+                args.addFallback("null/* not support param type */");
+                env.warning("Not support param type " + type + " without annotation Creator");
             }
-            SourceParam param = new SourceParamDefault(env, p, type);
-            throwTypes.addAll(param.throwTypes());
-            args.addParam(type, name, name).write(param.write(servlet, name, name));
             return;
         }
-        SourceFactory<ParamFactory> factory = ProcessEnvironment.getParamFactory(p);
+        SourceFactory<ParamFactory> factory = ProcessEnvironment.getParamFactory(env, p);
         if (factory != null) {
             String alias = p.getSimpleName().toString();
             String name = TextUtils.isNotEmpty(factory.name()) ? factory.name() : alias;
@@ -384,16 +382,13 @@ class SourceImplMethodDispatcher {
             }
             return;
         }
-        String alias = p.getSimpleName().toString();
-        String name = TextUtils.isEmpty(ann.value()) ? alias : ann.value();
-        SourceParam param = SourceVariableHelper.getParam(env, servlet, p, ann);
-        if (param != null) {
-            throwTypes.addAll(param.throwTypes());
-            args.addParam(type, name, alias).write(param.write(servlet, name, alias));
-        } else {
-            args.addFallback("null/* not support param type */");
-            env.warning("Not support param type " + type + " without annotation Creator");
+        String name = p.getSimpleName().toString();
+        if (TextUtils.notIn(type, SUPPORT_PARAM_TYPE)) {
+            return;
         }
+        SourceParam param = new SourceParamDefault(env, p, type);
+        throwTypes.addAll(param.throwTypes());
+        args.addParam(type, name, name).write(param.write(servlet, name, name));
     }
 
     private void doReturn(ProcessEnvironment env, SourceServlet servlet) {

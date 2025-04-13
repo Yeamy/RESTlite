@@ -1,8 +1,11 @@
 package example;
 
 import bean.*;
+import jakarta.servlet.http.HttpServletResponse;
 import yeamy.restlite.addition.TextPlainResponse;
 import yeamy.restlite.annotation.*;
+
+import java.io.IOException;
 
 @RESTfulResource("example")
 public class ExampleMain {
@@ -15,11 +18,12 @@ public class ExampleMain {
     @Inject
     InjectCreator creator;
 
-	@GET
-//	public String get(@Inject InjectA injectA, @Param(processor = "maxTo15") long size, String p) {
+//	@GET
+//	public String get(@Inject InjectA injectA, @Param(processor = "maxTo15") long longSize, String p) {
 //		return "get";
 //	}
 
+    @GET
 	public String get(@Inject InjectA injectA, @MaxTo15Param long longSize, String p) {
 		return "get";
 	}
@@ -64,10 +68,10 @@ public class ExampleMain {
 //        return null;
 //    }
 
-    @ERROR
-    public Object error(Exception e) {
-        return new TextPlainResponse(e.toString());
-    }
+//    @ERROR
+//    public void error(Exception e, HttpServletResponse resp) throws IOException {
+//        new TextPlainResponse(e.toString()).write(resp);
+//    }
 
 //	@GET
 //	public String get(GsonFeign client) {

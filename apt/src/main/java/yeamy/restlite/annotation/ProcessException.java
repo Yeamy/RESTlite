@@ -8,6 +8,9 @@ import yeamy.restlite.addition.AbstractHttpResponse;
  * <b>notice:</b> Can be intercepted by @{@link ERROR}
  */
 public class ProcessException extends Exception {
+    /**
+     * The response when Exception
+     */
     private final AbstractHttpResponse<?> response;
 
     /**
@@ -17,6 +20,9 @@ public class ProcessException extends Exception {
         this.response = response;
     }
 
+    /**
+     * @return The response when Exception
+     */
     public AbstractHttpResponse<?> getResponse() {
         return response;
     }

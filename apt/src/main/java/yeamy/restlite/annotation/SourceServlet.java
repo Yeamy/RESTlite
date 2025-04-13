@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import static yeamy.restlite.annotation.SupportType.T_HttpServletResponse;
+
 class SourceServlet extends SourceClass {
     final ProcessEnvironment env;
     private final TypeElement element;
@@ -78,7 +80,7 @@ class SourceServlet extends SourceClass {
         imports("java.io.IOException");
         imports("jakarta.servlet.annotation.MultipartConfig");
         imports("jakarta.servlet.annotation.WebServlet");
-        imports("jakarta.servlet.http.HttpServletResponse");
+        imports(T_HttpServletResponse);
         imports("jakarta.servlet.ServletException");
         imports("yeamy.restlite.RESTfulRequest");
         imports("yeamy.restlite.RESTfulServlet");

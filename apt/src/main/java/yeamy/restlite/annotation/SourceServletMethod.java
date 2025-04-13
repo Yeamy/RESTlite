@@ -3,8 +3,7 @@ package yeamy.restlite.annotation;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-import static yeamy.restlite.annotation.SupportType.T_HttpRequest;
-import static yeamy.restlite.annotation.SupportType.T_TextPlainResponse;
+import static yeamy.restlite.annotation.SupportType.*;
 
 class SourceServletMethod {
     protected final ProcessEnvironment env;
@@ -33,7 +32,7 @@ class SourceServletMethod {
 
     protected void create(boolean hasOnError, ArrayList<SourceImplMethodDispatcher> dispatchers) {
         servlet.imports(T_HttpRequest);
-        servlet.imports("jakarta.servlet.http.HttpServletResponse");
+        servlet.imports(T_HttpServletResponse);
         servlet.imports("jakarta.servlet.ServletException");
         servlet.imports("java.io.IOException");
         servlet.append("@Override public void ").append(nameInServlet)
@@ -46,19 +45,26 @@ class SourceServletMethod {
             dispatcher.create(httpMethod);
         }
         if (dispatchers.size() >= 1 && allMethodHasArg()) {
-            servlet.imports("yeamy.restlite.addition.NoMatchMethodException");
-            servlet.append("default:{ onError(_req, _resp, new NoMatchMethodException(_req));}");
+            servlet.append("default:{ onError(_req, _resp, new ")
+                    .append(servlet.imports("yeamy.restlite.addition.NoMatchMethodException"))
+                    .append("(_req));}");
         }
+        servlet.append("}}");
         if (hasOnError) {
-            servlet.append("}}catch(Exception _ex){onError(_req,_resp,_ex);}");
+            servlet.append("catch(Exception _ex){onError(_req,_resp,_ex);}}");
         } else if (throwTypes.size() > 0) {
-            if (throwTypes.contains("yeamy.restlite.annotation.ProcessException")) {
-                servlet.append("}catch(").append(servlet.imports("yeamy.restlite.annotation.ProcessException"))
-                        .append(" _ex){_ex.getResponse().write(_resp);");
+            if (throwTypes.remove("yeamy.restlite.annotation.ProcessException")) {
+                servlet.append("catch(").append(servlet.imports("yeamy.restlite.annotation.ProcessException"))
+                        .append(" _ex){_ex.getResponse().write(_resp);}");
             }
-            servlet.append("}}catch(Exception _ex){new ExceptionResponse(_ex).write(_resp);}");
+            if (throwTypes.size() > 0) {
+                servlet.append("catch(Exception _ex){new ")
+                        .append(servlet.imports("yeamy.restlite.addition.ExceptionResponse"))
+                        .append("(_ex).write(_resp);}}");
+            } else {
+                servlet.append('}');
+            }
         }
-        servlet.append('}');
     }
 
     /**
@@ -66,7 +72,7 @@ class SourceServletMethod {
      */
     protected void createFallback() {
         servlet.imports(T_HttpRequest);
-        servlet.imports("jakarta.servlet.http.HttpServletResponse");
+        servlet.imports(T_HttpServletResponse);
         servlet.imports("jakarta.servlet.ServletException");
         servlet.imports("java.io.IOException");
         servlet.append("@Override public void ").append(nameInServlet)

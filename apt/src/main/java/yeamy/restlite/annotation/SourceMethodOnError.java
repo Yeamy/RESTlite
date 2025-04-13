@@ -57,6 +57,8 @@ class SourceMethodOnError {
                             break a;
                         case T_HttpServletRequest:
                             servlet.append("_req.getRequest()");
+                        case T_HttpServletResponse:
+                            servlet.append("_resp");
                             break a;
                         case T_HttpServlet:
                             servlet.append("this");

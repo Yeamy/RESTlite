@@ -21,7 +21,7 @@ import java.lang.annotation.Target;
  * <pre>{@code
  *
  * @ERROR
- * public static void doError(HttpServletResponse resp, Exception ex) {
+ * public static void doError(HttpServletResponse resp, Exception ex) throws IOException {
  *     new TextPlainResponse(500, ex.getMessage()).write(resp);
  * }
  *

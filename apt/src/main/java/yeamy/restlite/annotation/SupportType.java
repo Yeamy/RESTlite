@@ -2,6 +2,7 @@ package yeamy.restlite.annotation;
 
 class SupportType {
     public static final String T_HttpServletRequest = "jakarta.servlet.http.HttpServletRequest";
+    public static final String T_HttpServletResponse = "jakarta.servlet.http.HttpServletResponse";
     public static final String T_ServletInputStream = "jakarta.servlet.ServletInputStream";
     public static final String T_Cookie = "jakarta.servlet.http.Cookie";
     public static final String T_CookieArray = T_Cookie + "[]";
