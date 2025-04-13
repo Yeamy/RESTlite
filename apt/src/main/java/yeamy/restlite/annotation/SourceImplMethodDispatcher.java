@@ -6,6 +6,8 @@ import javax.lang.model.element.*;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
 import static yeamy.restlite.annotation.SourceParamProcessor.SUPPORT_PARAM_TYPE;
@@ -19,6 +21,7 @@ class SourceImplMethodDispatcher {
     private final SourceImplMethodName serverName;
     private final boolean async;
     private final long asyncTimeout;
+    private final HashSet<String> throwTypes = new HashSet<>();
 
     private final SourceArguments args = new SourceArguments();
 
@@ -169,6 +172,7 @@ class SourceImplMethodDispatcher {
         }
         SourceHeader header = SourceVariableHelper.getHeader(env, servlet, p, ann);
         if (header != null) {
+            throwTypes.addAll(header.throwTypes());
             args.addHeader(type, name, alias).write(header.write(servlet, name, alias));
         } else {
             args.addFallback("null/* not support type */");
@@ -185,6 +189,7 @@ class SourceImplMethodDispatcher {
             String name = TextUtils.isEmpty(ann.value()) ? alias : ann.value();
             SourceCookie cookie = SourceVariableHelper.getCookie(env, servlet, p, ann);
             if (cookie != null) {
+                throwTypes.addAll(cookie.throwTypes());
                 args.addCookie(type, name, alias).write(cookie.write(servlet, name, alias));
             } else {
                 args.addFallback("null/* not support cookie type */");
@@ -198,6 +203,7 @@ class SourceImplMethodDispatcher {
             String name = TextUtils.isEmpty(factory.name()) ? alias : factory.name();
             SourceCookie cookie = SourceVariableHelper.getCookieByFactory(env, p, factory);
             if (cookie != null) {
+                throwTypes.addAll(cookie.throwTypes());
                 args.addCookie(type, name, alias).write(cookie.write(servlet, name, alias));
             } else {
                 args.addFallback("null");
@@ -212,6 +218,7 @@ class SourceImplMethodDispatcher {
                 return true;
             }
             SourceCookie cookie = new SourceCookieDefault(env, p, type);
+            throwTypes.addAll(cookie.throwTypes());
             args.addCookie(type, name, name).write(cookie.write(servlet, name, name));
             return true;
         }
@@ -223,6 +230,7 @@ class SourceImplMethodDispatcher {
         if (ann == null) return false;
         SourceInject inject = SourceVariableHelper.getInject(env, servlet, p, ann);
         String name = p.getSimpleName().toString();
+        throwTypes.addAll(inject.throwTypes());
         args.addInject(name, inject.isThrowable(), inject.isCloseable(), inject.isCloseThrow())
                 .write(inject.writeArg(servlet));
         return true;
@@ -239,6 +247,7 @@ class SourceImplMethodDispatcher {
             SourceBody body = SourceVariableHelper.getBody(env, servlet, p, ann);
             if (body != null) {
                 String name = p.getSimpleName().toString();
+                throwTypes.addAll(body.throwTypes());
                 args.addBody(name, body.isThrowable(), body.isCloseable(), body.isCloseThrow()).write(body.write(servlet, name));
             } else {
                 args.addFallback("null");
@@ -254,6 +263,7 @@ class SourceImplMethodDispatcher {
             }
             SourceBody body = new SourceBodyDefault(env, p, type);
             String name = p.getSimpleName().toString();
+            throwTypes.addAll(body.throwTypes());
             args.addBody(name, body.isThrowable(), body.isCloseable(), body.isCloseThrow()).write(body.write(servlet, name));
             return true;
         }
@@ -267,6 +277,7 @@ class SourceImplMethodDispatcher {
             SourceBody body = SourceVariableHelper.getBody(env, p, factory);
             if (body != null) {
                 String name = p.getSimpleName().toString();
+                throwTypes.addAll(body.throwTypes());
                 args.addBody(name, body.isThrowable(), body.isCloseable(), body.isCloseThrow()).write(body.write(servlet, name));
             } else {
                 args.addFallback("null");
@@ -293,6 +304,7 @@ class SourceImplMethodDispatcher {
             }
             SourcePart part = SourceVariableHelper.getPart(env, servlet, p, ann);
             if (part != null) {
+                throwTypes.addAll(part.throwTypes());
                 args.addPart(name, alias, part.isThrowable(), part.isCloseable(), part.isCloseThrow())
                         .write(part.write(servlet, name, alias));
             } else {
@@ -314,6 +326,7 @@ class SourceImplMethodDispatcher {
                 return true;
             }
             SourcePart part = new SourcePartDefault(env, p, type);
+            throwTypes.addAll(part.throwTypes());
             args.addPart(name, name, part.isThrowable(), part.isCloseable(), part.isCloseThrow())
                     .write(part.write(servlet, name, name));
             return true;
@@ -334,6 +347,7 @@ class SourceImplMethodDispatcher {
             }
             SourcePart part = SourceVariableHelper.getPartByFactory(env, p, factory);
             if (part != null) {
+                throwTypes.addAll(part.throwTypes());
                 args.addPart(name, alias, part.isThrowable(), part.isCloseable(), part.isCloseThrow())
                         .write(part.write(servlet, name, alias));
             } else {
@@ -353,6 +367,7 @@ class SourceImplMethodDispatcher {
                 return;
             }
             SourceParam param = new SourceParamDefault(env, p, type);
+            throwTypes.addAll(param.throwTypes());
             args.addParam(type, name, name).write(param.write(servlet, name, name));
             return;
         }
@@ -362,6 +377,7 @@ class SourceImplMethodDispatcher {
             String name = TextUtils.isNotEmpty(factory.name()) ? factory.name() : alias;
             SourceParam param = SourceVariableHelper.getParam(env, p, factory);
             if (param != null) {
+                throwTypes.addAll(param.throwTypes());
                 args.addParam(type, name, alias).write(param.write(servlet, name, alias));
             } else {
                 args.addFallback("null");
@@ -372,6 +388,7 @@ class SourceImplMethodDispatcher {
         String name = TextUtils.isEmpty(ann.value()) ? alias : ann.value();
         SourceParam param = SourceVariableHelper.getParam(env, servlet, p, ann);
         if (param != null) {
+            throwTypes.addAll(param.throwTypes());
             args.addParam(type, name, alias).write(param.write(servlet, name, alias));
         } else {
             args.addFallback("null/* not support param type */");
@@ -482,5 +499,9 @@ class SourceImplMethodDispatcher {
         name.deleteCharAt(name.length() - 1);
         name.append(')');
         return name.toString();
+    }
+
+    public Collection<String> throwTypes() {
+        return throwTypes;
     }
 }

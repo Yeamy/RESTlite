@@ -7,7 +7,8 @@ import java.lang.annotation.Target;
 
 /**
  * declare the field/method/constructor are inject provider.<br>
- * Noted that the element must contain modifies public static.
+ * Noted that the element must contain modifies public static.<br>
+ * Can throw a {@link ProcessException} to terminate an HTTP request, when provide a param for http request
  */
 @Target({ElementType.FIELD, ElementType.METHOD, ElementType.CONSTRUCTOR})
 @Retention(RetentionPolicy.SOURCE)

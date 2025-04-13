@@ -1,6 +1,7 @@
 package yeamy.restlite.annotation;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import static yeamy.restlite.annotation.SupportType.T_HttpRequest;
 import static yeamy.restlite.annotation.SupportType.T_TextPlainResponse;
@@ -8,8 +9,8 @@ import static yeamy.restlite.annotation.SupportType.T_TextPlainResponse;
 class SourceServletMethod {
     protected final ProcessEnvironment env;
     protected final SourceServlet servlet;
-    private final ArrayList<SourceImplMethodDispatcher> components = new ArrayList<>();
-    protected final String httpMethod, nameOfServlet;
+    private final ArrayList<SourceImplMethodDispatcher> dispatchers = new ArrayList<>();
+    protected final String httpMethod, nameInServlet;
 
     public SourceServletMethod(ProcessEnvironment env, SourceServlet servlet, String httpMethod) {
         this.env = env;
@@ -23,48 +24,59 @@ class SourceServletMethod {
         for (int i = 1; i < src.length; i++) {
             out[i + 2] = (char) (src[i] + 32);
         }
-        this.nameOfServlet = new String(out);
+        this.nameInServlet = new String(out);
     }
 
-    public final void addComponent(SourceImplMethodDispatcher component) {
-        components.add(component);
+    public final void addComponent(SourceImplMethodDispatcher dispatcher) {
+        dispatchers.add(dispatcher);
     }
 
-    protected void create(boolean containException, ArrayList<SourceImplMethodDispatcher> components) {
+    protected void create(boolean hasOnError, ArrayList<SourceImplMethodDispatcher> dispatchers) {
         servlet.imports(T_HttpRequest);
         servlet.imports("jakarta.servlet.http.HttpServletResponse");
         servlet.imports("jakarta.servlet.ServletException");
         servlet.imports("java.io.IOException");
-        servlet.append("@Override public void ").append(nameOfServlet)
+        servlet.append("@Override public void ").append(nameInServlet)
                 .append("(RESTfulRequest _req, HttpServletResponse _resp) throws ServletException, IOException {");
-        if (containException) servlet.append("try{");
+        HashSet<String> throwTypes = new HashSet<>();
+        dispatchers.forEach(e -> throwTypes.addAll(e.throwTypes()));
+        if (hasOnError || throwTypes.size() > 0) servlet.append("try{");
         servlet.append("switch(_req.getServiceName()){");
-        for (SourceImplMethodDispatcher component : components) {
-            component.create(httpMethod);
+        for (SourceImplMethodDispatcher dispatcher : dispatchers) {
+            dispatcher.create(httpMethod);
         }
-        if (components.size() >= 1 && allMethodHasArg()) {
+        if (dispatchers.size() >= 1 && allMethodHasArg()) {
             servlet.imports("yeamy.restlite.addition.NoMatchMethodException");
             servlet.append("default:{ onError(_req, _resp, new NoMatchMethodException(_req));}");
         }
-        servlet.append(containException ? "}}catch(Exception ex){onError(_req,_resp,ex);}}" : "}}");
+        if (hasOnError) {
+            servlet.append("}}catch(Exception _ex){onError(_req,_resp,_ex);}");
+        } else if (throwTypes.size() > 0) {
+            if (throwTypes.contains("yeamy.restlite.annotation.ProcessException")) {
+                servlet.append("}catch(").append(servlet.imports("yeamy.restlite.annotation.ProcessException"))
+                        .append(" _ex){_ex.getResponse().write(_resp);");
+            }
+            servlet.append("}}catch(Exception _ex){new ExceptionResponse(_ex).write(_resp);}");
+        }
+        servlet.append('}');
     }
 
     /**
      * cannot create server
      */
-    protected void createError() {
+    protected void createFallback() {
         servlet.imports(T_HttpRequest);
         servlet.imports("jakarta.servlet.http.HttpServletResponse");
         servlet.imports("jakarta.servlet.ServletException");
         servlet.imports("java.io.IOException");
-        servlet.append("@Override public void ").append(nameOfServlet)
+        servlet.append("@Override public void ").append(nameInServlet)
                 .append("(RESTfulRequest _req, HttpServletResponse _resp) throws ServletException, IOException {new ")
                 .append(servlet.imports(T_TextPlainResponse))
                 .append("(500, \"Server error!\");}");
     }
 
-    public void create(boolean containException) {
-        components.sort((m1, m2) -> {
+    public void create(boolean hasOnError) {
+        dispatchers.sort((m1, m2) -> {
             String k1 = m1.orderKey();
             String k2 = m2.orderKey();
             if (k1.length() < k2.length()) {
@@ -87,11 +99,11 @@ class SourceServletMethod {
         boolean ok = true;
         String cache = null;
         ArrayList<SourceImplMethodDispatcher> conflicts = new ArrayList<>();
-        for (int i = 0, max = components.size() - 1; i <= max; i++) {
-            SourceImplMethodDispatcher component = components.get(i);
-            boolean eq = component.orderKey().equals(cache);
+        for (int i = 0, max = dispatchers.size() - 1; i <= max; i++) {
+            SourceImplMethodDispatcher dispatcher = dispatchers.get(i);
+            boolean eq = dispatcher.orderKey().equals(cache);
             if (eq) {
-                conflicts.add(component);
+                conflicts.add(dispatcher);
             }
             if ((!eq || i == max) && conflicts.size() >= 2) {
                 ok = false;
@@ -103,21 +115,21 @@ class SourceServletMethod {
                 env.error(msg.substring(0, msg.length() - 2));
             }
             if (!eq) {
-                cache = component.orderKey();
+                cache = dispatcher.orderKey();
                 conflicts.clear();
-                conflicts.add(component);
+                conflicts.add(dispatcher);
             }
         }
         if (ok) {
-            create(containException, components);
+            create(hasOnError, dispatchers);
         } else {
-            createError();
+            createFallback();
         }
     }
 
     public boolean allMethodHasArg() {
-        for (SourceImplMethodDispatcher component : components) {
-            if (component.orderKey().length() == 0) {
+        for (SourceImplMethodDispatcher dispatcher : dispatchers) {
+            if (dispatcher.orderKey().length() == 0) {
                 return false;
             }
         }

@@ -9,7 +9,8 @@ import java.lang.annotation.Target;
  * Declare the method to create http header.<br>
  * For public static-method/constructor with one param (one of {@link  String},
  * {@link Integer}/int, {@link Long}/long(timeMiles),
- * {@linkplain java.util.Date Date})
+ * {@linkplain java.util.Date Date}).<br>
+ * Can throw a {@link ProcessException} to terminate an HTTP request
  */
 @Target({ElementType.METHOD, ElementType.CONSTRUCTOR})
 @Retention(RetentionPolicy.SOURCE)

@@ -8,7 +8,8 @@ import java.lang.annotation.Target;
 /**
  * declare the method to create http cookie.<br>
  * For public static-method/constructor with one param (one of {@link String},
- * {@linkplain jakarta.servlet.http.Cookie Cookie}, Cookie[])
+ * {@linkplain jakarta.servlet.http.Cookie Cookie}, Cookie[]).<br>
+ * Can throw a {@link ProcessException} to terminate an HTTP request
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.SOURCE)

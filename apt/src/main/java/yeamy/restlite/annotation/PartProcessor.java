@@ -7,7 +7,8 @@ import java.lang.annotation.Target;
 
 /**
  * Declare the method to create http body part.<br>
- * For public static-method/constructor with one param (one of)
+ * For public static-method/constructor with one param (one of).<br>
+ * Can throw a {@link ProcessException} to terminate an HTTP request
  *
  * @see Parts
  * @see PartProcessor

@@ -2,13 +2,14 @@ package yeamy.restlite.annotation;
 
 import javax.lang.model.element.*;
 import javax.lang.model.type.TypeMirror;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
 abstract class SourceVariable {
     protected final ProcessEnvironment env;
     protected final VariableElement param;
-    private boolean throwable = false;
+    private List<String> throwable = Collections.emptyList();
     private boolean closeable = false;
     private boolean closeThrow = false;
 
@@ -17,7 +18,7 @@ abstract class SourceVariable {
         this.param = param;
     }
 
-    protected void init(boolean throwable, boolean closeable, boolean closeThrow) {
+    protected void init(List<String> throwable, boolean closeable, boolean closeThrow) {
         this.throwable = throwable;
         this.closeable = closeable;
         this.closeThrow = closeThrow;
@@ -25,7 +26,7 @@ abstract class SourceVariable {
 
     protected void init(ExecutableElement method, TypeMirror classType, boolean samePackage, List<? extends Element> elements) {
         if (method != null) {
-            this.throwable = method.getThrownTypes().size() > 0;
+            this.throwable = ProcessEnvironment.getThrowType(method);
         }
         this.closeable = env.isCloseable(classType);
         if (closeable) {
@@ -57,11 +58,15 @@ abstract class SourceVariable {
     }
 
     public boolean isThrowable() {
-        return throwable;
+        return throwable.size() > 0;
     }
 
 
     public void writeClose(StringBuilder b, SourceServlet servlet) {
         b.append(servlet.imports("yeamy.utils.StreamUtils")).append(".close(").append(param.getSimpleName()).append(");");
+    }
+
+    public List<String> throwTypes() {
+        return throwable;
     }
 }

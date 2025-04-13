@@ -2,6 +2,8 @@ package yeamy.restlite.annotation;
 
 import javax.lang.model.element.*;
 import javax.lang.model.type.TypeMirror;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 class SourceInjectProvider {
@@ -10,7 +12,7 @@ class SourceInjectProvider {
     public final ExecutableElement method;
     public final ElementKind kind;
     public final String content;
-    public final boolean throwable;
+    public final List<String> throwable;
     public final boolean closeable;
     public final boolean closeThrow;
 
@@ -25,7 +27,8 @@ class SourceInjectProvider {
                     && modifiers.contains(Modifier.FINAL)) {
                 this.method = null;
                 this.content = importType.getSimpleName() + "." + element.getSimpleName();
-                this.throwable = closeable = closeThrow = false;
+                this.throwable = Collections.emptyList();
+                this.closeable = this.closeThrow = false;
                 return;
             } else {
                 env.error("InjectProvider field must have the modifier public static final:"
@@ -37,8 +40,8 @@ class SourceInjectProvider {
             Set<Modifier> modifiers = element.getModifiers();
             if (modifiers.contains(Modifier.PUBLIC) && modifiers.contains(Modifier.STATIC)) {
                 this.method = method;
-                this.content = importType + "." + element.getSimpleName() + "(/**/)";
-                this.throwable = method.getThrownTypes().size() > 0;
+                this.content = importType + "." + element.getSimpleName() + "()";
+                this.throwable = ProcessEnvironment.getThrowType(method);
                 this.closeable = env.isCloseable(outType);
                 this.closeThrow = closeable && ProcessEnvironment.isCloseThrow(env.getTypeElement(outType.toString()));
                 return;
@@ -55,7 +58,7 @@ class SourceInjectProvider {
             if (element.getModifiers().contains(Modifier.PUBLIC)) {
                 this.method = method;
                 this.content = "new " + importType.getSimpleName() + "()";
-                this.throwable = method.getThrownTypes().size() > 0;
+                this.throwable = ProcessEnvironment.getThrowType(method);
                 this.closeable = env.isCloseable(outType);
                 this.closeThrow = closeable && ProcessEnvironment.isCloseThrow((TypeElement) type);
                 return;
@@ -68,7 +71,8 @@ class SourceInjectProvider {
         }
         this.method = null;
         this.content = "null";
-        this.throwable = closeable = closeThrow = false;
+        this.throwable = Collections.emptyList();
+        this.closeable = this.closeThrow = false;
     }
 
 }

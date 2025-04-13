@@ -5,6 +5,8 @@ import yeamy.utils.TextUtils;
 import javax.lang.model.element.*;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -16,7 +18,7 @@ class SourcePartProcessor {
     public final TypeElement classType;
     public final ExecutableElement method;
     public final TypeMirror returnType;
-    public final boolean throwable;
+    public final List<String> throwable;
     public final boolean closeable;
     public final boolean closeThrow;
 
@@ -30,20 +32,23 @@ class SourcePartProcessor {
         if (!modifiers.contains(Modifier.PUBLIC)) {
             env.error("PartProcessor must be public:" + classType + "." + element.getSimpleName());
             this.method = null;
-            this.throwable = closeable = closeThrow = false;
+            this.throwable = Collections.emptyList();
+            this.closeable = this.closeThrow = false;
         } else if (element.getKind() == ElementKind.METHOD && !modifiers.contains(Modifier.STATIC)) {
             env.error("PartProcessor must be static:" + classType + "." + element.getSimpleName());
             this.method = null;
-            this.throwable = closeable = closeThrow = false;
+            this.throwable = Collections.emptyList();
+            this.closeable = this.closeThrow = false;
         } else if (checkParam(returnType, method.getParameters())) {
             this.method = method;
-            this.throwable = method.getThrownTypes().size() > 0;
+            this.throwable = ProcessEnvironment.getThrowType(method);
             this.closeable = env.isCloseable(method.getReturnType());
             this.closeThrow = closeable && ProcessEnvironment.isCloseThrow(classType);
         } else {
             env.error("PartProcessor has invalid param type:" + classType + "." + element.getSimpleName());
             this.method = null;
-            this.throwable = closeable = closeThrow = false;
+            this.throwable = Collections.emptyList();
+            this.closeable = this.closeThrow = false;
         }
     }
 

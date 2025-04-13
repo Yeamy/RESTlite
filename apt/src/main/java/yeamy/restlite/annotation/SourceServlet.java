@@ -158,12 +158,12 @@ class SourceServlet extends SourceClass {
             }
         }
         // method
-        boolean containException = error != null;
+        boolean hasOnError = error != null;
         for (SourceServletMethod method : httpMethods.values()) {
-            method.create(containException);
+            method.create(hasOnError);
         }
         // error
-        if (containException) {
+        if (hasOnError) {
             error.create();
         }
         b.append("}");

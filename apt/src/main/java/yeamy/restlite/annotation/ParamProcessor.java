@@ -9,7 +9,8 @@ import java.lang.annotation.Target;
  * declare the method to create http param.<br>
  * For public static-method/constructor with one param (one of {@link String}, int, {@link Integer}, long, {@link Long},
  * float, {@link Float}, double, {@link Double}, boolean, {@link Boolean}, {@linkplain java.math.BigDecimal BigDecimal},
- * an array of type as above)
+ * an array of type as above).<br>
+ * Can throw a {@link ProcessException} to terminate an HTTP request
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.SOURCE)

@@ -4,6 +4,7 @@ import yeamy.utils.TextUtils;
 
 import javax.lang.model.element.*;
 import javax.lang.model.type.TypeMirror;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -23,7 +24,7 @@ class SourceParamProcessor {
     public final ExecutableElement method;
     public final TypeMirror returnType;
     public final ElementKind kind;
-    public final boolean throwable;
+    public final List<String> throwable;
     public final boolean closeable;
     public final boolean closeThrow;
 
@@ -38,31 +39,34 @@ class SourceParamProcessor {
         if (parameters.size() != 1 || TextUtils.notIn(parameters.get(0).asType().toString(), SUPPORT_PARAM_TYPE)) {
             env.error("ParamProcessor " + element.getSimpleName() + " contains unsupported param type!");
             this.method = null;
-            this.throwable = closeable = closeThrow = false;
+            this.throwable = Collections.emptyList();
+            this.closeable = this.closeThrow = false;
         } else if (kind == ElementKind.METHOD) {
             Set<Modifier> modifiers = element.getModifiers();
             if (modifiers.contains(Modifier.PUBLIC) && modifiers.contains(Modifier.STATIC)) {
                 this.method = method;
-                this.throwable = method.getThrownTypes().size() > 0;
+                this.throwable = ProcessEnvironment.getThrowType(method);
                 this.closeable = env.isCloseable(method.getReturnType());
                 this.closeThrow = closeable && ProcessEnvironment.isCloseThrow(classType);
             } else {
                 env.error("ParamProcessor method must have the modifier public static:"
                         + element.asType().toString() + "." + element.getSimpleName());
                 this.method = null;
-                this.throwable = closeable = closeThrow = false;
+                this.throwable = Collections.emptyList();
+                this.closeable = this.closeThrow = false;
             }
         } else {// CONSTRUCTOR
             if (element.getModifiers().contains(Modifier.PUBLIC)) {
                 this.method = method;
-                this.throwable = method.getThrownTypes().size() > 0;
+                this.throwable = ProcessEnvironment.getThrowType(method);
                 this.closeable = env.isCloseable(method.getReturnType());
                 this.closeThrow = closeable && ProcessEnvironment.isCloseThrow(classType);
             } else {
                 env.error("ParamProcessor constructor must have the modifier public:"
                         + classType + "." + element.getSimpleName());
                 this.method = null;
-                this.throwable = closeable = closeThrow = false;
+                this.throwable = Collections.emptyList();
+                this.closeable = this.closeThrow = false;
             }
         }
     }
