@@ -26,19 +26,23 @@ public @interface Configuration {
      * <br>
      * void → {@linkplain yeamy.restlite.addition.VoidResponse VoidResponse}<br>
      * Subtype of HttpResponse  → keep it<br>
-     * others → currently set type
+     * others → currently set type, must have a constructor with two arguments one receive http-status-code(int) another
+     *  one receive the method return result(any type).
      *
      * <pre>{@code
      *
      * public class MyResponse implements HttpResponse {
+     *     private int status;
+     *     private Object data;
      *
-     *     public MyResponse(Object data) {
-     *         super(data);
+     *     public MyResponse(int status, Object data) {
+     *         this.status = status;
+     *         this.data = data;
      *     }
      *
      *     @Override
      *     public void write(HttpServletResponse resp) throws IOException {
-     *         resp.setStatus(200);
+     *         resp.setStatus(status);
      *         ... // do serialize here
      *     }
      * }

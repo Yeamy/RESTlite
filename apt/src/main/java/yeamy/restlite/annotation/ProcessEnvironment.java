@@ -22,7 +22,8 @@ class ProcessEnvironment {
     private final Types typeUtils;
     private final Elements elementUtils;
     private final boolean responseAllType;
-    private final String pkg, response;
+    private final String pkg;
+    private final SourceResponse response;
     private final TypeMirror CLOSEABLE, HTTP_RESPONSE, INPUT_STREAM, FILE;
     private final TreeMap<String, Map<String, String>> implMethodNames = new TreeMap<>();
     private final ProcessorMap<SourceInjectProvider> injectProviders = new ProcessorMap<>();
@@ -41,7 +42,7 @@ class ProcessEnvironment {
         pkg = element.getQualifiedName().toString();
         Configuration ann = init.getAnnotation(Configuration.class);
         responseAllType = ann.responseAllType();
-        this.response = getClassInAnnotation(ann::response);
+        this.response = new SourceResponse(this, getClassInAnnotation(ann::response));
         //
         CLOSEABLE = elementUtils.getTypeElement("java.io.Closeable").asType();
         HTTP_RESPONSE = elementUtils.getTypeElement("yeamy.restlite.HttpResponse").asType();
@@ -100,7 +101,7 @@ class ProcessEnvironment {
                 || typeUtils.isSameType(t, FILE) || typeUtils.isSubtype(t, FILE);
     }
 
-    public TypeElement getTypeElement(String clz) {
+    public TypeElement getTypeElement(CharSequence clz) {
         return elementUtils.getTypeElement(clz);
     }
 
@@ -175,7 +176,7 @@ class ProcessEnvironment {
         return pkg;
     }
 
-    public String getResponse() {
+    public SourceResponse getResponse() {
         return response;
     }
 

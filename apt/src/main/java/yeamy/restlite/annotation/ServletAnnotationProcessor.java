@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
+import static javax.tools.Diagnostic.Kind.WARNING;
+
 /**
  * Annotation processor to generate program code
  */
@@ -42,14 +44,13 @@ public class ServletAnnotationProcessor extends AbstractProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        ProcessEnvironment env = null;
-        for (Element init : roundEnv.getElementsAnnotatedWith(Configuration.class)) {
-            env = new ProcessEnvironment(processingEnv, init);
-            break;
-        }
-        if (env == null) {
+        Set<? extends Element> configs = roundEnv.getElementsAnnotatedWith(Configuration.class);
+        if (configs.size() == 0) {
             return false;
+        } else if (configs.size() > 1) {
+            processingEnv.getMessager().printMessage(WARNING, "More than one @Configuration Found!");
         }
+        ProcessEnvironment env = new ProcessEnvironment(processingEnv, configs.iterator().next());
         // header processor
         for (Element element : roundEnv.getElementsAnnotatedWith(HeaderProcessor.class)) {
             env.addHeaderProcessor(element, element.getAnnotation(HeaderProcessor.class));
@@ -96,7 +97,6 @@ public class ServletAnnotationProcessor extends AbstractProcessor {
                 servlet.create();
             } catch (Exception e) {
                 env.error(e);
-                return false;
             }
         }
         // listener
@@ -104,7 +104,6 @@ public class ServletAnnotationProcessor extends AbstractProcessor {
             new SourceWebListener(env, embed).create();
         } catch (Exception e) {
             env.error(e);
-            return false;
         }
         return false;
     }

@@ -24,7 +24,7 @@ public class ExampleMain {
 //	}
 
     @GET
-	public String get(@Inject InjectA injectA, @MaxTo15Param long longSize, String p) {
+	public String get(@Inject InjectA injectA, @MaxTo15Param long longSize, String p) throws Exception {
 		return "get";
 	}
 
@@ -34,7 +34,7 @@ public class ExampleMain {
 	}
 
 	@GET
-	public String get(@Param(required = false) String p) {
+	public String get(String p) {
 		return "get";
 	}
 
@@ -58,10 +58,10 @@ public class ExampleMain {
         return null;
     }
 
-//    @POST
-//    public String post3(@Param String p1) {
-//        return null;
-//    }
+    @DELETE
+    public String delete() {
+        return null;
+    }
 
 //    @POST
 //    public ArrayList<String> post3(String p1, String p2) {

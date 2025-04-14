@@ -40,16 +40,26 @@ class SourceServletMethod {
         HashSet<String> throwTypes = new HashSet<>();
         dispatchers.forEach(e -> throwTypes.addAll(e.throwTypes()));
         if (hasOnError || throwTypes.size() > 0) servlet.append("try{");
-        servlet.append("switch(_req.getServiceName()){");
-        for (SourceImplMethodDispatcher dispatcher : dispatchers) {
-            dispatcher.create(httpMethod);
+        if (dispatchers.size() == 1 && dispatchers.get(0).isNoParam()) {
+            dispatchers.get(0).create(httpMethod);
+        } else {
+            servlet.append("switch(_req.getServiceName()){");
+            for (SourceImplMethodDispatcher dispatcher : dispatchers) {
+                dispatcher.createInSwitch(httpMethod);
+            }
+            if (hasNoParam()) {
+                servlet.append('}');
+            } else if (hasOnError) {
+                servlet.append("default:{ onError(_req, _resp, new ")
+                        .append(servlet.imports("yeamy.restlite.addition.NoMatchMethodException"))
+                        .append("(_req));}}");
+            } else {
+                servlet.append("default:{");
+                env.getResponse().writeError(env, servlet, 405, "Method Not Allow!");
+                servlet.append("}}");
+            }
         }
-        if (dispatchers.size() >= 1 && allMethodHasArg()) {
-            servlet.append("default:{ onError(_req, _resp, new ")
-                    .append(servlet.imports("yeamy.restlite.addition.NoMatchMethodException"))
-                    .append("(_req));}");
-        }
-        servlet.append("}}");
+        servlet.append('}');
         if (hasOnError) {
             servlet.append("catch(Exception _ex){onError(_req,_resp,_ex);}}");
         } else if (throwTypes.size() > 0) {
@@ -58,12 +68,11 @@ class SourceServletMethod {
                         .append(" _ex){_ex.getResponse().write(_resp);}");
             }
             if (throwTypes.size() > 0) {
-                servlet.append("catch(Exception _ex){new ")
-                        .append(servlet.imports("yeamy.restlite.addition.ExceptionResponse"))
-                        .append("(_ex).write(_resp);}}");
-            } else {
+                servlet.append("catch(Exception _ex){");
+                env.getResponse().writeError(env, servlet, 500, "Server Error!");
                 servlet.append('}');
             }
+            servlet.append('}');
         }
     }
 
@@ -133,12 +142,12 @@ class SourceServletMethod {
         }
     }
 
-    public boolean allMethodHasArg() {
+    public boolean hasNoParam() {
         for (SourceImplMethodDispatcher dispatcher : dispatchers) {
-            if (dispatcher.orderKey().length() == 0) {
-                return false;
+            if (dispatcher.isNoParam()) {
+                return true;
             }
         }
-        return true;
+        return false;
     }
 }

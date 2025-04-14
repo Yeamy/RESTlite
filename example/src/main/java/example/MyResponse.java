@@ -8,8 +8,8 @@ import java.io.PrintWriter;
 
 public class MyResponse extends AbstractHttpResponse<Object> {
 
-    public MyResponse(Object data) {
-        super(data);
+    public MyResponse(int status, Object data) {
+        super(status, data);
     }
 
     @Override

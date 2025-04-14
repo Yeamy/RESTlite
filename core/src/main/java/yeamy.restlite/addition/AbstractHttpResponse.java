@@ -1,12 +1,11 @@
 package yeamy.restlite.addition;
 
-import java.io.IOException;
-import java.util.*;
-
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
-
 import yeamy.restlite.HttpResponse;
+
+import java.io.IOException;
+import java.util.*;
 
 /**
  * @see ExceptionResponse
@@ -14,7 +13,7 @@ import yeamy.restlite.HttpResponse;
  * @see TextPlainResponse
  */
 public abstract class AbstractHttpResponse<T> implements HttpResponse {
-    private transient int status = HttpServletResponse.SC_OK;
+    private transient int status;
     private transient String mime = null;
     private transient String charset = "UTF-8";
     private transient Collection<Cookie> cookies;
@@ -23,6 +22,11 @@ public abstract class AbstractHttpResponse<T> implements HttpResponse {
     private transient T data;
 
     public AbstractHttpResponse(T data) {
+        this(HttpServletResponse.SC_OK, data);
+    }
+
+    public AbstractHttpResponse(int status, T data) {
+        this.status = status;
         this.data = data;
     }
 

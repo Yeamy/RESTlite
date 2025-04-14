@@ -2,7 +2,8 @@ package yeamy.restlite.annotation;
 
 import yeamy.utils.TextUtils;
 
-import javax.lang.model.element.*;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import java.util.ArrayList;
@@ -18,7 +19,7 @@ class SourceImplMethodDispatcher {
     private final SourceServlet servlet;
     private final ExecutableElement method;
     private final List<? extends VariableElement> arguments;
-    private final SourceImplMethodName serverName;
+    private final SourceImplMethodName methodName;
     private final boolean async;
     private final long asyncTimeout;
     private final HashSet<String> throwTypes = new HashSet<>();
@@ -31,7 +32,7 @@ class SourceImplMethodDispatcher {
         this.servlet = servlet;
         this.method = method;
         this.arguments = method.getParameters();
-        this.serverName = new SourceImplMethodName(servlet.getRESTfulResource(), arguments);
+        this.methodName = new SourceImplMethodName(servlet.getRESTfulResource(), arguments);
         this.async = async;
         this.asyncTimeout = asyncTimeout;
         arguments.forEach(a -> {
@@ -40,73 +41,70 @@ class SourceImplMethodDispatcher {
             }
             doParam(a);
         });
+        throwTypes.addAll(ProcessEnvironment.getThrowType(method));
     }
 
     final String orderKey() {
-        return serverName.params;
+        return methodName.params;
     }
 
-    public void create(String httpMethod) {
-        String key = env.addImplMethod(httpMethod, serverName);
+    public void createInSwitch(String httpMethod) {
+        String key = env.addImplMethod(httpMethod, methodName);
         // check arguments
-        if (serverName.isNoParam()) {
+        if (methodName.isNoParam()) {
             servlet.append("default:{");
         } else {
             servlet.append("case \"").append(key).append("\":{");
         }
-        int begin = servlet.length();
-        try {
-            if (async) {
-                servlet.imports("jakarta.servlet.AsyncContext");
-                servlet.append("AsyncContext _asyncContext = _req.startAsync();");
-                if (asyncTimeout > 0) {
-                    servlet.append("_asyncContext.setTimeout(").append(asyncTimeout).append("\");\"");
-                }
-                servlet.append("_asyncContext.start(() -> {try {");
+        create(httpMethod);
+        servlet.append("break;}");
+    }
+
+    public void create(String httpMethod) {
+        if (async) {
+            servlet.imports("jakarta.servlet.AsyncContext");
+            servlet.append("AsyncContext _asyncContext = _req.startAsync();");
+            if (asyncTimeout > 0) {
+                servlet.append("_asyncContext.setTimeout(").append(asyncTimeout).append("\");\"");
             }
-            // get arguments
-            args.getNormal().forEach(servlet::append);
-            // try
-            ArrayList<CharSequence> closeable = args.getCloseable();
-            if (closeable.size() > 0) {
-                servlet.append("try(");
-                for (CharSequence g : closeable) {
-                    servlet.append(g);
-                }
-                servlet.deleteLast(1).append("){");
-                for (CharSequence g : args.getInTry()) {
+            servlet.append("_asyncContext.start(() -> {try {");
+        }
+        // get arguments
+        args.getNormal().forEach(servlet::append);
+        // try
+        ArrayList<CharSequence> closeable = args.getCloseable();
+        if (closeable.size() > 0) {
+            servlet.append("try(");
+            for (CharSequence g : closeable) {
+                servlet.append(g);
+            }
+            servlet.deleteLast(1).append("){");
+            for (CharSequence g : args.getInTry()) {
+                servlet.append(g);
+            }
+            // return
+            doReturn(env, servlet, httpMethod);
+            if (servlet.containsError() && args.hasThrow()) {
+                servlet.append("}catch(Exception e){onError(_req, _resp, e);}");
+            }
+        } else {
+            ArrayList<CharSequence> inTry = args.getInTry();
+            if (inTry.size() > 0) {
+                servlet.append("try{");
+                for (CharSequence g : inTry) {
                     servlet.append(g);
                 }
                 // return
-                doReturn(env, servlet);
-                if (servlet.containsError() && args.hasThrow()) {
-                    servlet.append("}catch(Exception e){onError(_req, _resp, e);}");
-                }
+                doReturn(env, servlet, httpMethod);
+                servlet.append("}catch(Exception e){onError(_req, _resp, e);}");
             } else {
-                ArrayList<CharSequence> inTry = args.getInTry();
-                if (inTry.size() > 0) {
-                    servlet.append("try{");
-                    for (CharSequence g : inTry) {
-                        servlet.append(g);
-                    }
-                    // return
-                    doReturn(env, servlet);
-                    servlet.append("}catch(Exception e){onError(_req, _resp, e);}");
-                } else {
-                    // return
-                    doReturn(env, servlet);
-                }
+                // return
+                doReturn(env, servlet, httpMethod);
             }
-            if (async) {
-                servlet.append("}catch(Exception e){onError(_req,_resp,e);}finally{_asyncContext.complete();}});");
-            }
-        } catch (Exception e) {
-            env.error(e);
-            servlet.deleteLast(servlet.length() - begin);
-            servlet.append("new ").append(servlet.imports(T_TextPlainResponse))
-                    .append("(500, \"Server error!\");");
         }
-        servlet.append("break;}");
+        if (async) {
+            servlet.append("}catch(Exception e){onError(_req,_resp,e);}finally{_asyncContext.complete();}});");
+        }
     }
 
     private boolean doRequest(VariableElement p) {
@@ -391,20 +389,20 @@ class SourceImplMethodDispatcher {
         args.addParam(type, name, name).write(param.write(servlet, name, name));
     }
 
-    private void doReturn(ProcessEnvironment env, SourceServlet servlet) {
+    private void doReturn(ProcessEnvironment env, SourceServlet servlet, String httpMethod) {
         TypeMirror t = method.getReturnType();
         TypeKind kind = t.getKind();
         switch (kind) {
-            case ARRAY -> doReturnSerialize(env, servlet, t);
+            case ARRAY -> doReturnSerialize(env, servlet, httpMethod, t);
             case VOID -> servlet.append(servlet.imports("yeamy.restlite.addition.VoidResponse"))
-                    .append(".instance.write(_resp);");
+                    .append("DELETE".equals(httpMethod) ? ".RESET_CONTENT.write(_resp);" : ".NO_CONTENT.write(_resp);");
             default -> {// base type
                 if (env.isHttpResponse(t)) {
                     servlet.append("this._impl.").append(method.getSimpleName()).append('(');
                     doReturnArguments(servlet);
                     servlet.append(").write(_resp);");
                 } else if (env.responseAllType()) {
-                    doReturnSerialize(env, servlet, t);
+                    doReturnSerialize(env, servlet, httpMethod, t);
                 } else if (env.isStream(t)) {
                     doReturnStream(servlet);
                 } else if (T_String.equals(t.toString())) {
@@ -423,44 +421,19 @@ class SourceImplMethodDispatcher {
                     doReturnArguments(servlet);
                     servlet.append("))).write(_resp);");
                 } else {
-                    doReturnSerialize(env, servlet, t);
+                    doReturnSerialize(env, servlet, httpMethod, t);
                 }
             }
         }
     }
 
-    private void doReturnSerialize(ProcessEnvironment env, SourceServlet servlet, TypeMirror rt) {
-        String resp = env.getResponse();
-        TypeElement type = env.getTypeElement(resp);
-        ExecutableElement constructor;
-        constructor = getConstructor(env, servlet, type, rt);
-        if (constructor != null) {
-            servlet.append("new ").append(servlet.imports(resp)).append("(this._impl.").append(method.getSimpleName())
-                    .append('(');
+    private void doReturnSerialize(ProcessEnvironment env, SourceServlet servlet, String httpMethod, TypeMirror rt) {
+        SourceResponse resp = env.getResponse();
+        resp.write(env, servlet, httpMethod, rt, () -> {
+            servlet.append("this._impl.").append(method.getSimpleName()).append('(');
             doReturnArguments(servlet);
-            servlet.append(")).write(_resp);");
-        } else {
-            env.error("Cannot find target constructor of " + resp + " accept parameter: " + rt);
-            servlet.append("new ").append(servlet.imports(T_TextPlainResponse))
-                    .append("(500,\"Cannot find target constructor\").write(_resp);");
-        }
-    }
-
-    private ExecutableElement getConstructor(ProcessEnvironment env, SourceServlet servlet,
-                                             TypeElement resp, TypeMirror rt) {
-        String pkg = ((PackageElement) resp.getEnclosingElement()).getQualifiedName().toString();
-        boolean samePackage = pkg.equals(servlet.pkg);
-        for (Element li : resp.getEnclosedElements()) {
-            if (li.getKind() == ElementKind.CONSTRUCTOR
-                    && (samePackage || li.getModifiers().contains(Modifier.PUBLIC))) {
-                ExecutableElement constructor = (ExecutableElement) li;
-                List<? extends VariableElement> params = constructor.getParameters();
-                if (params.size() == 1 && env.isAssignable(rt, params.get(0).asType())) {
-                    return constructor;
-                }
-            }
-        }
-        return null;
+            servlet.append(')');
+        });
     }
 
     private void doReturnStream(SourceServlet servlet) {
@@ -478,6 +451,10 @@ class SourceImplMethodDispatcher {
             }
             servlet.append(name);
         }
+    }
+
+    public boolean isNoParam() {
+        return methodName.isNoParam();
     }
 
     public String name() {

@@ -6,14 +6,11 @@ import yeamy.restlite.HttpResponse;
 import java.io.IOException;
 
 public class VoidResponse implements HttpResponse {
-    public final static VoidResponse instance = new VoidResponse();
+    public final static VoidResponse NO_CONTENT = new VoidResponse(204);
+    public final static VoidResponse RESET_CONTENT = new VoidResponse(205);
     private final int status;
 
-    public VoidResponse() {
-        this(200);
-    }
-
-    public VoidResponse(int status) {
+    private VoidResponse(int status) {
         this.status = status;
     }
 
