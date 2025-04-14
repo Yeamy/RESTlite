@@ -10,7 +10,7 @@ public class VoidResponse implements HttpResponse {
     public final static VoidResponse RESET_CONTENT = new VoidResponse(205);
     private final int status;
 
-    private VoidResponse(int status) {
+    public VoidResponse(int status) {
         this.status = status;
     }
 
