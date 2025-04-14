@@ -3,7 +3,7 @@ plugins {
 }
 var $groupId = 'io.github.yeamy'
 var $artifactId = 'restlite-apt'
-var $version = '1.0-RC2.2'
+var $version = '1.0-RC2.3'
 
 group $groupId
 version $version

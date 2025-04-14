@@ -2,23 +2,36 @@ package yeamy.restlite.addition;
 
 import java.io.File;
 
+/**
+ * learn more about <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/ETag">ETag</a>
+ */
 public class ETag {
 
-	public static boolean compareStrong(String etagReq, String etagData) {
-		return etagReq != null && etagReq.equals(etagData);
+	/**
+	 * Strong validation
+	 */
+	public static boolean compareStrong(String eTagReq, String eTagData) {
+		return eTagReq != null && eTagReq.equals(eTagData);
 	}
 
-	public static boolean compareWeak(String etagReq, String etagData) {
-		return etagReq != null && comparePart(etagReq).equals(comparePart(etagData));
+	/**
+	 * Weak validation
+	 */
+	public static boolean compareWeak(String eTagReq, String eTagData) {
+		return eTagReq != null && comparePart(eTagReq).equals(comparePart(eTagData));
 	}
 
-	private static String comparePart(String etag) {
-		if (etag != null && etag.startsWith("W/")) {
-			return etag.substring(2);
+	private static String comparePart(String eTag) {
+		if (eTag != null && eTag.startsWith("W/")) {
+			return eTag.substring(2);
 		}
-		return etag;
+		return eTag;
 	}
 
+	/**
+	 * @param file target file
+	 * @return generate file ETag
+	 */
 	public static String fileETag(File file) {
 		return "W/\"" + file.length() + "-" + file.lastModified() + '"';
 	}

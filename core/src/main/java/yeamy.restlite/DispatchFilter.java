@@ -6,6 +6,9 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
+/**
+ * rest-lite internal web filter dispatch request to correct servlet
+ */
 public class DispatchFilter implements Filter {
 
     public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain)
@@ -28,6 +31,10 @@ public class DispatchFilter implements Filter {
 
     /**
      * dispatch request to resource, false intercept
+     * @param request http request
+     * @param resp http response
+     * @throws IOException if an I/O error occurs during this filter's processing of the request
+     * @throws ServletException if the processing fails for any other reason
      */
     protected void dispatch(RESTfulRequest request, HttpServletResponse resp) throws ServletException, IOException {
         HttpServletRequest req = request.getRequest();

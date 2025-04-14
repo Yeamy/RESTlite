@@ -14,12 +14,12 @@ public abstract class SimpleStreamServlet extends RESTfulServlet {
 
     @Override
     public void doGet(RESTfulRequest req, HttpServletResponse resp) throws IOException {
-        String etag = req.getHeader("If-None-Match");
+        String eTag = req.getHeader("If-None-Match");
         long lastModified = req.getDateHeader("If-Modified-Since");
         StreamData data = getStreamData(req);
         if (data == null) {
             doNotFound(resp);
-        } else if (data.compare(etag, lastModified)) {
+        } else if (data.compare(eTag, lastModified)) {
             new NotModifiedResponse().write(resp);
         } else {
             data.getResponse().write(resp);
@@ -37,21 +37,21 @@ public abstract class SimpleStreamServlet extends RESTfulServlet {
         /**
          * @see ETag
          */
-        public String getEtag();
+        String getETag();
 
-        public long getLastModified();
+        long getLastModified();
 
         /**
          * @see StreamResponse
          */
-        public HttpResponse getResponse();
+        HttpResponse getResponse();
 
-        public default boolean compare(String etag, long lastModified) {
-            return ETag.compareWeak(etag, this.getEtag())
+        default boolean compare(String eTag, long lastModified) {
+            return ETag.compareWeak(eTag, this.getETag())
                     || compareLastModified(lastModified);
         }
 
-        public default boolean compareLastModified(long lastModified) {
+        default boolean compareLastModified(long lastModified) {
             long lmData = getLastModified();
             return lmData > 0 && lastModified >= lmData;
         }
