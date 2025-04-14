@@ -18,11 +18,6 @@ import java.lang.annotation.Target;
 public @interface Configuration {
 
     /**
-     * @return default response text encoding
-     */
-    String charset() default "UTF-8";
-
-    /**
      * Subclass of {@linkplain RESTfulRequest HttpResponse}, the class must have a one-parameter-constructor,
      * and the only one parameter will accept data.<br>
      * <br>

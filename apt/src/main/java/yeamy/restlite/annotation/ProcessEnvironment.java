@@ -1,7 +1,5 @@
 package yeamy.restlite.annotation;
 
-import yeamy.utils.TextUtils;
-
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.*;
@@ -24,7 +22,6 @@ class ProcessEnvironment {
     private final Types typeUtils;
     private final Elements elementUtils;
     private final boolean responseAllType;
-    private final String charset;
     private final String pkg, response;
     private final TypeMirror CLOSEABLE, HTTP_RESPONSE, INPUT_STREAM, FILE;
     private final TreeMap<String, Map<String, String>> implMethodNames = new TreeMap<>();
@@ -44,7 +41,6 @@ class ProcessEnvironment {
         pkg = element.getQualifiedName().toString();
         Configuration ann = init.getAnnotation(Configuration.class);
         responseAllType = ann.responseAllType();
-        charset = ann.charset();
         this.response = getClassInAnnotation(ann::response);
         //
         CLOSEABLE = elementUtils.getTypeElement("java.io.Closeable").asType();
@@ -173,15 +169,6 @@ class ProcessEnvironment {
             }
             name2 = name + i++;
         }
-    }
-
-    public String charset(String... charset) {
-        for (String c : charset) {
-            if (TextUtils.isNotEmpty(c)) {
-                return c;
-            }
-        }
-        return this.charset;
     }
 
     public String getPackage() {
