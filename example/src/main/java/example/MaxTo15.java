@@ -1,8 +1,8 @@
 package example;
 
 import yeamy.restlite.addition.TextPlainResponse;
+import yeamy.restlite.addition.ProcessException;
 import yeamy.restlite.annotation.ParamProcessor;
-import yeamy.restlite.annotation.ProcessException;
 
 public class MaxTo15 {
 

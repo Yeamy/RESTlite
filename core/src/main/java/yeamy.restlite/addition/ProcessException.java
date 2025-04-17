@@ -1,11 +1,9 @@
-package yeamy.restlite.annotation;
-
-import yeamy.restlite.addition.AbstractHttpResponse;
+package yeamy.restlite.addition;
 
 /**
- * Method with processor annotation (such as {@link InjectProvider}, {@link ParamProcessor}, ...) can throw this
+ * Method with processor annotation (such as InjectProvider, ParamProcessor, ...) can throw this
  * Exception to terminate the HTTP request.<br>
- * <b>notice:</b> Can be intercepted by @{@link ERROR}
+ * <b>notice:</b> Can be intercepted by @ERROR
  */
 public class ProcessException extends Exception {
     /**

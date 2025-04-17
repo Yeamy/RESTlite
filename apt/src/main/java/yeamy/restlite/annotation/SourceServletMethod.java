@@ -63,8 +63,8 @@ class SourceServletMethod {
         if (hasOnError) {
             servlet.append("catch(Exception _ex){onError(_req,_resp,_ex);}}");
         } else if (throwTypes.size() > 0) {
-            if (throwTypes.remove("yeamy.restlite.annotation.ProcessException")) {
-                servlet.append("catch(").append(servlet.imports("yeamy.restlite.annotation.ProcessException"))
+            if (throwTypes.remove("yeamy.restlite.addition.ProcessException")) {
+                servlet.append("catch(").append(servlet.imports("yeamy.restlite.addition.ProcessException"))
                         .append(" _ex){_ex.getResponse().write(_resp);}");
             }
             if (throwTypes.size() > 0) {
