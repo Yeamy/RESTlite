@@ -308,4 +308,48 @@ class ProcessEnvironment {
         }
         return Collections.emptyList();
     }
+
+    /**
+     * find inject field setter in impl, the setter name must be like setXxx(xxx).
+     *
+     * @return the setter or null
+     */
+    ExecutableElement findSetter(VariableElement param) {
+        StringBuilder sb = new StringBuilder("set").append(param.getSimpleName());
+        char c = sb.charAt(3);
+        if (c >= 'a' && c <= 'z') sb.setCharAt(3, (char) (c - 'a' + 'A'));// up case
+        String name = sb.toString();
+        for (Element li : param.getEnclosedElements()) {
+            if (li.getKind() == ElementKind.METHOD && li.getSimpleName().toString().equals(name)) {
+                ExecutableElement eli = (ExecutableElement) li;
+                List<? extends VariableElement> ps = eli.getParameters();
+                if (ps.size() == 1 && isAssignable(param.asType(), ps.get(0).asType())) {
+                    return eli;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * find inject field setter in impl, the setter name must be like setXxx(xxx).
+     *
+     * @return the setter or null
+     */
+    ExecutableElement findGetter(VariableElement param) {
+        StringBuilder sb = new StringBuilder("get").append(param.getSimpleName());
+        char c = sb.charAt(3);
+        if (c >= 'a' && c <= 'z') sb.setCharAt(3, (char) (c - 'a' + 'A'));// up case
+        String name = sb.toString();
+        for (Element li : param.getEnclosedElements()) {
+            if (li.getKind() == ElementKind.METHOD && li.getSimpleName().toString().equals(name)) {
+                ExecutableElement eli = (ExecutableElement) li;
+                List<? extends VariableElement> ps = eli.getParameters();
+                if (ps.size() == 1 && isAssignable(param.asType(), ps.get(0).asType())) {
+                    return eli;
+                }
+            }
+        }
+        return null;
+    }
 }

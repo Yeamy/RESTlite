@@ -61,9 +61,17 @@ abstract class SourceVariable {
         return throwable.size() > 0;
     }
 
-
-    public void writeClose(StringBuilder b, SourceServlet servlet) {
-        b.append(servlet.imports("yeamy.utils.StreamUtils")).append(".close(").append(param.getSimpleName()).append(");");
+    public void writeCloseField(StringBuilder b, SourceServlet servlet) {
+        if (!param.getModifiers().contains(Modifier.PRIVATE)) {
+            b.append(servlet.imports("yeamy.utils.StreamUtils")).append(".close(_impl.").append(param.getSimpleName()).append(");");
+            return;
+        }
+        ExecutableElement getter = env.findGetter(param);
+        if (getter != null) {
+            b.append(servlet.imports("yeamy.utils.StreamUtils")).append(".close(_impl.").append(getter.getSimpleName()).append("());");
+            return;
+        }
+        env.error("Cannot assign " + servlet.getImpl() + "." + param.getSimpleName() + " cause it's private and no getter found");
     }
 
     public List<String> throwTypes() {

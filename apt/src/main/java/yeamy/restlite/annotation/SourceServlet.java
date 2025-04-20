@@ -11,6 +11,7 @@ import static yeamy.restlite.annotation.SupportType.T_HttpServletResponse;
 
 class SourceServlet extends SourceClass {
     final ProcessEnvironment env;
+    private final String impl, name;
     private final TypeElement element;
     private final RESTfulResource resource;
     private final HashMap<String, SourceServletMethod> httpMethods = new HashMap<>();
@@ -24,6 +25,8 @@ class SourceServlet extends SourceClass {
         this.env = env;
         this.element = element;
         this.resource = element.getAnnotation(RESTfulResource.class);
+        this.impl = element.getSimpleName().toString();
+        this.name = env.getFileName(pkg, impl + "Servlet");
         if (getRESTfulResource().contains("/")) {
             throw new RuntimeException("Cannot create servlet with illegal REST resource in class:" + element.asType());
         }
@@ -84,13 +87,11 @@ class SourceServlet extends SourceClass {
         imports("jakarta.servlet.ServletException");
         imports("yeamy.restlite.RESTfulRequest");
         imports("yeamy.restlite.RESTfulServlet");
-        String impl = element.getSimpleName().toString();
-        String name = env.getFileName(pkg, impl + "Servlet");
-        createBody(impl, name);
+        createBody();
         createSourceFile(env.processingEnv, name, b);
     }
 
-    private void createBody(String impl, String name) {
+    private void createBody() {
         {// WebServlet
             b.append("@WebServlet(");
             if (asyncSupported) {
@@ -154,7 +155,7 @@ class SourceServlet extends SourceClass {
             if (closeable.size() > 0) {
                 b.append("@Override public void destroy() { super.destroy();");
                 for (SourceInject inject : closeable) {
-                    inject.writeClose(b, this);
+                    inject.writeCloseField(b, this);
                 }
                 b.append('}');
             }
@@ -208,5 +209,9 @@ class SourceServlet extends SourceClass {
     public boolean isSamePackage(TypeElement te) {
         String fpk = ((PackageElement) te.getEnclosingElement()).getQualifiedName().toString();
         return fpk.equals(pkg);
+    }
+
+    public String getImpl() {
+        return impl;
     }
 }
