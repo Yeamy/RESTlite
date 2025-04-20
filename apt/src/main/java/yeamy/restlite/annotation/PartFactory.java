@@ -40,7 +40,7 @@ public @interface PartFactory {
     String processor();
 
     /**
-     * @return name of the method in the annotation, which returns {@link Parts#value()}
+     * @return name of the method in the annotation, which returns {@link Parts#name()}
      */
     String nameMethod();
 }

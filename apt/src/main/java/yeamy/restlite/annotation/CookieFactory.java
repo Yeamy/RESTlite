@@ -40,7 +40,7 @@ public @interface CookieFactory {
     String processor();
 
     /**
-     * @return name of the method in the annotation, which returns {@link Cookies#value()}
+     * @return name of the method in the annotation, which returns {@link Cookies#name()}
      */
     String nameMethod();
 }

@@ -21,7 +21,12 @@ import java.lang.annotation.Target;
 public @interface Attribute {
 
     /**
-     * @return name of Attribute, can be empty if same with parameter
+     * @return same as {@link #name()}
      */
     String value() default "";
+
+    /**
+     * @return name of Attribute, can be empty if same with parameter
+     */
+    String name() default "";
 }

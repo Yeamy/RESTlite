@@ -20,7 +20,7 @@ import java.lang.annotation.Target;
 public @interface BodyProcessor {
 
     /**
-     * distinguish the constructor/static-method with same return type
+     * Distinguish the constructor/static-method with same return type
      *
      * @return name of this processor
      */

@@ -23,9 +23,14 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.SOURCE)
 public @interface Cookies {
     /**
-     * @return name of Cookies, can be empty if same with parameter
+     * @return same as {@link #name()}
      */
     String value() default "";
+
+    /**
+     * @return name of Cookies, can be empty if same with parameter
+     */
+    String name() default "";
 
     /**
      * @return Specify which {@link CookieProcessor} to create this http-body parameter

@@ -42,7 +42,7 @@ public @interface ParamFactory {
     String processor();
 
     /**
-     * @return name of the method in the annotation, which returns {@link Param#value()}
+     * @return name of the method in the annotation, which returns {@link Param#name()}
      */
     String nameMethod();
 

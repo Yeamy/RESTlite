@@ -21,13 +21,18 @@ import java.lang.annotation.Target;
  * @see Attribute
  */
 @Target(ElementType.PARAMETER)
-@Retention(RetentionPolicy.RUNTIME)
+@Retention(RetentionPolicy.SOURCE)
 public @interface Param {
+
+    /**
+     * @return same as {@link #name()}
+     */
+    String value() default "";
 
     /**
      * @return name of http-parameter, can be empty if same with method parameter
      */
-    String value() default "";
+    String name() default "";
 
     /**
      * @return requested or optional
@@ -35,7 +40,7 @@ public @interface Param {
     boolean required() default true;
 
     /**
-     * @return Specify which {@link BodyProcessor} to create this http-body parameter
+     * @return Specify which {@link ParamProcessor} to create this http parameter
      */
     String processor() default "";
 }

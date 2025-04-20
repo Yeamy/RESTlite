@@ -12,13 +12,16 @@ import java.lang.annotation.Target;
  * For public static-method/constructor with one param (one of {@link String},
  * {@linkplain jakarta.servlet.http.Cookie Cookie}, Cookie[]).<br>
  * Can throw a {@link ProcessException} to terminate an HTTP request
+ *
+ * @see Cookies
+ * @see CookieFactory
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.SOURCE)
 public @interface CookieProcessor {
 
     /**
-     * distinguish the constructor/static-method with same return type
+     * Distinguish the constructor/static-method with same return type
      *
      * @return name of this processor
      */

@@ -13,13 +13,16 @@ import java.lang.annotation.Target;
  * float, {@link Float}, double, {@link Double}, boolean, {@link Boolean}, {@linkplain java.math.BigDecimal BigDecimal},
  * an array of type as above).<br>
  * Can throw a {@link ProcessException} to terminate an HTTP request
+ *
+ * @see Param
+ * @see ParamFactory
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.SOURCE)
 public @interface ParamProcessor {
 
     /**
-     * distinguish the constructor/static-method with same return type
+     * Distinguish the constructor/static-method with same return type
      *
      * @return name of this processor
      */

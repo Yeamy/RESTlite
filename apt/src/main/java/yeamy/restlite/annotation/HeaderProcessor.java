@@ -19,7 +19,7 @@ import java.lang.annotation.Target;
 public @interface HeaderProcessor {
 
     /**
-     * distinguish the constructor/static-method with same return type
+     * Distinguish the constructor/static-method with same return type
      *
      * @return name of this processor
      */

@@ -36,7 +36,7 @@ public @interface Inject {
     Singleton singleton() default Singleton.auto;
 
     /**
-     * @return Specify which {@link InjectProvider} to create this http-body parameter
+     * @return name of the InjectProvider
      */
     String provider() default "";
 }

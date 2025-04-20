@@ -25,9 +25,14 @@ import java.lang.annotation.Target;
 public @interface Parts {
 
     /**
-     * @return name of part, can be empty if same with parameter
+     * @return same as {@link #name()}
      */
     String value() default "";
+
+    /**
+     * @return name of part, can be empty if same with parameter
+     */
+    String name() default "";
 
     /**
      * @return Specify which {@link PartProcessor} to create this http-part parameter

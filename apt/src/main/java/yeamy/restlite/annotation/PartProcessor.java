@@ -13,14 +13,14 @@ import java.lang.annotation.Target;
  * Can throw a {@link ProcessException} to terminate an HTTP request
  *
  * @see Parts
- * @see PartProcessor
+ * @see PartFactory
  */
 @Target({ElementType.METHOD, ElementType.CONSTRUCTOR})
 @Retention(RetentionPolicy.CLASS)
 public @interface PartProcessor {
 
     /**
-     * distinguish the constructor/static-method with same return type
+     * Distinguish the constructor/static-method with same return type
      *
      * @return name of this processor
      */

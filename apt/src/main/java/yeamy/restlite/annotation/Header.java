@@ -24,9 +24,14 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.SOURCE)
 public @interface Header {
     /**
-     * @return name of Header, can be empty if same with parameter
+     * @return same as {@link #name()}
      */
     String value() default "";
+
+    /**
+     * @return name of Header, can be empty if same with parameter
+     */
+    String name() default "";
 
     /**
      * @return Specify which HeaderProcessor to create this http-body parameter

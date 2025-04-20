@@ -21,7 +21,7 @@ public @interface InjectProvider {
     Class<?>[] provideFor() default {};
 
     /**
-     * distinguish the constructor/static-method with same return type
+     * Distinguish the constructor/static-method with same return type
      *
      * @return name of this provider
      */
