@@ -7,17 +7,16 @@ import java.util.List;
 import java.util.Set;
 
 class SourceInjectProvider {
-    public final TypeElement importType;
+    private final TypeElement importType;
+    private final ElementKind kind;
+    private final ExecutableElement method;
+    private final VariableElement field;
     public final TypeMirror outType;
-    public final ExecutableElement method;
-    public final ElementKind kind;
-    public final String content;
     public final List<String> throwable;
     public final boolean closeable;
     public final boolean closeThrow;
 
     public SourceInjectProvider(ProcessEnvironment env, Element element) {
-        this.importType = (TypeElement) element.getEnclosingElement();
         ElementKind kind = this.kind = element.getKind();
         if (kind == ElementKind.FIELD) {
             this.outType = element.asType();
@@ -25,8 +24,9 @@ class SourceInjectProvider {
             if (modifiers.contains(Modifier.PUBLIC)
                     && modifiers.contains(Modifier.STATIC)
                     && modifiers.contains(Modifier.FINAL)) {
+                this.importType = (TypeElement) element.getEnclosingElement();
                 this.method = null;
-                this.content = importType.getSimpleName() + "." + element.getSimpleName();
+                this.field = (VariableElement) element;
                 this.throwable = Collections.emptyList();
                 this.closeable = this.closeThrow = false;
                 return;
@@ -39,14 +39,13 @@ class SourceInjectProvider {
             this.outType = ((ExecutableElement) element).getReturnType();
             Set<Modifier> modifiers = element.getModifiers();
             if (modifiers.contains(Modifier.PUBLIC) && modifiers.contains(Modifier.STATIC)) {
+                this.importType = (TypeElement) element.getEnclosingElement();
                 this.method = method;
-                this.content = importType + "." + element.getSimpleName() + "()";
+                this.field = null;
                 this.throwable = ProcessEnvironment.getThrowType(method);
                 this.closeable = env.isCloseable(outType);
                 this.closeThrow = closeable && ProcessEnvironment.isCloseThrow(env.getTypeElement(outType.toString()));
                 return;
-            } else if (method.getParameters().size() > 0) {
-                env.error("InjectProvider must be no parameter!");
             } else {
                 env.error("InjectProvider method must have the modifier public static:"
                         + element.asType().toString() + "." + element.getSimpleName());
@@ -56,23 +55,41 @@ class SourceInjectProvider {
             Element type = element.getEnclosingElement();
             this.outType = type.asType();
             if (element.getModifiers().contains(Modifier.PUBLIC)) {
+                this.importType = (TypeElement) element.getEnclosingElement();
                 this.method = method;
-                this.content = "new " + importType.getSimpleName() + "()";
+                this.field = null;
                 this.throwable = ProcessEnvironment.getThrowType(method);
                 this.closeable = env.isCloseable(outType);
                 this.closeThrow = closeable && ProcessEnvironment.isCloseThrow((TypeElement) type);
                 return;
-            } else if (method.getParameters().size() > 0) {
-                env.error("InjectProvider must be no parameter!");
             } else {
                 env.error("InjectProvider constructor must have the modifier public:"
                         + element.asType().toString() + "." + element.getSimpleName());
             }
         }
+        this.importType = null;
         this.method = null;
-        this.content = "null";
+        this.field = null;
         this.throwable = Collections.emptyList();
         this.closeable = this.closeThrow = false;
     }
 
+    public boolean isFail() {
+        return method == null && field == null;
+    }
+
+    public void write(StringBuilder b, SourceServlet servlet) {
+        if (field != null) {
+            b.append(servlet.imports(importType.asType())).append('.').append(field.getSimpleName());
+        } else if (method == null) {
+            b.append("null");
+        } else if (kind == ElementKind.METHOD) {
+            b.append(servlet.imports(importType.asType())).append('.').append(method.getSimpleName());
+            SourceInject.writeParam(b, method);
+        } else {
+            b.append("new ").append(servlet.imports(importType.asType()));
+            SourceInject.writeParam(b, method);
+        }
+
+    }
 }

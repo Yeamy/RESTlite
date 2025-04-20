@@ -16,7 +16,7 @@ import static yeamy.restlite.annotation.SourcePartProcessor.SUPPORT_PART_TYPE;
 
 abstract class SourceVariableHelper {
 
-    private static void findInjectConstructor(ArrayList<ExecutableElement> list, List<? extends Element> elements, boolean samePackage) {
+    private static void findInjectConstructor(ArrayList<Element> list, List<? extends Element> elements, boolean samePackage) {
         for (Element element : elements) {
             if (element.getKind() != ElementKind.CONSTRUCTOR) continue;
             ExecutableElement constructor = (ExecutableElement) element;
@@ -29,7 +29,7 @@ abstract class SourceVariableHelper {
         }
     }
 
-    private static void findInjectStaticMethod(ArrayList<ExecutableElement> list, ProcessEnvironment env, List<? extends Element> elements, TypeMirror returnType, boolean samePackage) {
+    private static void findInjectStaticMethod(ArrayList<Element> list, ProcessEnvironment env, List<? extends Element> elements, TypeMirror returnType, boolean samePackage) {
         for (Element element : elements) {
             if (element.getKind() != ElementKind.METHOD) continue;
             ExecutableElement method = (ExecutableElement) element;
@@ -40,6 +40,19 @@ abstract class SourceVariableHelper {
             if (modifiers.contains(Modifier.PRIVATE)) continue;
             if (!samePackage && !modifiers.contains(Modifier.PUBLIC)) continue;
             list.add(method);
+        }
+    }
+
+    private static void findInjectStaticField(ArrayList<Element> list, ProcessEnvironment env, List<? extends Element> elements, TypeMirror returnType, boolean samePackage) {
+        for (Element element : elements) {
+            if (element.getKind() != ElementKind.FIELD) continue;
+            VariableElement field = (VariableElement) element;
+            if (!env.isAssignable(returnType, field.asType())) continue;
+            Set<Modifier> modifiers = element.getModifiers();
+            if (!modifiers.contains(Modifier.STATIC)) continue;
+            if (modifiers.contains(Modifier.PRIVATE)) continue;
+            if (!samePackage && !modifiers.contains(Modifier.PUBLIC)) continue;
+            list.add(field);
         }
     }
 
@@ -55,29 +68,33 @@ abstract class SourceVariableHelper {
             return new SourceInjectNull(env, param, returnType);
         }
         TypeElement classType = env.getTypeElement(returnType.toString());
-        if (classType.getModifiers().contains(Modifier.ABSTRACT)) {
-            env.error("Cannot find creator without InjectProvider in abstract class: " + returnType);
-            return new SourceInjectNull(env, param, returnType);
-        }
         boolean samePackage = servlet.isSamePackage(classType);
         List<? extends Element> elements = classType.getEnclosedElements();
-        ArrayList<ExecutableElement> list = new ArrayList<>();
+        ArrayList<Element> list = new ArrayList<>();
         findInjectStaticMethod(list, env, elements, returnType, samePackage);
         if (list.size() > 1) {
-            env.error("More than one Static-Factory-Method in type:" + returnType + " " + param.getSimpleName());
+            env.error("More than one Factory-Method in type:" + returnType + " " + param.getSimpleName());
             return new SourceInjectNull(env, param, returnType);
-        } else if (list.size() == 0) {
+        } else if (list.size() == 0 && !classType.getModifiers().contains(Modifier.ABSTRACT)) {
             findInjectConstructor(list, elements, samePackage);
         }
+        if (list.size() > 1) {
+            env.error("More than one Constructor in type:" + returnType + " " + param.getSimpleName());
+            return new SourceInjectNull(env, param, returnType);
+        } else if (list.size() == 0) {
+            findInjectStaticField(list, env, elements, returnType, samePackage);
+        }
         if (list.size() == 0) {
-            env.error("Cannot find Constructor nor Static-Factory-Method with no argument in type " + returnType
+            env.error("Cannot find Constructor nor Factory-Method, Field with no argument in type " + returnType
                     + " " + param.getSimpleName());
             return new SourceInjectNull(env, param, returnType);
         } else if (list.size() > 1) {
-            env.error("More than one constructor in type:" + returnType + " " + param.getSimpleName());
+            env.error("More than one Field in type:" + returnType + " " + param.getSimpleName());
             return new SourceInjectNull(env, param, returnType);
+        } else if (list.get(0) instanceof ExecutableElement ee) {
+            return new SourceInjectByExecutable(env, param, classType, ee, returnType, samePackage, elements);
         } else {
-            return new SourceInjectByExecutable(env, param, classType, list.get(0), returnType, samePackage, elements);
+            return new SourceInjectByField(env, param, classType, (VariableElement) list.get(0), returnType);
         }
     }
 
@@ -132,22 +149,18 @@ abstract class SourceVariableHelper {
             return new SourceHeaderDefault(env, param, returnTypeName);
         }
         TypeElement classType = env.getTypeElement(returnTypeName);
-        if (classType.getModifiers().contains(Modifier.ABSTRACT)) {
-            env.error("Cannot find creator without HeaderProcessor in abstract class: " + returnType);
-            return null;
-        }
         boolean samePackage = servlet.isSamePackage(classType);
         ArrayList<ExecutableElement> list = new ArrayList<>();
         List<? extends Element> elements = classType.getEnclosedElements();
         findHeaderStaticMethod(list, env, elements, returnType, samePackage);
         if (list.size() > 1) {
-            env.error("More than one Static-Factory-Method in type:" + returnType + " " + param.getSimpleName());
+            env.error("More than one Factory-Method in type:" + returnType + " " + param.getSimpleName());
             return null;
-        } else if (list.size() == 0) {
+        } else if (list.size() == 0 && !classType.getModifiers().contains(Modifier.ABSTRACT)) {
             findHeaderConstructor(list, elements, samePackage);
         }
         if (list.size() == 0) {
-            env.error("Cannot find Constructor nor Static-Factory-Method with no argument in type " + returnType);
+            env.error("Cannot find Constructor nor Factory-Method with no argument in type " + returnType);
             return null;
         } else if (list.size() > 1) {
             env.error("More than one Constructor in type:" + returnType + " " + param.getSimpleName());
@@ -207,22 +220,18 @@ abstract class SourceVariableHelper {
             return new SourceCookieDefault(env, param, returnTypeName);
         }
         TypeElement classType = env.getTypeElement(returnTypeName);
-        if (classType.getModifiers().contains(Modifier.ABSTRACT)) {
-            env.error("Cannot find creator without CookieProcessor in abstract class: " + returnType);
-            return null;
-        }
         boolean samePackage = servlet.isSamePackage(classType);
         List<? extends Element> elements = classType.getEnclosedElements();
         ArrayList<ExecutableElement> list = new ArrayList<>();
         findCookieStaticMethod(list, env, elements, returnType, samePackage);
         if (list.size() > 1) {
-            env.error("More than one Static-Factory-Method in type:" + returnType + " " + param.getSimpleName());
+            env.error("More than one Factory-Method in type:" + returnType + " " + param.getSimpleName());
             return null;
-        } else if (list.size() == 0) {
+        } else if (list.size() == 0 && !classType.getModifiers().contains(Modifier.ABSTRACT)) {
             findCookieConstructor(list, elements, samePackage);
         }
         if (list.size() == 0) {
-            env.error("Cannot find Constructor nor Static-Factory-Method with no argument in type " + returnType);
+            env.error("Cannot find Constructor nor Factory-Method with no argument in type " + returnType);
             return null;
         } else if (list.size() > 1) {
             env.error("More than one Constructor in type:" + returnType + " " + param.getSimpleName());
@@ -306,25 +315,21 @@ abstract class SourceVariableHelper {
             return new SourceBodyDefault(env, param, returnTypeName);
         }
         TypeElement classType = env.getTypeElement(returnTypeName);
-        if (classType.getModifiers().contains(Modifier.ABSTRACT)) {
-            env.error("Cannot find creator without BodyProcessor in abstract class: " + returnType);
-            return null;
-        }
         boolean samePackage = servlet.isSamePackage(classType);
         List<? extends Element> elements = classType.getEnclosedElements();
         ArrayList<ExecutableElement> list = new ArrayList<>();
         findBodyStaticMethod(list, env, elements, returnType, samePackage);
         if (list.size() > 1) {
-            env.error("More than one Constructor in type:" + returnType + " " + param.getSimpleName());
+            env.error("More than one Factory-Method in type:" + returnType + " " + param.getSimpleName());
             return null;
-        } else if (list.size() == 0) {
+        } else if (list.size() == 0 && !classType.getModifiers().contains(Modifier.ABSTRACT)) {
             findBodyConstructor(list, elements, returnType, samePackage);
         }
         if (list.size() == 0) {
-            env.error("Cannot find Constructor nor Static-Factory-Method with no argument in type " + returnType);
+            env.error("Cannot find Constructor nor Factory-Method with no argument in type " + returnType);
             return null;
         } else if (list.size() > 1) {
-            env.error("More than one Static-Factory-Method in type:" + returnType + " " + param.getSimpleName());
+            env.error("More than one Constructor in type:" + returnType + " " + param.getSimpleName());
             return null;
         } else {
             return new SourceBodyByExecutable(env, param, classType, list.get(0), returnType, samePackage, elements);
@@ -405,25 +410,21 @@ abstract class SourceVariableHelper {
             return new SourcePartDefault(env, param, returnTypeName);
         }
         TypeElement classType = env.getTypeElement(returnTypeName);
-        if (classType.getModifiers().contains(Modifier.ABSTRACT)) {
-            env.error("Cannot find creator without PartProcessor in abstract class: " + returnType);
-            return null;
-        }
         boolean samePackage = servlet.isSamePackage(classType);
         List<? extends Element> elements = classType.getEnclosedElements();
         ArrayList<ExecutableElement> list = new ArrayList<>();
         findPartStaticMethod(list, env, elements, returnType, samePackage);
         if (list.size() > 1) {
-            env.error("More than one Constructor in type:" + returnType + " " + param.getSimpleName());
+            env.error("More than one Factory-Method in type:" + returnType + " " + param.getSimpleName());
             return null;
-        } else if (list.size() == 0) {
+        } else if (list.size() == 0 && !classType.getModifiers().contains(Modifier.ABSTRACT)) {
             findPartConstructor(list, elements, returnType, samePackage);
         }
         if (list.size() == 0) {
-            env.error("Cannot find Constructor nor Static-Factory-Method with no argument in type " + returnType);
+            env.error("Cannot find Constructor nor Factory-Method with no argument in type " + returnType);
             return null;
         } else if (list.size() > 1) {
-            env.error("More than one Static-Factory-Method in type:" + returnType + " " + param.getSimpleName());
+            env.error("More than one Constructor in type:" + returnType + " " + param.getSimpleName());
             return null;
         } else {
             return new SourcePartByExecutable(env, param, classType, list.get(0), returnType, samePackage, elements);
@@ -508,25 +509,21 @@ abstract class SourceVariableHelper {
             return new SourceParamDefault(env, param, returnTypeName);
         }
         TypeElement classType = env.getTypeElement(returnTypeName);
-        if (classType.getModifiers().contains(Modifier.ABSTRACT)) {
-            env.error("Cannot find creator without ParamProcessor in abstract class: " + returnType);
-            return null;
-        }
         boolean samePackage = servlet.isSamePackage(classType);
         ArrayList<ExecutableElement> list = new ArrayList<>();
         List<? extends Element> elements = classType.getEnclosedElements();
         findParamStaticMethod(list, env, elements, returnType, samePackage);
         if (list.size() > 1) {
-            env.error("More than one Constructor in type:" + returnType + " " + param.getSimpleName());
+            env.error("More than one Factory-Method in type:" + returnType + " " + param.getSimpleName());
             return null;
-        } else if (list.size() == 0) {
+        } else if (list.size() == 0 && !classType.getModifiers().contains(Modifier.ABSTRACT)) {
             findParamConstructor(list, elements, samePackage);
         }
         if (list.size() == 0) {
-            env.error("Cannot find Constructor nor Static-Factory-Method with no argument in type " + returnType);
+            env.error("Cannot find Constructor nor Factory-Method with no argument in type " + returnType);
             return null;
         } else if (list.size() > 1) {
-            env.error("More than one Static-Factory-Method in type:" + returnType + " " + param.getSimpleName());
+            env.error("More than one Constructor in type:" + returnType + " " + param.getSimpleName());
             return null;
         } else {
             return new SourceParamByExecutable(env, param, classType, list.get(0), returnType, samePackage, elements);

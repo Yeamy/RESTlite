@@ -1,14 +1,19 @@
 package yeamy.restlite.annotation;
 
 import javax.lang.model.element.*;
+import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import java.util.List;
-import java.util.Set;
+
+import static yeamy.restlite.annotation.SupportType.T_ServletConfig;
+import static yeamy.restlite.annotation.SupportType.T_ServletContext;
 
 abstract class SourceInject extends SourceVariable {
+    protected final TypeMirror returnType;
 
-    public SourceInject(ProcessEnvironment env, VariableElement param) {
+    public SourceInject(ProcessEnvironment env, VariableElement param, TypeMirror returnType) {
         super(env, param);
+        this.returnType = returnType;
     }
 
     /**
@@ -33,35 +38,15 @@ abstract class SourceInject extends SourceVariable {
         return null;
     }
 
-//    protected VariableElement findField(TypeElement type) {
-//        for (Element e : type.getEnclosedElements()) {
-//            if (e.getKind().equals(ElementKind.FIELD)) {
-//                Set<Modifier> modifiers = e.getModifiers();
-//                VariableElement ve = (VariableElement) e;
-//                if (modifiers.contains(Modifier.STATIC)
-//                        && ve.asType().equals(param.asType())
-//                        && isAssignable(e, modifiers)) {
-//                    return ve;
-//                }
-//            }
-//        }
-//        return null;
-//    }
-//
-//    protected boolean isAssignable(Element e, Set<Modifier> modifiers) {
-//        return modifiers.contains(Modifier.PUBLIC)
-//                || (!modifiers.contains(Modifier.PRIVATE) && env.isAssignable(typeMirror, e.asType()));
-//    }
-
     public void writeField(StringBuilder b, SourceServlet servlet) {
         ExecutableElement setter = findSetter();
         if (setter != null) {
             b.append("_impl.").append(setter.getSimpleName()).append('(');
-            writeFieldValue(b, servlet);
+            writeCreator(b, servlet);
             b.append(");");
         } else if (!param.getModifiers().contains(Modifier.PRIVATE)) {
             b.append("_impl.").append(param.getSimpleName()).append('=');
-            writeFieldValue(b, servlet);
+            writeCreator(b, servlet);
             b.append(';');
         } else {
             String simpleName = param.getSimpleName().toString();
@@ -71,8 +56,37 @@ abstract class SourceInject extends SourceVariable {
         }
     }
 
-    protected abstract void writeFieldValue(StringBuilder b, SourceServlet servlet);
+    CharSequence writeArg(SourceServlet servlet) {
+        String typeName = servlet.imports(returnType);
+        StringBuilder b = new StringBuilder(typeName).append(" ").append(param.getSimpleName()).append(" = ");
+        writeCreator(b, servlet);
+        b.append(';');
+        return b;
+    }
 
-    public abstract CharSequence writeArg(SourceServlet servlet);
+    static void writeParam(StringBuilder b, ExecutableElement method) {
+        List<? extends VariableElement> ps = method.getParameters();
+        if (ps.size() == 0) {
+            b.append("()");
+            return;
+        }
+        b.append('(');
+        ps.forEach(param -> {
+            TypeMirror tm = param.asType();
+            TypeKind kind = tm.getKind();
+            if (kind.isPrimitive()) {
+                b.append(kind.equals(TypeKind.BOOLEAN) ? "false, " : "0,");
+                return;
+            }
+            switch (tm.toString()) {
+                case T_ServletConfig -> b.append("getServletConfig(),");
+                case T_ServletContext -> b.append("getServletContext(),");
+                default -> b.append("null,");
+            }
+        });
+        b.replace(b.length() - 1, b.length(), ")");
+    }
+
+    protected abstract void writeCreator(StringBuilder b, SourceServlet servlet);
 
 }

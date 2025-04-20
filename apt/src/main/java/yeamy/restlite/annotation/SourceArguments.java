@@ -2,6 +2,9 @@ package yeamy.restlite.annotation;
 
 import yeamy.utils.TextUtils;
 
+import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeKind;
+import javax.lang.model.type.TypeMirror;
 import java.util.ArrayList;
 
 class SourceArguments {
@@ -95,7 +98,9 @@ class SourceArguments {
         return impl;
     }
 
-    public void addFallback(String name) {
+    public void addFallback(VariableElement p) {
+        TypeKind kind = p.asType().getKind();
+        String name = kind.isPrimitive() ? kind.equals(TypeKind.BOOLEAN) ? "false" : "0" : "null";
         Impl impl = new Impl(SourceArgType.fallback, "", name, name);
         list.add(impl);
     }

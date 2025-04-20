@@ -257,7 +257,7 @@ class ProcessEnvironment {
     public void addInjectProvider(Element element, InjectProvider ann) {
         SourceInjectProvider p = new SourceInjectProvider(this, element);
         injectProviders.add(element, ann.value(), p);
-        if (p.method == null) return;
+        if (p.isFail()) return;
         try {
             for (Class<?> clz : ann.provideFor()) {
                 String type = clz.getName();

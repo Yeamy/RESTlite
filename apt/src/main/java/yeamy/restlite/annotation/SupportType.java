@@ -4,6 +4,8 @@ class SupportType {
     public static final String T_HttpServletRequest = "jakarta.servlet.http.HttpServletRequest";
     public static final String T_HttpServletResponse = "jakarta.servlet.http.HttpServletResponse";
     public static final String T_ServletInputStream = "jakarta.servlet.ServletInputStream";
+    public static final String T_ServletConfig = "jakarta.servlet.ServletConfig";
+    public static final String T_ServletContext = "jakarta.servlet.ServletContext";
     public static final String T_Cookie = "jakarta.servlet.http.Cookie";
     public static final String T_CookieArray = T_Cookie + "[]";
     public static final String T_HttpRequest = "yeamy.restlite.RESTfulRequest";

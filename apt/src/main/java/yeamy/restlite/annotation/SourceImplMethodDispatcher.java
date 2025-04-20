@@ -121,15 +121,12 @@ class SourceImplMethodDispatcher {
     }
 
     private boolean doAttribute(VariableElement p) {
-        Attribute attribute = p.getAnnotation(Attribute.class);
-        if (attribute == null) {
+        Attribute ann = p.getAnnotation(Attribute.class);
+        if (ann == null) {
             return false;
         }
         String alias = p.getSimpleName().toString();
-        String name = attribute.value();
-        if ("".equals(name)) {
-            name = alias;
-        }
+        String name = name(ann, alias);
         TypeMirror tm = p.asType();
         String type = tm.toString();
         String exist = args.getAttributeAlias(type, name);
@@ -138,7 +135,7 @@ class SourceImplMethodDispatcher {
             return true;
         }
         if (tm.getKind().isPrimitive()) {
-            args.addFallback("null/* not support primitive type */");
+            args.addFallback(p);
             env.warning("not support attribute type " + type + " without annotation Creator");
         } else {
             String iType = servlet.imports(tm);
@@ -153,10 +150,7 @@ class SourceImplMethodDispatcher {
             return false;
         }
         String alias = p.getSimpleName().toString();
-        String name = ann.value();
-        if ("".equals(name)) {
-            name = alias;
-        }
+        String name = name(ann, alias);
         String type = p.asType().toString();
         String exist = args.getHeaderAlias(type, name);
         if (exist != null) {
@@ -168,7 +162,7 @@ class SourceImplMethodDispatcher {
             throwTypes.addAll(header.throwTypes());
             args.addHeader(type, name, alias).write(header.write(servlet, name, alias));
         } else {
-            args.addFallback("null/* not support type */");
+            args.addFallback(p);
             env.warning("not support header type " + type + " without annotation Creator");
         }
         return true;
@@ -179,13 +173,13 @@ class SourceImplMethodDispatcher {
         Cookies ann = p.getAnnotation(Cookies.class);
         if (ann != null) {
             String alias = p.getSimpleName().toString();
-            String name = TextUtils.isEmpty(ann.value()) ? alias : ann.value();
+            String name = name(ann, alias);
             SourceCookie cookie = SourceVariableHelper.getCookie(env, servlet, p, ann);
             if (cookie != null) {
                 throwTypes.addAll(cookie.throwTypes());
                 args.addCookie(type, name, alias).write(cookie.write(servlet, name, alias));
             } else {
-                args.addFallback("null/* not support cookie type */");
+                args.addFallback(p);
                 env.warning("Not support cookie type " + type + " without annotation Creator");
             }
             return true;
@@ -193,13 +187,13 @@ class SourceImplMethodDispatcher {
         SourceFactory<CookieFactory> factory = ProcessEnvironment.getCookieFactory(p);
         if (factory != null) {
             String alias = p.getSimpleName().toString();
-            String name = TextUtils.isEmpty(factory.name()) ? alias : factory.name();
+            String name = name(factory, alias);
             SourceCookie cookie = SourceVariableHelper.getCookieByFactory(env, p, factory);
             if (cookie != null) {
                 throwTypes.addAll(cookie.throwTypes());
                 args.addCookie(type, name, alias).write(cookie.write(servlet, name, alias));
             } else {
-                args.addFallback("null");
+                args.addFallback(p);
             }
             return true;
         }
@@ -233,7 +227,7 @@ class SourceImplMethodDispatcher {
         Body ann = p.getAnnotation(Body.class);
         if (ann != null) {
             if (args.containsBodyOrPart()) {
-                args.addFallback("null");
+                args.addFallback(p);
                 env.error("cannot read body twice");
                 return true;
             }
@@ -243,14 +237,14 @@ class SourceImplMethodDispatcher {
                 throwTypes.addAll(body.throwTypes());
                 args.addBody(name, body.isThrowable(), body.isCloseable(), body.isCloseThrow()).write(body.write(servlet, name));
             } else {
-                args.addFallback("null");
+                args.addFallback(p);
             }
             return true;
         }
         String type = p.asType().toString();
         if (TextUtils.in(type, T_ServletInputStream, T_PartArray, T_FileArray)) {
             if (args.containsBodyOrPart()) {
-                args.addFallback("null");
+                args.addFallback(p);
                 env.error("cannot read body twice");
                 return true;
             }
@@ -263,7 +257,7 @@ class SourceImplMethodDispatcher {
         BodyFactory factory = ProcessEnvironment.getBodyFactory(p);
         if (factory != null) {
             if (args.containsBodyOrPart()) {
-                args.addFallback("null");
+                args.addFallback(p);
                 env.error("cannot read body twice");
                 return true;
             }
@@ -273,7 +267,7 @@ class SourceImplMethodDispatcher {
                 throwTypes.addAll(body.throwTypes());
                 args.addBody(name, body.isThrowable(), body.isCloseable(), body.isCloseThrow()).write(body.write(servlet, name));
             } else {
-                args.addFallback("null");
+                args.addFallback(p);
             }
             return true;
         }
@@ -284,14 +278,14 @@ class SourceImplMethodDispatcher {
         Parts ann = p.getAnnotation(Parts.class);
         if (ann != null) {
             if (args.containsBody()) {
-                args.addFallback("null");
+                args.addFallback(p);
                 env.error("cannot read body twice");
                 return true;
             }
             String alias = p.getSimpleName().toString();
-            String name = TextUtils.isEmpty(ann.value()) ? alias : ann.value();
+            String name = name(ann, alias);
             if (args.containsPart(name)) {
-                args.addFallback("null");
+                args.addFallback(p);
                 env.error("cannot read part twice");
                 return true;
             }
@@ -301,20 +295,20 @@ class SourceImplMethodDispatcher {
                 args.addPart(name, alias, part.isThrowable(), part.isCloseable(), part.isCloseThrow())
                         .write(part.write(servlet, name, alias));
             } else {
-                args.addFallback("null");
+                args.addFallback(p);
             }
             return true;
         }
         String type = p.asType().toString();
         if (TextUtils.in(type, T_InputStream, T_Part, T_File)) {
             if (args.containsBody()) {
-                args.addFallback("null");
+                args.addFallback(p);
                 env.error("cannot read body twice");
                 return true;
             }
             String name = p.getSimpleName().toString();
             if (args.containsPart(name)) {
-                args.addFallback("null");
+                args.addFallback(p);
                 env.error("cannot read part twice");
                 return true;
             }
@@ -327,14 +321,14 @@ class SourceImplMethodDispatcher {
         SourceFactory<PartFactory> factory = ProcessEnvironment.getPartFactory(p);
         if (factory != null) {
             if (args.containsBody()) {
-                args.addFallback("null");
+                args.addFallback(p);
                 env.error("cannot read body twice");
                 return true;
             }
             String alias = p.getSimpleName().toString();
-            String name = TextUtils.isEmpty(factory.name()) ? alias : factory.name();
+            String name = name(factory, alias);
             if (args.containsPart(name)) {
-                args.addFallback("null");
+                args.addFallback(p);
                 env.error("cannot read part twice");
                 return true;
             }
@@ -344,7 +338,7 @@ class SourceImplMethodDispatcher {
                 args.addPart(name, alias, part.isThrowable(), part.isCloseable(), part.isCloseThrow())
                         .write(part.write(servlet, name, alias));
             } else {
-                args.addFallback("null");
+                args.addFallback(p);
             }
             return true;
         }
@@ -356,13 +350,13 @@ class SourceImplMethodDispatcher {
         Param ann = p.getAnnotation(Param.class);
         if (ann != null) {
             String alias = p.getSimpleName().toString();
-            String name = TextUtils.isEmpty(ann.value()) ? alias : ann.value();
+            String name = name(ann, alias);
             SourceParam param = SourceVariableHelper.getParam(env, servlet, p, ann);
             if (param != null) {
                 throwTypes.addAll(param.throwTypes());
                 args.addParam(type, name, alias).write(param.write(servlet, name, alias));
             } else {
-                args.addFallback("null/* not support param type */");
+                args.addFallback(p);
                 env.warning("Not support param type " + type + " without annotation Creator");
             }
             return;
@@ -370,13 +364,13 @@ class SourceImplMethodDispatcher {
         SourceFactory<ParamFactory> factory = ProcessEnvironment.getParamFactory(env, p);
         if (factory != null) {
             String alias = p.getSimpleName().toString();
-            String name = TextUtils.isNotEmpty(factory.name()) ? factory.name() : alias;
+            String name = name(factory, alias);
             SourceParam param = SourceVariableHelper.getParam(env, p, factory);
             if (param != null) {
                 throwTypes.addAll(param.throwTypes());
                 args.addParam(type, name, alias).write(param.write(servlet, name, alias));
             } else {
-                args.addFallback("null");
+                args.addFallback(p);
             }
             return;
         }
@@ -475,5 +469,29 @@ class SourceImplMethodDispatcher {
 
     public Collection<String> throwTypes() {
         return throwTypes;
+    }
+
+    private static String name(Attribute ann, String alias) {
+        return ann.value().length() > 0 ? ann.value() : ann.name().length() > 0 ? ann.name() : alias;
+    }
+
+    private static String name(Header ann, String alias) {
+        return ann.value().length() > 0 ? ann.value() : ann.name().length() > 0 ? ann.name() : alias;
+    }
+
+    private static String name(Cookies ann, String alias) {
+        return ann.value().length() > 0 ? ann.value() : ann.name().length() > 0 ? ann.name() : alias;
+    }
+
+    private static String name(Param ann, String alias) {
+        return ann.value().length() > 0 ? ann.value() : ann.name().length() > 0 ? ann.name() : alias;
+    }
+
+    private static String name(Parts ann, String alias) {
+        return ann.value().length() > 0 ? ann.value() : ann.name().length() > 0 ? ann.name() : alias;
+    }
+
+    private static String name(SourceFactory<?> factory, String alias) {
+        return factory.name().length() > 0 ? factory.name() : alias;
     }
 }
