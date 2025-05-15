@@ -32,6 +32,7 @@ class ProcessEnvironment {
     private final ProcessorMap<SourceBodyProcessor> bodyProcessors = new ProcessorMap<>();
     private final ProcessorMap<SourcePartProcessor> partProcessors = new ProcessorMap<>();
     private final ProcessorMap<SourceParamProcessor> paramProcessors = new ProcessorMap<>();
+    private final ArrayList<SourcePermissionHandle> permissionHandle = new ArrayList<>();
 
     public ProcessEnvironment(ProcessingEnvironment env, Element init) {
         processingEnv = env;
@@ -86,8 +87,8 @@ class ProcessEnvironment {
             if (modifiers.contains(Modifier.STATIC)) continue;
             if (!modifiers.contains(Modifier.PUBLIC)) continue;
             ExecutableElement close = (ExecutableElement) element;
-            if (close.getParameters().size() != 0) continue;
-            return close.getThrownTypes().size() > 0;
+            if (!close.getParameters().isEmpty()) continue;
+            return !close.getThrownTypes().isEmpty();
         }
         return false;
     }
@@ -279,6 +280,18 @@ class ProcessEnvironment {
 
     public SourceInjectProvider getInjectProvider(String type, String name) {
         return injectProviders.get(type, name);
+    }
+
+    public void addPermissionHandle(Element element) {
+        SourcePermissionHandle handle = SourcePermissionHandle.get(this, (ExecutableElement) element);
+        if (handle == null) return;
+        this.permissionHandle.add(handle);
+        if (permissionHandle.size() == 1) return;
+        warning("There are more than one (" + permissionHandle.size() + ") permission handle.");
+    }
+
+    public ArrayList<SourcePermissionHandle> getPermissionHandle() {
+        return permissionHandle;
     }
 
     public boolean responseAllType() {

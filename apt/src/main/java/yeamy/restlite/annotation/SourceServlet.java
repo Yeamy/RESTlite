@@ -41,15 +41,15 @@ class SourceServlet extends SourceClass {
             } else if (kind == ElementKind.METHOD) {
                 ExecutableElement eli = (ExecutableElement) li;
                 GET get = eli.getAnnotation(GET.class);
-                if (get != null) addMethodComponent("GET", eli, get.async(), get.asyncTimeout());
+                if (get != null) addMethodComponent("GET", eli, get.async(), get.asyncTimeout(), get.permission());
                 POST post = eli.getAnnotation(POST.class);
-                if (post != null) addMethodComponent("POST", eli, post.async(), post.asyncTimeout());
+                if (post != null) addMethodComponent("POST", eli, post.async(), post.asyncTimeout(), post.permission());
                 PUT put = eli.getAnnotation(PUT.class);
-                if (put != null) addMethodComponent("PUT", eli, put.async(), put.asyncTimeout());
+                if (put != null) addMethodComponent("PUT", eli, put.async(), put.asyncTimeout(), put.permission());
                 PATCH patch = eli.getAnnotation(PATCH.class);
-                if (patch != null) addMethodComponent("PATCH", eli, patch.async(), patch.asyncTimeout());
+                if (patch != null) addMethodComponent("PATCH", eli, patch.async(), patch.asyncTimeout(), patch.permission());
                 DELETE delete = eli.getAnnotation(DELETE.class);
-                if (delete != null) addMethodComponent("DELETE", eli, delete.async(), delete.asyncTimeout());
+                if (delete != null) addMethodComponent("DELETE", eli, delete.async(), delete.asyncTimeout(), delete.permission());
                 ERROR ann = eli.getAnnotation(ERROR.class);
                 if (ann != null && error == null) {
                     error = new SourceMethodOnError(env, this, eli);
@@ -67,9 +67,9 @@ class SourceServlet extends SourceClass {
         return resource.value();
     }
 
-    private void addMethodComponent(String ann, ExecutableElement element, boolean async, long asyncTimeout) {
+    private void addMethodComponent(String ann, ExecutableElement element, boolean async, long asyncTimeout, String permission) {
         if (async) asyncSupported = true;
-        SourceImplMethodDispatcher method = new SourceImplMethodDispatcher(env, this, element, async, asyncTimeout);
+        SourceImplMethodDispatcher method = new SourceImplMethodDispatcher(env, this, element, async, asyncTimeout, permission);
         SourceServletMethod httpMethod = httpMethods.get(ann);
         if (httpMethod == null) {
             httpMethod = new SourceServletMethod(env, this, ann);

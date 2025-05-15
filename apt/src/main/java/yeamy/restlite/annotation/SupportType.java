@@ -6,11 +6,14 @@ class SupportType {
     public static final String T_ServletInputStream = "jakarta.servlet.ServletInputStream";
     public static final String T_ServletConfig = "jakarta.servlet.ServletConfig";
     public static final String T_ServletContext = "jakarta.servlet.ServletContext";
-    public static final String T_Cookie = "jakarta.servlet.http.Cookie";
-    public static final String T_CookieArray = T_Cookie + "[]";
     public static final String T_HttpRequest = "yeamy.restlite.RESTfulRequest";
+    public static final String T_HttpResponse = "yeamy.restlite.HttpResponse";
     public static final String T_File = "yeamy.restlite.HttpRequestFile";
     public static final String T_FileArray = T_File + "[]";
+    public static final String T_TextPlainResponse = "yeamy.restlite.addition.TextPlainResponse";
+    public static final String T_ProcessException = "yeamy.restlite.addition.ProcessException";
+    public static final String T_Cookie = "jakarta.servlet.http.Cookie";
+    public static final String T_CookieArray = T_Cookie + "[]";
     public static final String T_Decimal = "java.math.BigDecimal";
     public static final String T_DecimalArray = T_Decimal + "[]";
     public static final String T_String = "java.lang.String";
@@ -30,7 +33,6 @@ class SupportType {
     public static final String T_FloatArray = T_Float + "[]";
     public static final String T_DoubleArray = T_Double + "[]";
     public static final String T_StringArray = T_String + "[]";
-    public static final String T_TextPlainResponse = "yeamy.restlite.addition.TextPlainResponse";
     public static final String T_boolean = "boolean";
     public static final String T_int = "int";
     public static final String T_long = "long";

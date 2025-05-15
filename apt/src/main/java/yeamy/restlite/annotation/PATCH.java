@@ -19,6 +19,12 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.SOURCE)
 public @interface PATCH {
+	/**
+	 *
+	 * @return permission info of method
+	 * @see PermissionHandle
+	 */
+	String permission() default "";
 
 	/**
 	 * @return if asyncSupported

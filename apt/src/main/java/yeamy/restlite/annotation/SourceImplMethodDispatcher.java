@@ -22,12 +22,13 @@ class SourceImplMethodDispatcher {
     private final SourceImplMethodName methodName;
     private final boolean async;
     private final long asyncTimeout;
+    private final String permission;
     private final HashSet<String> throwTypes = new HashSet<>();
 
     private final SourceArguments args = new SourceArguments();
 
     public SourceImplMethodDispatcher(ProcessEnvironment env, SourceServlet servlet, ExecutableElement method,
-                                      boolean async, long asyncTimeout) {
+                                      boolean async, long asyncTimeout, String permission) {
         this.env = env;
         this.servlet = servlet;
         this.method = method;
@@ -35,6 +36,7 @@ class SourceImplMethodDispatcher {
         this.methodName = new SourceImplMethodName(servlet.getRESTfulResource(), arguments);
         this.async = async;
         this.asyncTimeout = asyncTimeout;
+        this.permission = permission;
         arguments.forEach(a -> {
             if (doRequest(a) || doAttribute(a) || doHeader(a) || doCookie(a) || doInject(a) || doBody(a) || doPart(a)) {
                 return;
@@ -61,6 +63,9 @@ class SourceImplMethodDispatcher {
     }
 
     public void create(String httpMethod) {
+        for (SourcePermissionHandle h : env.getPermissionHandle()) {
+            h.write(servlet, permission);
+        }
         if (async) {
             servlet.imports("jakarta.servlet.AsyncContext");
             servlet.append("AsyncContext _asyncContext = _req.startAsync();");

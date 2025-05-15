@@ -1,10 +1,6 @@
 package yeamy.restlite.tomcat;
 
 import org.apache.catalina.*;
-import org.apache.catalina.session.PersistentManagerBase;
-import org.apache.catalina.session.ManagerBase;
-import org.apache.catalina.util.LifecycleBase;
-import org.apache.catalina.util.LifecycleMBeanBase;
 
 import java.beans.PropertyChangeListener;
 import java.io.IOException;

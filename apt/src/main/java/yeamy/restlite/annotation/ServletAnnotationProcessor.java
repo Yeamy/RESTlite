@@ -24,6 +24,7 @@ public class ServletAnnotationProcessor extends AbstractProcessor {
         super.init(processingEnv);
         supportedAnnotationTypes.add(Configuration.class.getCanonicalName());
         supportedAnnotationTypes.add(RESTfulResource.class.getCanonicalName());
+        supportedAnnotationTypes.add(PermissionHandle.class.getCanonicalName());
         supportedAnnotationTypes.add(HeaderProcessor.class.getCanonicalName());
         supportedAnnotationTypes.add(CookieProcessor.class.getCanonicalName());
         supportedAnnotationTypes.add(BodyProcessor.class.getCanonicalName());
@@ -75,9 +76,12 @@ public class ServletAnnotationProcessor extends AbstractProcessor {
         for (Element element : roundEnv.getElementsAnnotatedWith(InjectProvider.class)) {
             env.addInjectProvider(element, element.getAnnotation(InjectProvider.class));
         }
+        for (Element element : roundEnv.getElementsAnnotatedWith(PermissionHandle.class)) {
+            env.addPermissionHandle(element);
+        }
         // embed
         TypeElement tomcatConfig = env.getTypeElement("yeamy.restlite.annotation.TomcatConfig");
-        boolean embed = tomcatConfig != null && roundEnv.getElementsAnnotatedWith(tomcatConfig).size() > 0;
+        boolean embed = tomcatConfig != null && !roundEnv.getElementsAnnotatedWith(tomcatConfig).isEmpty();
         // filter
         try {
             new SourceWebFilter(env, embed).create();
