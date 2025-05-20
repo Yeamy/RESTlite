@@ -11,33 +11,38 @@ import java.util.Collection;
 
 public class HttpRequestFactory {
 
-    public static RESTfulRequest createRequest(HttpServletRequest req, boolean isEmbed) {
+    public static RESTfulRequest createRequest(HttpServletRequest req) {
         RESTfulRequest out = new RESTfulRequest();
         out.insert(req);
-        readUri(req, out, isEmbed);
+        readUri(req, out);
         readBody(req, out);
         return out;
     }
 
-    private static void readUri(HttpServletRequest req, RESTfulRequest out, boolean isEmbed) {
-        String uri = req.getRequestURI();
-        String[] kv = uri.split("/");
-        int skip = isEmbed ? 1 : 2;
-        int length = kv.length;
-        if (length <= skip) {
+    private static void readUri(HttpServletRequest req, RESTfulRequest out) {
+        String reqUri = req.getRequestURI();
+        String baseUrl = req.getServletContext().getContextPath();
+        int begin = baseUrl.length();
+        if (reqUri.charAt(begin) == '/') ++begin;
+        int end = reqUri.length();
+        if (reqUri.charAt(end - 1) == '/') --end;
+        String uri = reqUri.substring(begin, end);
+        if (uri.isEmpty()) {
             return;
         }
-        if ((length - skip) % 2 == 1) {
+        String[] kv = uri.split("/");
+        int length = kv.length;
+        if ((length) % 2 == 1) {
             out.setResource(kv[length - 1]);
         } else {
             out.setResource(kv[length - 2]);
         }
-        for (int i = skip; i < length; i += 2) {
+        for (int i = 0; i < length; i += 2) {
             if (length > i + 1) {
                 out.addParameter(kv[i], kv[i + 1]);
             }
         }
-        out.dispatch = !out.getResource().equals(kv[skip]);
+        out.dispatch = !out.getResource().equals(kv[0]);
     }
 
     public static void readBody(HttpServletRequest req, RESTfulRequest out) {

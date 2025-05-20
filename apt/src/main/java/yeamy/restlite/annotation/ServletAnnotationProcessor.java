@@ -79,12 +79,9 @@ public class ServletAnnotationProcessor extends AbstractProcessor {
         for (Element element : roundEnv.getElementsAnnotatedWith(PermissionHandle.class)) {
             env.addPermissionHandle(element);
         }
-        // embed
-        TypeElement tomcatConfig = env.getTypeElement("yeamy.restlite.annotation.TomcatConfig");
-        boolean embed = tomcatConfig != null && !roundEnv.getElementsAnnotatedWith(tomcatConfig).isEmpty();
         // filter
         try {
-            new SourceWebFilter(env, embed).create();
+            new SourceWebFilter(env).create();
         } catch (Exception e) {
             env.error(e);
             return false;
@@ -105,7 +102,7 @@ public class ServletAnnotationProcessor extends AbstractProcessor {
         }
         // listener
         try {
-            new SourceWebListener(env, embed).create();
+            new SourceWebListener(env).create();
         } catch (Exception e) {
             env.error(e);
         }

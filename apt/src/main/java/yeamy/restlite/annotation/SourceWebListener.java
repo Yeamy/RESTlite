@@ -6,13 +6,11 @@ import static yeamy.restlite.annotation.SupportType.T_RESTfulRequest;
 
 class SourceWebListener extends SourceClass {
     private final ProcessEnvironment env;
-    private final boolean embed;
     private final String className, parentName;
 
-    SourceWebListener(ProcessEnvironment env, boolean embed) {
+    SourceWebListener(ProcessEnvironment env) {
         super(env.getPackage());
         this.env = env;
-        this.embed = embed;
         this.className = env.getFileName(pkg, "RESTliteWebListener");
         parentName = imports("yeamy.restlite.RESTfulListener");
         imports("jakarta.servlet.annotation.WebListener");
@@ -22,9 +20,7 @@ class SourceWebListener extends SourceClass {
     @Override
     public void create() throws IOException {
         StringBuilder sb = new StringBuilder();
-        if (embed) {
-            sb.append('@').append(imports("jakarta.annotation.Priority")).append("(1)");
-        }
+        sb.append('@').append(imports("jakarta.annotation.Priority")).append("(1)");
         sb.append("@WebListener(\"*\") public class ").append(className).append(" extends ")
                 .append(parentName).append(" {");
         sb.append("@Override public String createServerName(RESTfulRequest r) {switch (super.createServerName(r)) {");
@@ -42,9 +38,7 @@ class SourceWebListener extends SourceClass {
                 sb.delete(l - 6, l).append("break;");
             }
         });
-        sb.append("}return super.createServerName(r);}@Override public boolean isEmbed(){return ")
-                .append(embed)
-                .append(";}}");
+        sb.append("}return super.createServerName(r);}}");
         try {
             createSourceFile(env.processingEnv, pkg + '.' + className, sb);
         } catch (Exception e) {
