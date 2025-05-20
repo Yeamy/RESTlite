@@ -9,7 +9,7 @@ import java.util.Random;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
 
-import yeamy.utils.StreamUtils;
+import yeamy.restlite.utils.StreamUtils;
 import yeamy.restlite.utils.TextUtils;
 
 public class StreamResponse extends AbstractHttpResponse<InputStream> {

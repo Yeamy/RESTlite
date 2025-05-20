@@ -63,12 +63,12 @@ abstract class SourceVariable {
 
     public void writeCloseField(StringBuilder b, SourceServlet servlet) {
         if (!param.getModifiers().contains(Modifier.PRIVATE)) {
-            b.append(servlet.imports("yeamy.utils.StreamUtils")).append(".close(_impl.").append(param.getSimpleName()).append(");");
+            b.append(servlet.imports("yeamy.restlite.utils.StreamUtils")).append(".close(_impl.").append(param.getSimpleName()).append(");");
             return;
         }
         ExecutableElement getter = env.findGetter(param);
         if (getter != null) {
-            b.append(servlet.imports("yeamy.utils.StreamUtils")).append(".close(_impl.").append(getter.getSimpleName()).append("());");
+            b.append(servlet.imports("yeamy.restlite.utils.StreamUtils")).append(".close(_impl.").append(getter.getSimpleName()).append("());");
             return;
         }
         env.error("Cannot assign " + servlet.getImpl() + "." + param.getSimpleName() + " cause it's private and no getter found");

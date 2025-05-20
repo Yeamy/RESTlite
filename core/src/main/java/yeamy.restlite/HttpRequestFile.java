@@ -2,7 +2,7 @@ package yeamy.restlite;
 
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.Part;
-import yeamy.utils.StreamUtils;
+import yeamy.restlite.utils.StreamUtils;
 import yeamy.restlite.utils.TextUtils;
 
 import java.io.*;
@@ -68,22 +68,14 @@ public record HttpRequestFile(Part part, String bodyCharset) implements Serializ
      * read the part as string with given charset
      */
     public String getAsText(String charset) throws IOException {
-        try (InputStream is = part.getInputStream()) {
-            ByteArrayOutputStream os = new ByteArrayOutputStream(is.available());
-            StreamUtils.writeWithoutClose(os, is);
-            return os.toString(charset);
-        }
+        return StreamUtils.readString(part.getInputStream(), charset);
     }
 
     /**
      * read the part as byte array
      */
     public byte[] getAsByte() throws IOException {
-        try (InputStream is = part.getInputStream()) {
-            ByteArrayOutputStream os = new ByteArrayOutputStream(is.available());
-            StreamUtils.writeWithoutClose(os, is);
-            return os.toByteArray();
-        }
+        return StreamUtils.readByte(part.getInputStream());
     }
 
     /**
@@ -97,29 +89,21 @@ public record HttpRequestFile(Part part, String bodyCharset) implements Serializ
      * save to OutputStream
      */
     public boolean save(OutputStream os) throws IOException {
-        try (InputStream is = part.getInputStream()) {
-            return StreamUtils.write(os, is);
-        }
+        return StreamUtils.write(os, part.getInputStream());
     }
 
     /**
      * save to local disk (as a file)
      */
     public void save(String file) throws IOException {
-        try (FileOutputStream os = new FileOutputStream(file);
-             InputStream is = part.getInputStream()) {
-            StreamUtils.writeWithoutClose(os, is);
-        }
+        StreamUtils.writeWithoutClose(new FileOutputStream(file), part.getInputStream());
     }
 
     /**
      * save to local disk (as a file)
      */
     public void save(File file) throws IOException {
-        try (FileOutputStream os = new FileOutputStream(file);
-             InputStream is = part.getInputStream()) {
-            StreamUtils.writeWithoutClose(os, is);
-        }
+        StreamUtils.writeWithoutClose(new FileOutputStream(file), part.getInputStream());
     }
 
     /**

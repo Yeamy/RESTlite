@@ -3,7 +3,7 @@ package yeamy.restlite;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.Part;
-import yeamy.utils.StreamUtils;
+import yeamy.restlite.utils.StreamUtils;
 import yeamy.restlite.utils.TextUtils;
 
 import java.io.IOException;
