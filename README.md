@@ -6,16 +6,13 @@ RESTLite是基于Java语言的现代化WEB开发框架，其设计目标是创�
 ```gradle
 dependencies {
     implementation 'io.github.yeamy:restlite-gson:1.0-RC1' // 谷歌json解析器
-//    implementation 'io.github.yeamy:restlite-permission:1.0-RC1' // 权限管理
-//    implementation 'io.github.yeamy:restlite-jackson:1.0-RC1' // fastjson json 解析器
-//    implementation 'io.github.yeamy:restlite-jacksonxml:1.0-RC1' // fastjson xml 解析器
-//    implementation 'io.github.yeamy:restlite-sentinel:1.0-RC1' // 阿里巴巴 sentinel
-//    implementation 'io.github.yeamy:restlite-nacos:1.0-RC1' // 阿里巴巴 nacos
-//    implementation 'io.github.yeamy:restlite-tomcat:1.0-RC1' // 内嵌式 tomcat
+    implementation 'io.github.yeamy:restlite-gson:1.0-RC3' // google json
+//    implementation 'io.github.yeamy:restlite-jackson:1.0-RC3' // jackson json 解析器
+//    implementation 'io.github.yeamy:restlite-jacksonxml:1.0-RC3' // jackson xml 解析器
+//    implementation 'io.github.yeamy:restlite-tomcat:1.0-RC3' // 内嵌式 tomcat
 
-    annotationProcessor 'io.github.yeamy:restlite-apt:1.0-RC1' // apt代码生成器
-//    annotationProcessor 'io.github.yeamy:restlite-nacos:1.0-RC1'
-//    annotationProcessor 'io.github.yeamy:restlite-tomcat:1.0-RC1' 
+    annotationProcessor 'io.github.yeamy:restlite-apt:1.0-RC3' // servlet生成器
+//    annotationProcessor 'io.github.yeamy:restlite-tomcat:1.0-RC3' 
 }
 ```
 

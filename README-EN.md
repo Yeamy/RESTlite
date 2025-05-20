@@ -5,17 +5,13 @@ RESTLite is a modern Java WEB framework, It's design to create a simple, powerfu
 
 ```gradle
 dependencies {
-    implementation 'io.github.yeamy:restlite-gson:1.0-RC1' // google json
-//    implementation 'io.github.yeamy:restlite-permission:1.0-RC1' // permission manage
-//    implementation 'io.github.yeamy:restlite-jackson:1.0-RC1' // fastjson json
-//    implementation 'io.github.yeamy:restlite-jacksonxml:1.0-RC1' // fastjson xml
-//    implementation 'io.github.yeamy:restlite-sentinel:1.0-RC1' // alibaba sentinel
-//    implementation 'io.github.yeamy:restlite-nacos:1.0-RC1' // alibaba nacos
-//    implementation 'io.github.yeamy:restlite-tomcat:1.0-RC1' // tomcat embed
+    implementation 'io.github.yeamy:restlite-gson:1.0-RC3' // google json
+//    implementation 'io.github.yeamy:restlite-jackson:1.0-RC3' // jackson
+//    implementation 'io.github.yeamy:restlite-jacksonxml:1.0-RC3' // jackson xml
+//    implementation 'io.github.yeamy:restlite-tomcat:1.0-RC3' // tomcat embed
 
-    annotationProcessor 'io.github.yeamy:restlite-apt:1.0-RC1' // apt code generator
-//    annotationProcessor 'io.github.yeamy:restlite-nacos:1.0-RC1'
-//    annotationProcessor 'io.github.yeamy:restlite-tomcat:1.0-RC1' 
+    annotationProcessor 'io.github.yeamy:restlite-apt:1.0-RC3' // apt code generator
+//    annotationProcessor 'io.github.yeamy:restlite-tomcat:1.0-RC3' 
 }
 ```
 
