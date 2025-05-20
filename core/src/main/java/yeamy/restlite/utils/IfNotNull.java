@@ -1,4 +1,4 @@
-package yeamy.utils;
+package yeamy.restlite.utils;
 
 public class IfNotNull {
 

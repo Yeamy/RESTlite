@@ -18,10 +18,10 @@ class SourcePartDefault extends SourcePart {
             case T_Part -> servlet.imports(T_Part) + " " + alias + " = _req.getPart(\"" + name + "\");";
             case T_HttpRequestFile -> servlet.imports(T_HttpRequestFile) + " " + alias + " = _req.getFile(\"" + name + "\");";
             case T_InputStream -> servlet.imports(T_InputStream) + " " + alias + " = "
-                    + servlet.imports("yeamy.utils.IfNotNull") + ".invoke(_req.getFile(\"" + name + "\"),a->a.get());";
-            case T_ByteArray -> "byte[] " + alias + " = " + servlet.imports("yeamy.utils.IfNotNull")
+                    + servlet.imports(T_IfNotNull) + ".invoke(_req.getFile(\"" + name + "\"),a->a.get());";
+            case T_ByteArray -> "byte[] " + alias + " = " + servlet.imports(T_IfNotNull)
                     + ".invoke(_req.getFile(\"" + name + "\"),a->a.getAsByte());";
-            case T_String -> "String " + alias + " = " + servlet.imports("yeamy.utils.IfNotNull")
+            case T_String -> "String " + alias + " = " + servlet.imports(T_IfNotNull)
                     + ".invoke(_req.getFile(\"" + name + "\"),a->a.getAsText());";
             default -> "";
         };
