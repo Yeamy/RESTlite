@@ -114,7 +114,7 @@ class SourceImplMethodDispatcher {
 
     private boolean doRequest(VariableElement p) {
         String type = p.asType().toString();
-        if (T_HttpRequest.equals(type)) {
+        if (T_RESTfulRequest.equals(type)) {
             args.addExist("_req");
             return true;
         } else if (T_HttpServletRequest.equals(type)) {
@@ -247,7 +247,7 @@ class SourceImplMethodDispatcher {
             return true;
         }
         String type = p.asType().toString();
-        if (TextUtils.in(type, T_ServletInputStream, T_PartArray, T_FileArray)) {
+        if (TextUtils.in(type, T_ServletInputStream, T_PartArray, T_HttpRequestFileArray)) {
             if (args.containsBodyOrPart()) {
                 args.addFallback(p);
                 env.error("cannot read body twice");
@@ -305,7 +305,7 @@ class SourceImplMethodDispatcher {
             return true;
         }
         String type = p.asType().toString();
-        if (TextUtils.in(type, T_InputStream, T_Part, T_File)) {
+        if (TextUtils.in(type, T_InputStream, T_Part, T_HttpRequestFile)) {
             if (args.containsBody()) {
                 args.addFallback(p);
                 env.error("cannot read body twice");

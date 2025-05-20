@@ -64,7 +64,7 @@ class SourceBodyByExecutable extends SourceBody {
                 case T_ByteArray -> b.append("_req.getBodyAsByte()");
                 case T_String -> b.append("_req.getBodyAsText()");
                 case T_PartArray -> b.append("_req.getParts()");
-                case T_FileArray -> b.append("_req.getFiles()");
+                case T_HttpRequestFileArray -> b.append("_req.getFiles()");
                 case T_Charset -> b.append("_req.getCharset()");
             }
         }

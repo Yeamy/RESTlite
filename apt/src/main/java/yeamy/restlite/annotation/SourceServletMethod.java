@@ -31,7 +31,7 @@ class SourceServletMethod {
     }
 
     protected void create(boolean hasOnError, ArrayList<SourceImplMethodDispatcher> dispatchers) {
-        servlet.imports(T_HttpRequest);
+        servlet.imports(T_RESTfulRequest);
         servlet.imports(T_HttpServletResponse);
         servlet.imports("jakarta.servlet.ServletException");
         servlet.imports("java.io.IOException");
@@ -80,7 +80,7 @@ class SourceServletMethod {
      * cannot create server
      */
     protected void createFallback() {
-        servlet.imports(T_HttpRequest);
+        servlet.imports(T_RESTfulRequest);
         servlet.imports(T_HttpServletResponse);
         servlet.imports("jakarta.servlet.ServletException");
         servlet.imports("java.io.IOException");

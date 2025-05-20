@@ -32,7 +32,7 @@ class SourcePermissionHandle {
         int i = 0;
         for (VariableElement p : params) {
             String tn = p.asType().toString();
-            if (tn.equals(T_HttpRequest) || tn.equals(T_HttpServletRequest)) {
+            if (tn.equals(T_RESTfulRequest) || tn.equals(T_HttpServletRequest)) {
                 i |= 1;
             } else if (tn.equals(T_String)) {
                 i |= 2;
@@ -71,7 +71,7 @@ class SourcePermissionHandle {
         for (VariableElement p : params) {
             TypeMirror tm = p.asType();
             String tn = tm.toString();
-            if (tn.equals(T_HttpRequest)) {
+            if (tn.equals(T_RESTfulRequest)) {
                 servlet.append("_req, ");
             } else if (tn.equals(T_String)) {
                 servlet.append('"').append(permission).append("\", ");

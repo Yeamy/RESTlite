@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import static yeamy.restlite.annotation.SupportType.T_RESTfulRequest;
 import static yeamy.restlite.annotation.SupportType.T_HttpServletResponse;
 
 class SourceServlet extends SourceClass {
@@ -85,7 +86,7 @@ class SourceServlet extends SourceClass {
         imports("jakarta.servlet.annotation.WebServlet");
         imports(T_HttpServletResponse);
         imports("jakarta.servlet.ServletException");
-        imports("yeamy.restlite.RESTfulRequest");
+        imports(T_RESTfulRequest);
         imports("yeamy.restlite.RESTfulServlet");
         createBody();
         createSourceFile(env.processingEnv, name, b);

@@ -2,6 +2,8 @@ package yeamy.restlite.annotation;
 
 import java.io.IOException;
 
+import static yeamy.restlite.annotation.SupportType.T_RESTfulRequest;
+
 class SourceWebListener extends SourceClass {
     private final ProcessEnvironment env;
     private final boolean embed;
@@ -14,14 +16,14 @@ class SourceWebListener extends SourceClass {
         this.className = env.getFileName(pkg, "RESTliteWebListener");
         parentName = imports("yeamy.restlite.RESTfulListener");
         imports("jakarta.servlet.annotation.WebListener");
-        imports("yeamy.restlite.RESTfulRequest");
+        imports(T_RESTfulRequest);
     }
 
     @Override
     public void create() throws IOException {
         StringBuilder sb = new StringBuilder();
         if (embed) {
-            sb.append('@').append(imports("yeamy.restlite.annotation.Position")).append("(1)");
+            sb.append('@').append(imports("jakarta.annotation.Priority")).append("(1)");
         }
         sb.append("@WebListener(\"*\") public class ").append(className).append(" extends ")
                 .append(parentName).append(" {");

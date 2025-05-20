@@ -12,7 +12,7 @@ import java.util.Set;
 import static yeamy.restlite.annotation.SupportType.*;
 
 class SourceBodyProcessor {
-    static final String[] SUPPORT_BODY_TYPE = new String[]{T_ServletInputStream, T_InputStream, T_ByteArray, T_String, T_PartArray, T_FileArray};
+    static final String[] SUPPORT_BODY_TYPE = new String[]{T_ServletInputStream, T_InputStream, T_ByteArray, T_String, T_PartArray, T_HttpRequestFileArray};
 
     public final TypeElement classType;
     public final ExecutableElement method;

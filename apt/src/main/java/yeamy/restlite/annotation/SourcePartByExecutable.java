@@ -61,7 +61,7 @@ class SourcePartByExecutable extends SourcePart {
             }
             switch (type) {
                 case T_Part -> b.append("_req.getPart(\"").append(name).append("\")");
-                case T_File -> b.append("_req.getFile(\"").append(name).append("\")");
+                case T_HttpRequestFile -> b.append("_req.getFile(\"").append(name).append("\")");
                 case T_InputStream -> b.append(servlet.imports("yeamy.utils.IfNotNull"))
                         .append(".invoke(_req.getFile(\"").append(name).append("\"),a->a.get())");
                 case T_ByteArray -> b.append(servlet.imports("yeamy.utils.IfNotNull"))

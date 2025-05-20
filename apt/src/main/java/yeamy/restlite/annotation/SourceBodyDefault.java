@@ -19,8 +19,8 @@ class SourceBodyDefault extends SourceBody {
                     servlet.imports(T_ServletInputStream) + " " + name + " = _req.getBody();";
             case T_ByteArray -> "byte[] " + name + " = _req.getBodyAsByte();";
             case T_String -> "String " + name + " = _req.getBodyAsText();";
-            case T_PartArray -> servlet.imports(T_File) + "[] " + name + " = _req.getParts();";
-            case T_FileArray -> servlet.imports(T_File) + "[] " + name + " = _req.getFiles();";
+            case T_PartArray -> servlet.imports(T_Part) + "[] " + name + " = _req.getParts();";
+            case T_HttpRequestFileArray -> servlet.imports(T_HttpRequestFile) + "[] " + name + " = _req.getFiles();";
             default -> "";
         };
     }

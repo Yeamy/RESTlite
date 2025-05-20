@@ -6,10 +6,10 @@ class SupportType {
     public static final String T_ServletInputStream = "jakarta.servlet.ServletInputStream";
     public static final String T_ServletConfig = "jakarta.servlet.ServletConfig";
     public static final String T_ServletContext = "jakarta.servlet.ServletContext";
-    public static final String T_HttpRequest = "yeamy.restlite.RESTfulRequest";
+    public static final String T_RESTfulRequest = "yeamy.restlite.RESTfulRequest";
     public static final String T_HttpResponse = "yeamy.restlite.HttpResponse";
-    public static final String T_File = "yeamy.restlite.HttpRequestFile";
-    public static final String T_FileArray = T_File + "[]";
+    public static final String T_HttpRequestFile = "yeamy.restlite.HttpRequestFile";
+    public static final String T_HttpRequestFileArray = T_HttpRequestFile + "[]";
     public static final String T_TextPlainResponse = "yeamy.restlite.addition.TextPlainResponse";
     public static final String T_ProcessException = "yeamy.restlite.addition.ProcessException";
     public static final String T_Cookie = "jakarta.servlet.http.Cookie";

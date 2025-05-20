@@ -13,7 +13,7 @@ import java.util.Set;
 import static yeamy.restlite.annotation.SupportType.*;
 
 class SourcePartProcessor {
-    static final String[] SUPPORT_PART_TYPE = new String[]{T_Part, T_File, T_InputStream, T_ByteArray, T_String};
+    static final String[] SUPPORT_PART_TYPE = new String[]{T_Part, T_HttpRequestFile, T_InputStream, T_ByteArray, T_String};
 
     public final TypeElement classType;
     public final ExecutableElement method;

@@ -52,7 +52,7 @@ class SourceMethodOnError {
                         case T_Exception:
                             servlet.append(e.getSimpleName());
                             break a;
-                        case T_HttpRequest:
+                        case T_RESTfulRequest:
                             servlet.append("_req");
                             break a;
                         case T_HttpServletRequest:
