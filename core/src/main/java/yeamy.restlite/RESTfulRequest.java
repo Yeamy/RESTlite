@@ -7,9 +7,9 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.Part;
 import yeamy.utils.SingletonPool;
-import yeamy.utils.ValueUtils;
 import yeamy.restlite.utils.StreamUtils;
 import yeamy.restlite.utils.TextUtils;
+import yeamy.restlite.utils.ValueUtils;
 
 import java.io.*;
 import java.math.BigDecimal;
@@ -92,6 +92,7 @@ public class RESTfulRequest implements Serializable {
     public String[] getHeaderAsArray(String name) {
         String header = req.getHeader(name);
         if (header == null) return SingletonPool.EMPTY_STRING_ARRAY;
+        if (header == null) return EMPTY_STRING_ARRAY;
         String[] array = header.split(",");
         for (int i = 0; i < array.length; i++) {
             array[i] = array[i].trim();
@@ -270,27 +271,27 @@ public class RESTfulRequest implements Serializable {
     }
 
     public Integer[] getIntegerParams(String name) {
-        return ValueUtils.allToInteger(getParams(name));
+        return ValueUtils.toInt(getParams(name));
     }
 
     public Long[] getLongParams(String name) {
-        return ValueUtils.allToLong(getParams(name));
+        return ValueUtils.toLong(getParams(name));
     }
 
     public Float[] getFloatParams(String name) {
-        return ValueUtils.allToFloat(getParams(name));
+        return ValueUtils.toFloat(getParams(name));
     }
 
     public Double[] getDoubleParams(String name) {
-        return ValueUtils.allToDouble(getParams(name));
+        return ValueUtils.toDouble(getParams(name));
     }
 
     public Boolean[] getBooleanParams(String name) {
-        return ValueUtils.allToBoolean(getParams(name));
+        return ValueUtils.toBool(getParams(name));
     }
 
     public BigDecimal[] getDecimalParams(String name) {
-        return ValueUtils.allToBigDecimal(getParams(name));
+        return ValueUtils.toDecimal(getParams(name));
     }
 
     public String getParam(String name, String fallback) {
@@ -315,24 +316,23 @@ public class RESTfulRequest implements Serializable {
      * @return BigDecimal type value, if fail return null
      */
     public BigDecimal getDecimalParam(String name) {
-        return ValueUtils.toBigDecimal(getParam(name));
+        return getDecimalParam(name, null);
     }
 
     public BigDecimal getDecimalParam(String name, BigDecimal fallback) {
-        BigDecimal param = ValueUtils.toBigDecimal(getParam(name));
-        return param != null ? param : fallback;
+        return ValueUtils.toDecimal(getParam(name));
     }
 
-    public boolean getBooleanParam(String name, boolean fallback) {
-        return ValueUtils.toBoolean(getParam(name), fallback);
+    public boolean getBoolParam(String name, boolean fallback) {
+        return ValueUtils.toBool(getParam(name), fallback);
     }
 
     /**
      * @param name name of param
      * @return Boolean type value, if fail return null
      */
-    public Boolean getBooleanParam(String name) {
-        return ValueUtils.toBoolean(getParam(name));
+    public Boolean getBoolParam(String name) {
+        return ValueUtils.toBool(getParam(name));
     }
 
     public int getIntParam(String name, int fallback) {
@@ -343,8 +343,8 @@ public class RESTfulRequest implements Serializable {
      * @param name name of param
      * @return Integer type value, if fail return null
      */
-    public Integer getIntegerParam(String name) {
-        return ValueUtils.toInteger(getParam(name));
+    public Integer getIntParam(String name) {
+        return ValueUtils.toInt(getParam(name));
     }
 
     /**
@@ -379,7 +379,7 @@ public class RESTfulRequest implements Serializable {
      * @return parameter value as int of current Resource
      */
     public Integer getIntValue() {
-        return getIntegerParam(resource);
+        return getIntParam(resource);
     }
 
     /**

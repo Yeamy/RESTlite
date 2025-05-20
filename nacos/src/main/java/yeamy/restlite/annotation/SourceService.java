@@ -15,8 +15,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import static yeamy.restlite.annotation.SupportType.T_Decimal;
-import static yeamy.restlite.annotation.SupportType.T_String;
+import static yeamy.restlite.annotation.SupportType.*;
 
 class SourceService extends SourceClass {
     private final ProcessingEnvironment env;
@@ -266,27 +265,27 @@ class SourceService extends SourceClass {
         switch (kind) {
             case BOOLEAN -> {
                 returnType = "boolean";
-                expression = new String[]{imports("yeamy.utils.ValueUtils") + ".toBoolean(", ",false)"};
+                expression = new String[]{imports(T_ValueUtils) + ".toBool(", ",false)"};
             }
             case SHORT -> {
                 returnType = "short";
-                expression = new String[]{imports("yeamy.utils.ValueUtils") + ".toShort(", ",0)"};
+                expression = new String[]{imports(T_ValueUtils) + ".toShort(", ",0)"};
             }
             case INT -> {
                 returnType = "int";
-                expression = new String[]{imports("yeamy.utils.ValueUtils") + ".toInt(", ",0)"};
+                expression = new String[]{imports(T_ValueUtils) + ".toInt(", ",0)"};
             }
             case LONG -> {
                 returnType = "long";
-                expression = new String[]{imports("yeamy.utils.ValueUtils") + ".toLong(", ",0)"};
+                expression = new String[]{imports(T_ValueUtils) + ".toLong(", ",0)"};
             }
             case FLOAT -> {
                 returnType = "float";
-                expression = new String[]{imports("yeamy.utils.ValueUtils") + ".toFloat(", ",0)"};
+                expression = new String[]{imports(T_ValueUtils) + ".toFloat(", ",0)"};
             }
             case DOUBLE -> {
                 returnType = "double";
-                expression = new String[]{imports("yeamy.utils.ValueUtils") + ".toDouble(", ",0)"};
+                expression = new String[]{imports(T_ValueUtils) + ".toDouble(", ",0)"};
             }
             case DECLARED -> {
                 returnType = rtm.toString();
@@ -294,31 +293,31 @@ class SourceService extends SourceClass {
                     case T_String -> returnType = "String";
                     case T_Decimal -> {
                         returnType = imports("java.math.BigDecimal");
-                        expression = new String[]{imports("yeamy.utils.ValueUtils") + ".toBigDecimal(", ")"};
+                        expression = new String[]{imports(T_ValueUtils) + ".toDecimal(", ")"};
                     }
                     case "java.lang.Boolean" -> {
                         returnType = "Boolean";
-                        expression = new String[]{imports("yeamy.utils.ValueUtils") + ".toBoolean(", ")"};
+                        expression = new String[]{imports(T_ValueUtils) + ".toBool(", ")"};
                     }
                     case "java.lang.Short" -> {
                         returnType = "Short";
-                        expression = new String[]{imports("yeamy.utils.ValueUtils") + ".toShort(", ")"};
+                        expression = new String[]{imports(T_ValueUtils) + ".toShort(", ")"};
                     }
                     case "java.lang.Integer" -> {
                         returnType = "Integer";
-                        expression = new String[]{imports("yeamy.utils.ValueUtils") + ".toInteger(", ")"};
+                        expression = new String[]{imports(T_ValueUtils) + ".toInt(", ")"};
                     }
                     case "java.lang.Long" -> {
                         returnType = "Long";
-                        expression = new String[]{imports("yeamy.utils.ValueUtils") + ".toLong(", ")"};
+                        expression = new String[]{imports(T_ValueUtils) + ".toLong(", ")"};
                     }
                     case "java.lang.Float" -> {
                         returnType = "Float";
-                        expression = new String[]{imports("yeamy.utils.ValueUtils") + ".toFloat(", ")"};
+                        expression = new String[]{imports(T_ValueUtils) + ".toFloat(", ")"};
                     }
                     case "java.lang.Double" -> {
                         returnType = "Double";
-                        expression = new String[]{imports("yeamy.utils.ValueUtils") + ".toDouble(", ")"};
+                        expression = new String[]{imports(T_ValueUtils) + ".toDouble(", ")"};
                     }
                 }
             }

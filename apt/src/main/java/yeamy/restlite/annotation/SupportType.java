@@ -8,6 +8,7 @@ class SupportType {
     public static final String T_ServletContext = "jakarta.servlet.ServletContext";
     public static final String T_RESTfulRequest = "yeamy.restlite.RESTfulRequest";
     public static final String T_IfNotNull = "yeamy.restlite.utils.IfNotNull";
+    public static final String T_ValueUtils = "yeamy.restlite.utils.ValueUtils";
     public static final String T_HttpResponse = "yeamy.restlite.HttpResponse";
     public static final String T_HttpRequestFile = "yeamy.restlite.HttpRequestFile";
     public static final String T_HttpRequestFileArray = T_HttpRequestFile + "[]";

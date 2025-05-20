@@ -1,4 +1,4 @@
-package yeamy.utils;
+package yeamy.restlite.utils;
 
 import java.math.BigDecimal;
 
@@ -12,7 +12,7 @@ public class ValueUtils {
         }
     }
 
-    public static Integer toInteger(String value) {
+    public static Integer toInt(String value) {
         try {
             return Integer.valueOf(value);
         } catch (NumberFormatException e) {
@@ -68,7 +68,7 @@ public class ValueUtils {
         }
     }
 
-    public static boolean toBoolean(String value, boolean fallback) {
+    public static boolean toBool(String value, boolean fallback) {
         try {
             return Boolean.parseBoolean(value);
         } catch (NumberFormatException e) {
@@ -76,7 +76,7 @@ public class ValueUtils {
         }
     }
 
-    public static Boolean toBoolean(String value) {
+    public static Boolean toBool(String value) {
         try {
             return Boolean.valueOf(value);
         } catch (NumberFormatException e) {
@@ -100,7 +100,7 @@ public class ValueUtils {
         }
     }
 
-    public static BigDecimal toBigDecimal(String value) {
+    public static BigDecimal toDecimal(String value) {
         try {
             return new BigDecimal(value);
         } catch (NumberFormatException e) {
@@ -108,7 +108,7 @@ public class ValueUtils {
         }
     }
 
-    public static BigDecimal[] allToBigDecimal(String[] values) {
+    public static BigDecimal[] toDecimal(String[] values) {
         if (values == null) {
             return null;
         }
@@ -123,7 +123,7 @@ public class ValueUtils {
         return out;
     }
 
-    public static Boolean[] allToBoolean(String[] values) {
+    public static Boolean[] toBool(String[] values) {
         if (values == null) {
             return null;
         }
@@ -135,7 +135,7 @@ public class ValueUtils {
         return out;
     }
 
-    public static Integer[] allToInteger(String[] values) {
+    public static Integer[] toInt(String[] values) {
         if (values == null) {
             return null;
         }
@@ -150,7 +150,7 @@ public class ValueUtils {
         return out;
     }
 
-    public static Long[] allToLong(String[] values) {
+    public static Long[] toLong(String[] values) {
         if (values == null) {
             return null;
         }
@@ -165,7 +165,7 @@ public class ValueUtils {
         return out;
     }
 
-    public static Float[] allToFloat(String[] values) {
+    public static Float[] toFloat(String[] values) {
         if (values == null) {
             return null;
         }
@@ -180,7 +180,7 @@ public class ValueUtils {
         return out;
     }
 
-    public static Double[] allToDouble(String[] values) {
+    public static Double[] toDouble(String[] values) {
         if (values == null) {
             return null;
         }
