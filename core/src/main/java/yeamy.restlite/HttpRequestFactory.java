@@ -4,7 +4,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.Part;
 import yeamy.utils.StreamUtils;
-import yeamy.utils.TextUtils;
+import yeamy.restlite.utils.TextUtils;
 
 import java.io.IOException;
 import java.util.Collection;

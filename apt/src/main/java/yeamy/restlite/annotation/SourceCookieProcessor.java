@@ -1,6 +1,6 @@
 package yeamy.restlite.annotation;
 
-import yeamy.utils.TextUtils;
+import yeamy.restlite.utils.TextUtils;
 
 import javax.lang.model.element.*;
 import javax.lang.model.type.TypeMirror;

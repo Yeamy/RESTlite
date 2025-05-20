@@ -1,10 +1,9 @@
 package yeamy.restlite.annotation;
 
-import yeamy.utils.TextUtils;
+import yeamy.restlite.utils.TextUtils;
 
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeKind;
-import javax.lang.model.type.TypeMirror;
 import java.util.ArrayList;
 
 class SourceArguments {

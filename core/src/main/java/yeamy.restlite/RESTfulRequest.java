@@ -8,8 +8,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.Part;
 import yeamy.utils.SingletonPool;
 import yeamy.utils.StreamUtils;
-import yeamy.utils.TextUtils;
 import yeamy.utils.ValueUtils;
+import yeamy.restlite.utils.TextUtils;
 
 import java.io.*;
 import java.math.BigDecimal;

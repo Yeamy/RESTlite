@@ -8,7 +8,7 @@ import org.apache.coyote.AbstractProtocol;
 import org.apache.coyote.ProtocolHandler;
 import org.apache.tomcat.util.net.SSLHostConfig;
 import org.apache.tomcat.util.net.SSLHostConfigCertificate;
-import yeamy.utils.TextUtils;
+import yeamy.restlite.utils.TextUtils;
 
 import java.io.File;
 import java.io.FileInputStream;

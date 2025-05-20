@@ -3,7 +3,7 @@ package yeamy.restlite;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.Part;
 import yeamy.utils.StreamUtils;
-import yeamy.utils.TextUtils;
+import yeamy.restlite.utils.TextUtils;
 
 import java.io.*;
 
