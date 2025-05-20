@@ -6,7 +6,6 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.Part;
-import yeamy.utils.SingletonPool;
 import yeamy.restlite.utils.StreamUtils;
 import yeamy.restlite.utils.TextUtils;
 import yeamy.restlite.utils.ValueUtils;
@@ -20,6 +19,7 @@ import java.util.Map.Entry;
 
 public class RESTfulRequest implements Serializable {
     private static final HttpRequestFile[] NO_FILE = new HttpRequestFile[0];
+    private static final String[] EMPTY_STRING_ARRAY = new String[0];
     private static final Cookie[] NO_COOKIE = new Cookie[0];
 
     public static final String REQUEST = "RESTlite:Request";
@@ -91,7 +91,6 @@ public class RESTfulRequest implements Serializable {
 
     public String[] getHeaderAsArray(String name) {
         String header = req.getHeader(name);
-        if (header == null) return SingletonPool.EMPTY_STRING_ARRAY;
         if (header == null) return EMPTY_STRING_ARRAY;
         String[] array = header.split(",");
         for (int i = 0; i < array.length; i++) {

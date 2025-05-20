@@ -10,8 +10,9 @@ import java.util.TreeSet;
  * access rule for account
  */
 public class Permission {
-    public static final String[] NO_PARAM = SingletonPool.EMPTY_STRING_ARRAY;
-    public static final String[] ALL_PARAM = SingletonPool.EMPTY_STRING_ARRAY;
+    private static final String[] EMPTY_STRING_ARRAY = new String[0];
+    public static final String[] NO_PARAM = EMPTY_STRING_ARRAY;
+    public static final String[] ALL_PARAM = EMPTY_STRING_ARRAY;
     private boolean allow;
     private String resource;
     private String[] method;
