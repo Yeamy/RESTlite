@@ -186,9 +186,9 @@ import yeamy.restlite.annotation.TomcatConfig;
 public class Config {
 }
 ```
-Embedded Tomcat allow to order **@WebListener** and **@WebFilter** with **@Position**
+Embedded Tomcat allow to order **@WebListener** and **@WebFilter** with **@Priority**
 ```java
-@Position(2)
+@Priority(2)
 @WebFilter
 public class MyFilter implements Filter {
 }

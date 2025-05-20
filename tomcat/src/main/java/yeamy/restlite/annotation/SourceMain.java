@@ -1,5 +1,6 @@
 package yeamy.restlite.annotation;
 
+import jakarta.annotation.Priority;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.annotation.WebInitParam;
@@ -19,8 +20,8 @@ class SourceMain extends SourceClass {
     private final ProcessingEnvironment env;
     private final TomcatConfig conf;
     private final Set<? extends Element> methodsBeforeTomcat;
-    private final Set<PositionBean> listeners = new TreeSet<>();
-    private final Set<PositionBean> filters = new TreeSet<>();
+    private final Set<PriorityBean> listeners = new TreeSet<>();
+    private final Set<PriorityBean> filters = new TreeSet<>();
     private final Set<Element> servlets = new HashSet<>();
     private final String name;
 
@@ -44,10 +45,10 @@ class SourceMain extends SourceClass {
              Set<? extends Element> filters,
              Set<? extends Element> servlets) {
         for (Element element : listeners) {
-            this.listeners.add(new PositionBean(element));
+            this.listeners.add(new PriorityBean(element));
         }
         for (Element element : filters) {
-            this.filters.add(new PositionBean(element));
+            this.filters.add(new PriorityBean(element));
         }
         this.servlets.addAll(servlets);
     }
@@ -68,7 +69,7 @@ class SourceMain extends SourceClass {
         sb.append("private static void load(Context context) {");
         if (listeners.size() > 0) {
             sb.append("context.setApplicationEventListeners(new Object[]{");
-            for (PositionBean bean : listeners) {
+            for (PriorityBean bean : listeners) {
                 TypeElement element = bean.element;
                 sb.append("new ").append(imports(element)).append("(),");
             }
@@ -76,7 +77,7 @@ class SourceMain extends SourceClass {
         }
         if (filters.size() > 0) {
             sb.append("FilterDef fd;FilterMap fm;");
-            for (PositionBean bean : filters) {
+            for (PriorityBean bean : filters) {
                 TypeElement element = bean.element;
                 WebFilter ann = element.getAnnotation(WebFilter.class);
                 Set<String> urlPatterns = new HashSet<>();
@@ -234,18 +235,18 @@ class SourceMain extends SourceClass {
         b.append("properties.setProperty(\"").append(key).append("\", \"").append(value).append("\");");
     }
 
-    private static class PositionBean implements Comparable<PositionBean> {
+    private static class PriorityBean implements Comparable<PriorityBean> {
         int position;
         TypeElement element;
 
-        public PositionBean(Element element) {
+        public PriorityBean(Element element) {
             this.element = (TypeElement) element;
-            Position p = element.getAnnotation(Position.class);
+            Priority p = element.getAnnotation(Priority.class);
             this.position = p == null ? Integer.MAX_VALUE : p.value();
         }
 
         @Override
-        public int compareTo(PositionBean o) {
+        public int compareTo(PriorityBean o) {
             return position = o.position;
         }
     }

@@ -185,9 +185,9 @@ import yeamy.restlite.annotation.TomcatConfig;
 public class Config {
 }
 ```
-内嵌Tomcat允许使用 **@Position** 对 **@WebListener** 和 **@WebFilter** 进行排序
+内嵌Tomcat允许使用 **@Priority** 对 **@WebListener** 和 **@WebFilter** 进行排序
 ```java
-@Position(2)
+@Priority(2)
 @WebFilter
 public class MyFilter implements Filter {
 }

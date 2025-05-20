@@ -20,7 +20,7 @@ class SourceWebFilter extends SourceClass {
     public void create() throws IOException {
         StringBuilder sb = new StringBuilder("import static jakarta.servlet.DispatcherType.*;");
         if (embed) {
-            sb.append('@').append(imports("yeamy.restlite.annotation.Position")).append("(1)");
+            sb.append('@').append(imports("jakarta.annotation.Priority")).append("(1)");
         }
         sb.append("@WebFilter(value=\"*\",dispatcherTypes={FORWARD,INCLUDE,REQUEST,ASYNC,ERROR}) public class ")
                 .append(className).append(" extends ").append("DispatchFilter");
