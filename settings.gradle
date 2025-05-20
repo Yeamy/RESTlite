@@ -1,6 +1,5 @@
 rootProject.name = 'RESTlite'
 include 'core'
-include 'permission'
 include 'gson'
 include 'jackson'
 include 'jacksonxml'

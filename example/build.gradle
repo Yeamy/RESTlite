@@ -17,7 +17,7 @@ repositories {
 }
 
 dependencies {
-    implementation project(':permission')
+//    implementation project(':permission')
     implementation project(':sentinel')
 //    implementation project(':jacksonxml')
 //    implementation project(':jackson')
