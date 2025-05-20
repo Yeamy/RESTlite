@@ -2,8 +2,11 @@ package example;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import yeamy.restlite.HttpResponse;
+import yeamy.restlite.RESTfulRequest;
 import yeamy.restlite.annotation.Configuration;
 import yeamy.restlite.annotation.Connector;
+import yeamy.restlite.annotation.PermissionHandle;
 import yeamy.restlite.annotation.TomcatConfig;
 
 @TomcatConfig(connector = {
@@ -18,4 +21,9 @@ import yeamy.restlite.annotation.TomcatConfig;
 public class Config {
     public static final Gson gson = new GsonBuilder()
             .setDateFormat("yyyy-MM-dd HH:mm:ss").create();
+
+    @PermissionHandle
+    public static HttpResponse handlePermission(String permission, RESTfulRequest request) {
+        return null;
+    }
 }

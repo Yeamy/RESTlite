@@ -23,7 +23,7 @@ public class ExampleMain {
 //		return "get";
 //	}
 
-    @GET
+    @GET(permission = "abc")
 	public String get(@Inject InjectA injectA, @MaxTo15Param long longSize, String p) throws Exception {
 		return "get";
 	}
