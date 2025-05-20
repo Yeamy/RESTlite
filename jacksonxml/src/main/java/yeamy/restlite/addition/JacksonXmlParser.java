@@ -129,7 +129,7 @@ public class JacksonXmlParser {
     @BodyProcessor("jacksonXmlBody")
     @PartProcessor("jacksonXmlPart")
     public static <T> T fromXml(String xml, Class<T> clz) throws IOException {
-        return mapper.readValue(xml, clz);
+        return xml == null ? null : mapper.readValue(xml, clz);
     }
 
     /**

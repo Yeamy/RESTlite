@@ -122,7 +122,7 @@ public class JacksonParser {
     @BodyProcessor("jacksonBody")
     @PartProcessor("jacksonPart")
     public static <T> T fromJson(String json, Class<T> clz) throws IOException {
-        return mapper.readValue(json, clz);
+        return json == null ? null : mapper.readValue(json, clz);
     }
 
     /**

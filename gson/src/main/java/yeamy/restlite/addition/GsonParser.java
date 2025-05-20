@@ -124,7 +124,7 @@ public class GsonParser {
     @BodyProcessor("gsonBody")
     @PartProcessor("gsonPart")
     public static <T> T fromJson(String json, Class<T> clz) {
-        return gson.fromJson(json, clz);
+        return json == null ? null : gson.fromJson(json, clz);
     }
 
     /**
