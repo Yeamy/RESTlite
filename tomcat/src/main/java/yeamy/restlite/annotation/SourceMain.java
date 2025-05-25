@@ -13,8 +13,6 @@ import javax.tools.Diagnostic;
 import java.io.IOException;
 import java.util.*;
 
-import static yeamy.restlite.annotation.SupportType.T_StringArray;
-
 class SourceMain extends SourceClass {
     private final ProcessingEnvironment env;
     private final TomcatConfig conf;
@@ -37,6 +35,7 @@ class SourceMain extends SourceClass {
         imports("org.apache.catalina.startup.Tomcat");
         imports("org.apache.tomcat.util.descriptor.web.FilterDef");
         imports("org.apache.tomcat.util.descriptor.web.FilterMap");
+        imports("java.util.Collections");
         imports("java.util.Properties");
     }
 
@@ -63,9 +62,14 @@ class SourceMain extends SourceClass {
     }
 
     private void createContent(StringBuilder sb) {
-        sb.append("private static final Tomcat tomcat=new Tomcat();");
+        sb.append("""
+                private static final Tomcat tomcat = new Tomcat();
+                
+                private static void load(Context context) {
+                    context.setSessionTimeout(0);
+                    context.getServletContext().setSessionTrackingModes(Collections.emptySet());
+                """);
         // load listener, filter, servlet
-        sb.append("private static void load(Context context) {");
         if (!listeners.isEmpty()) {
             sb.append("context.setApplicationEventListeners(new Object[]{");
             for (PriorityBean bean : listeners) {
@@ -180,36 +184,6 @@ class SourceMain extends SourceClass {
             i++;
         }
         sb.append("return properties;}");
-        boolean runBeforeTomcat = methodsBeforeTomcat.size() > 0;
-        // run before tomcat
-        if (runBeforeTomcat) {
-            sb.append("private static void runBeforeTomcat(String[] args){");
-            for (Element e : methodsBeforeTomcat) {
-                Set<Modifier> modifiers = e.getModifiers();
-                if (!modifiers.contains(Modifier.PUBLIC) || !modifiers.contains(Modifier.STATIC)) {
-                    msg.printMessage(Diagnostic.Kind.WARNING, "Methods run before Tomcat must be public static: "
-                            + e.asType().toString() + "." + e.getSimpleName());
-                } else {
-                    List<? extends VariableElement> params = ((ExecutableElement) e).getParameters();
-                    switch (params.size()) {
-                        case 0:
-                            sb.append(imports(e.asType())).append(".").append(e.getSimpleName()).append("();");
-                            break;
-                        case 1:
-                            VariableElement ve = params.get(0);
-                            if (T_StringArray.equals(ve.asType().toString())) {
-                                sb.append(imports(e.asType())).append(".").append(e.getSimpleName()).append("(args);");
-                                break;
-                            }
-                        default:
-                            msg.printMessage(Diagnostic.Kind.WARNING,
-                                    "Methods run before Tomcat must have one param String[] or no param: "
-                                    + e.asType().toString() + "." + e.getSimpleName());
-                    }
-                }
-            }
-            sb.append('}');
-        }
         // main
         sb.append("""
                 public static void main(String[] args) {
@@ -220,7 +194,35 @@ class SourceMain extends SourceClass {
                 } catch (LifecycleException e) {e.printStackTrace();}}));
                 try {
                 """);
-        if (runBeforeTomcat) sb.append("runBeforeTomcat(args);");
+        // run before tomcat
+        for (Element e : methodsBeforeTomcat) {
+            Set<Modifier> modifiers = e.getModifiers();
+            if (!modifiers.contains(Modifier.PUBLIC) || !modifiers.contains(Modifier.STATIC)) {
+                msg.printMessage(Diagnostic.Kind.WARNING, "Methods run before Tomcat must be public static: "
+                        + e.asType().toString() + '.' + e.getSimpleName());
+            } else {
+                sb.append(imports(e.asType())).append('.').append(e.getSimpleName()).append('(');
+                List<? extends VariableElement> params = ((ExecutableElement) e).getParameters();
+                for (VariableElement p : params) {
+                    switch (p.asType().toString()) {
+                        case "java.lang.String[]" -> sb.append("args,");
+                        case "org.apache.catalina.startup.Tomcat" -> sb.append("tomcat,");
+                        case "org.apache.catalina.Context" -> sb.append("context,");
+                        case "int", "long", "float", "double" -> sb.append("0,");
+                        case "short" -> sb.append("(short)0,");
+                        case "byte" -> sb.append("(byte)0,");
+                        case "boolean" -> sb.append("false,");
+                        default -> sb.append("null,");
+                    }
+                }
+                if (params.isEmpty()) {
+                    sb.append(')');
+                } else {
+                    sb.setCharAt(sb.length() - 1, ')');
+                }
+                sb.append(';');
+            }
+        }
         sb.append("""
                     Properties properties = getProperties(args);
                     if(properties==null){properties=createProperties();}
