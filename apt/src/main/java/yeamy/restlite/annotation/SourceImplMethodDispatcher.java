@@ -67,8 +67,7 @@ class SourceImplMethodDispatcher {
             h.write(servlet, permission);
         }
         if (async) {
-            servlet.imports("jakarta.servlet.AsyncContext");
-            servlet.append("AsyncContext _asyncContext = _req.startAsync();");
+            servlet.append(servlet.imports("jakarta.servlet.AsyncContext")).append(" _asyncContext = _req.startAsync();");
             if (asyncTimeout > 0) {
                 servlet.append("_asyncContext.setTimeout(").append(asyncTimeout).append("\");\"");
             }
@@ -366,7 +365,7 @@ class SourceImplMethodDispatcher {
             }
             return;
         }
-        SourceFactory<ParamFactory> factory = ProcessEnvironment.getParamFactory(env, p);
+        SourceFactory<ParamFactory> factory = ProcessEnvironment.getParamFactory(p);
         if (factory != null) {
             String alias = p.getSimpleName().toString();
             String name = name(factory, alias);

@@ -22,8 +22,7 @@ public class TomcatUtils {
             String v = properties.getProperty(key);
             try {
                 return Integer.parseInt(v);
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Exception ignored) {
             }
         }
         return defaultValue;
@@ -34,8 +33,7 @@ public class TomcatUtils {
             String v = properties.getProperty(key);
             try {
                 return Boolean.parseBoolean(v);
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Exception ignored) {
             }
         }
         return false;
@@ -134,10 +132,9 @@ public class TomcatUtils {
             KeyStore ks = KeyStore.getInstance(type);
             ks.load(is, pwd.toCharArray());
             return ks;
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ignored) {
+            return null;
         }
-        return null;
     }
 
     public static Properties getProperties(String[] args) {
@@ -151,8 +148,7 @@ public class TomcatUtils {
                             Properties p = new Properties();
                             p.load(new FileInputStream(f));
                             return p;
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                        } catch (Exception ignored) {
                         }
                     }
                 }

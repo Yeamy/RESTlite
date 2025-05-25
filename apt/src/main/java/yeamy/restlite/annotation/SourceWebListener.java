@@ -39,11 +39,7 @@ class SourceWebListener extends SourceClass {
             }
         });
         sb.append("}return super.createServerName(r);}}");
-        try {
-            createSourceFile(env.processingEnv, pkg + '.' + className, sb);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        createSourceFile(env.processingEnv, pkg + '.' + className, sb);
     }
 
 }

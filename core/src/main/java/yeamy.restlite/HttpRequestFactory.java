@@ -11,7 +11,7 @@ import java.util.Collection;
 
 public class HttpRequestFactory {
 
-    public static RESTfulRequest createRequest(HttpServletRequest req) {
+    public static RESTfulRequest createRequest(HttpServletRequest req) throws ServletException, IOException {
         RESTfulRequest out = new RESTfulRequest();
         out.insert(req);
         readUri(req, out);
@@ -45,7 +45,7 @@ public class HttpRequestFactory {
         out.dispatch = !out.getResource().equals(kv[0]);
     }
 
-    public static void readBody(HttpServletRequest req, RESTfulRequest out) {
+    public static void readBody(HttpServletRequest req, RESTfulRequest out) throws ServletException, IOException {
         if (TextUtils.in(req.getMethod(), "GET", "HEAD", "OPTIONS")) {
             return;
         }
@@ -59,21 +59,17 @@ public class HttpRequestFactory {
         }
     }
 
-    private static void readMultiPart(HttpServletRequest req, RESTfulRequest out) {
-        try {
-            Collection<Part> parts = req.getParts();
-            for (Part part : parts) {
-                String name = part.getName();
-                String contentType = part.getContentType();
-                if (contentType == null) {
-                    String value = StreamUtils.readString(part.getInputStream(), out.getCharset());
-                    out.addParameter(name, value);
-                } else {
-                    out.addFile(name, new HttpRequestFile(part, out.getCharset()));
-                }
+    private static void readMultiPart(HttpServletRequest req, RESTfulRequest out) throws ServletException, IOException {
+        Collection<Part> parts = req.getParts();
+        for (Part part : parts) {
+            String name = part.getName();
+            String contentType = part.getContentType();
+            if (contentType == null) {
+                String value = StreamUtils.readString(part.getInputStream(), out.getCharset());
+                out.addParameter(name, value);
+            } else {
+                out.addFile(name, new HttpRequestFile(part, out.getCharset()));
             }
-        } catch (IOException | ServletException e) {
-            e.printStackTrace();
         }
     }
 

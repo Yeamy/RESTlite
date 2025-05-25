@@ -146,7 +146,7 @@ class ProcessEnvironment {
         return null;
     }
 
-    public static SourceFactory<ParamFactory> getParamFactory(ProcessEnvironment env, VariableElement param) {
+    public static SourceFactory<ParamFactory> getParamFactory(VariableElement param) {
         for (AnnotationMirror am : param.getAnnotationMirrors()) {
             ParamFactory ann = am.getAnnotationType().asElement().getAnnotation(ParamFactory.class);
             if (ann == null) continue;
@@ -274,7 +274,7 @@ class ProcessEnvironment {
                 }
             });
         } catch (Exception e) {
-            e.printStackTrace();
+            messager.printMessage(Kind.WARNING, e.getMessage());
         }
     }
 

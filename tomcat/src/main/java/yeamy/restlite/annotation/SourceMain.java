@@ -128,7 +128,7 @@ class SourceMain extends SourceClass {
                 if (multipart != null) {
                     sb.append("wrapper.setMultipartConfigElement(new ")
                             .append(imports("jakarta.servlet.MultipartConfigElement"))
-                            .append("(").append(clz).append(".class.getAnnotation(")
+                            .append('(').append(clz).append(".class.getAnnotation(")
                             .append(imports("jakarta.servlet.annotation.MultipartConfig"))
                             .append(".class)));");
                 }

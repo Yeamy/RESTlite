@@ -45,8 +45,10 @@ public class ServletAnnotationProcessor extends AbstractProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+        if (annotations.isEmpty()) return false;
         Set<? extends Element> configs = roundEnv.getElementsAnnotatedWith(Configuration.class);
         if (configs.isEmpty()) {
+            processingEnv.getMessager().printMessage(WARNING, "NO @Configuration Found!");
             return false;
         } else if (configs.size() > 1) {
             processingEnv.getMessager().printMessage(WARNING, "More than one @Configuration Found!");

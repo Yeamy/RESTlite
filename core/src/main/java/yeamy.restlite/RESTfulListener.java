@@ -26,7 +26,7 @@ public abstract class RESTfulListener implements ServletRequestListener {
             RESTfulRequest restfulReq = HttpRequestFactory.createRequest(httpReq);
             httpReq.setAttribute(REQUEST, restfulReq);
             restfulReq.setServiceName(createServerName(restfulReq));
-        } catch (ClassCastException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

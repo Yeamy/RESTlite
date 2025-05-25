@@ -21,11 +21,7 @@ class SourceWebFilter extends SourceClass {
         sb.append("@WebFilter(value=\"*\",dispatcherTypes={FORWARD,INCLUDE,REQUEST,ASYNC,ERROR}) public class ")
                 .append(className).append(" extends ").append("DispatchFilter");
         sb.append(" {}");
-        try {
-            createSourceFile(env.processingEnv, pkg + '.' + className, sb);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        createSourceFile(env.processingEnv, pkg + '.' + className, sb);
     }
 
 }
