@@ -48,7 +48,7 @@ abstract class SourceInject extends SourceVariable {
 
     static void writeParam(StringBuilder b, ExecutableElement method) {
         List<? extends VariableElement> ps = method.getParameters();
-        if (ps.size() == 0) {
+        if (ps.isEmpty()) {
             b.append("()");
             return;
         }

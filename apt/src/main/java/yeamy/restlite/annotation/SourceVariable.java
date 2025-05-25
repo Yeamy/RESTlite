@@ -39,8 +39,8 @@ abstract class SourceVariable {
                     }
                     if (samePackage || modifiers.contains(Modifier.PUBLIC)) {
                         ExecutableElement close = (ExecutableElement) element;
-                        if (close.getParameters().size() == 0) {
-                            this.closeThrow = close.getThrownTypes().size() > 0;
+                        if (close.getParameters().isEmpty()) {
+                            this.closeThrow = !close.getThrownTypes().isEmpty();
                             break;
                         }
                     }
@@ -58,7 +58,7 @@ abstract class SourceVariable {
     }
 
     public boolean isThrowable() {
-        return throwable.size() > 0;
+        return !throwable.isEmpty();
     }
 
     public void writeCloseField(StringBuilder b, SourceServlet servlet) {

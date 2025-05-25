@@ -3,12 +3,12 @@ package yeamy.restlite.utils;
 public class TextUtils {
 
 	public static boolean isEmpty(CharSequence cs) {
-		return cs == null || cs.length() == 0;
+		return cs == null || cs.isEmpty();
 	}
 
 	public static boolean isEmpty(CharSequence... charSequences) {
 		for (CharSequence cs : charSequences) {
-			if (cs != null && cs.length() > 0) {
+			if (cs != null && !cs.isEmpty()) {
 				return false;
 			}
 		}
@@ -17,7 +17,7 @@ public class TextUtils {
 
 	public static boolean hasEmpty(CharSequence... charSequences) {
 		for (CharSequence cs : charSequences) {
-			if (cs == null || cs.length() == 0) {
+			if (cs == null || cs.isEmpty()) {
 				return true;
 			}
 		}
@@ -25,7 +25,7 @@ public class TextUtils {
 	}
 
 	public static boolean isNotEmpty(CharSequence cs) {
-		return cs != null && cs.length() > 0;
+		return cs != null && !cs.isEmpty();
 	}
 
 	public static boolean isNotEmpty(CharSequence... charSequences) {
@@ -33,7 +33,7 @@ public class TextUtils {
 			return false;
 		}
 		for (CharSequence cs : charSequences) {
-			if (cs == null || cs.length() == 0) {
+			if (cs == null || cs.isEmpty()) {
 				return false;
 			}
 		}

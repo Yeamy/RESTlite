@@ -63,7 +63,7 @@ abstract class SourceVariableHelper {
         if (ip != null) {
             return new SourceInjectByProvider(env, param, ip);
         }
-        if (TextUtils.isNotEmpty(provider)) {
+        if (!provider.isEmpty()) {
             env.error("Cannot find InjectProvider with name: " + provider + " of type " + returnType);
             return new SourceInjectNull(env, param, returnType);
         }
@@ -75,16 +75,16 @@ abstract class SourceVariableHelper {
         if (list.size() > 1) {
             env.error("More than one Factory-Method in type:" + returnType + " " + param.getSimpleName());
             return new SourceInjectNull(env, param, returnType);
-        } else if (list.size() == 0 && !classType.getModifiers().contains(Modifier.ABSTRACT)) {
+        } else if (list.isEmpty() && !classType.getModifiers().contains(Modifier.ABSTRACT)) {
             findInjectConstructor(list, elements, samePackage);
         }
         if (list.size() > 1) {
             env.error("More than one Constructor in type:" + returnType + " " + param.getSimpleName());
             return new SourceInjectNull(env, param, returnType);
-        } else if (list.size() == 0) {
+        } else if (list.isEmpty()) {
             findInjectStaticField(list, env, elements, returnType, samePackage);
         }
-        if (list.size() == 0) {
+        if (list.isEmpty()) {
             env.error("Cannot find Constructor nor Factory-Method, Field with no argument in type " + returnType
                     + " " + param.getSimpleName());
             return new SourceInjectNull(env, param, returnType);
@@ -140,7 +140,7 @@ abstract class SourceVariableHelper {
             if (p.method == null) return null;
             return new SourceHeaderByExecutable(env, param, p);
         }
-        if (TextUtils.isNotEmpty(processor)) {
+        if (!processor.isEmpty()) {
             env.error("Cannot find HeaderProcessor with name: " + processor + " of type " + returnType);
             return null;
         }
@@ -156,10 +156,10 @@ abstract class SourceVariableHelper {
         if (list.size() > 1) {
             env.error("More than one Factory-Method in type:" + returnType + " " + param.getSimpleName());
             return null;
-        } else if (list.size() == 0 && !classType.getModifiers().contains(Modifier.ABSTRACT)) {
+        } else if (list.isEmpty() && !classType.getModifiers().contains(Modifier.ABSTRACT)) {
             findHeaderConstructor(list, elements, samePackage);
         }
-        if (list.size() == 0) {
+        if (list.isEmpty()) {
             env.error("Cannot find Constructor nor Factory-Method with no argument in type " + returnType);
             return null;
         } else if (list.size() > 1) {
@@ -211,7 +211,7 @@ abstract class SourceVariableHelper {
             if (p.method == null) return null;
             return new SourceCookieByExecutable(env, param, p);
         }
-        if (TextUtils.isNotEmpty(processor)) {
+        if (!processor.isEmpty()) {
             env.error("Cannot find CookieProcessor with name: " + processor + " of type " + returnType);
             return null;
         }
@@ -227,10 +227,10 @@ abstract class SourceVariableHelper {
         if (list.size() > 1) {
             env.error("More than one Factory-Method in type:" + returnType + " " + param.getSimpleName());
             return null;
-        } else if (list.size() == 0 && !classType.getModifiers().contains(Modifier.ABSTRACT)) {
+        } else if (list.isEmpty() && !classType.getModifiers().contains(Modifier.ABSTRACT)) {
             findCookieConstructor(list, elements, samePackage);
         }
-        if (list.size() == 0) {
+        if (list.isEmpty()) {
             env.error("Cannot find Constructor nor Factory-Method with no argument in type " + returnType);
             return null;
         } else if (list.size() > 1) {
@@ -306,7 +306,7 @@ abstract class SourceVariableHelper {
             if (p.method == null) return null;
             return new SourceBodyByExecutable(env, param, p);
         }
-        if (TextUtils.isNotEmpty(processor)) {
+        if (!processor.isEmpty()) {
             env.error("Cannot find BodyProcessor with name: " + processor + " of type " + returnType);
             return null;
         }
@@ -322,10 +322,10 @@ abstract class SourceVariableHelper {
         if (list.size() > 1) {
             env.error("More than one Factory-Method in type:" + returnType + " " + param.getSimpleName());
             return null;
-        } else if (list.size() == 0 && !classType.getModifiers().contains(Modifier.ABSTRACT)) {
+        } else if (list.isEmpty() && !classType.getModifiers().contains(Modifier.ABSTRACT)) {
             findBodyConstructor(list, elements, returnType, samePackage);
         }
-        if (list.size() == 0) {
+        if (list.isEmpty()) {
             env.error("Cannot find Constructor nor Factory-Method with no argument in type " + returnType);
             return null;
         } else if (list.size() > 1) {
@@ -401,7 +401,7 @@ abstract class SourceVariableHelper {
             if (p.method == null) return null;
             return new SourcePartByExecutable(env, param, p);
         }
-        if (TextUtils.isNotEmpty(processor)) {
+        if (!processor.isEmpty()) {
             env.error("Cannot find PartProcessor with name: " + processor + " of type " + returnType);
             return null;
         }
@@ -417,10 +417,10 @@ abstract class SourceVariableHelper {
         if (list.size() > 1) {
             env.error("More than one Factory-Method in type:" + returnType + " " + param.getSimpleName());
             return null;
-        } else if (list.size() == 0 && !classType.getModifiers().contains(Modifier.ABSTRACT)) {
+        } else if (list.isEmpty() && !classType.getModifiers().contains(Modifier.ABSTRACT)) {
             findPartConstructor(list, elements, returnType, samePackage);
         }
-        if (list.size() == 0) {
+        if (list.isEmpty()) {
             env.error("Cannot find Constructor nor Factory-Method with no argument in type " + returnType);
             return null;
         } else if (list.size() > 1) {
@@ -500,7 +500,7 @@ abstract class SourceVariableHelper {
             if (p.method == null) return null;
             return new SourceParamByExecutable(env, param, p);
         }
-        if (TextUtils.isNotEmpty(processor)) {
+        if (!processor.isEmpty()) {
             env.error("Cannot find ParamProcessor with name: " + processor + " of type " + returnType);
             return null;
         }
@@ -516,10 +516,10 @@ abstract class SourceVariableHelper {
         if (list.size() > 1) {
             env.error("More than one Factory-Method in type:" + returnType + " " + param.getSimpleName());
             return null;
-        } else if (list.size() == 0 && !classType.getModifiers().contains(Modifier.ABSTRACT)) {
+        } else if (list.isEmpty() && !classType.getModifiers().contains(Modifier.ABSTRACT)) {
             findParamConstructor(list, elements, samePackage);
         }
-        if (list.size() == 0) {
+        if (list.isEmpty()) {
             env.error("Cannot find Constructor nor Factory-Method with no argument in type " + returnType);
             return null;
         } else if (list.size() > 1) {

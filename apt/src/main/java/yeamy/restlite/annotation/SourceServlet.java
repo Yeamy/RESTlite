@@ -7,8 +7,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static yeamy.restlite.annotation.SupportType.T_RESTfulRequest;
 import static yeamy.restlite.annotation.SupportType.T_HttpServletResponse;
+import static yeamy.restlite.annotation.SupportType.T_RESTfulRequest;
 
 class SourceServlet extends SourceClass {
     final ProcessEnvironment env;
@@ -124,14 +124,14 @@ class SourceServlet extends SourceClass {
             b2.append(",maxRequestSize = ").append(maxRequestSize).append('L');
         }
         String location = resource.tempLocation();
-        if (location.length() > 0) {
+        if (!location.isEmpty()) {
             b2.append(",location = \"").append(convStr(location)).append('"');
         }
         int fileSizeThreshold = resource.fileSizeThreshold();
         if (fileSizeThreshold != 0) {
             b2.append(",fileSizeThreshold=").append(fileSizeThreshold);
         }
-        if (b2.length() > 0) {
+        if (!b2.isEmpty()) {
             b.append('(').append(b2, 1, b2.length()).append(") ");
         }
         // class

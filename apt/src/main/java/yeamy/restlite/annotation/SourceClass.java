@@ -102,7 +102,7 @@ abstract class SourceClass {
 
     protected void createSourceFile(ProcessingEnvironment env, String file, CharSequence content) throws IOException {
         StringBuilder sb = new StringBuilder();
-        if (pkg.length() > 0) {
+        if (!pkg.isEmpty()) {
             sb.append("package ").append(pkg).append(';');
         }
         for (String clz : new TreeSet<>(imports.values())) {

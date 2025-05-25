@@ -78,7 +78,7 @@ class SourceImplMethodDispatcher {
         args.getNormal().forEach(servlet::append);
         // try
         ArrayList<CharSequence> closeable = args.getCloseable();
-        if (closeable.size() > 0) {
+        if (!closeable.isEmpty()) {
             servlet.append("try(");
             for (CharSequence g : closeable) {
                 servlet.append(g);
@@ -94,7 +94,7 @@ class SourceImplMethodDispatcher {
             }
         } else {
             ArrayList<CharSequence> inTry = args.getInTry();
-            if (inTry.size() > 0) {
+            if (!inTry.isEmpty()) {
                 servlet.append("try{");
                 for (CharSequence g : inTry) {
                     servlet.append(g);
@@ -477,26 +477,26 @@ class SourceImplMethodDispatcher {
     }
 
     private static String name(Attribute ann, String alias) {
-        return ann.value().length() > 0 ? ann.value() : ann.name().length() > 0 ? ann.name() : alias;
+        return !ann.value().isEmpty() ? ann.value() : !ann.name().isEmpty() ? ann.name() : alias;
     }
 
     private static String name(Header ann, String alias) {
-        return ann.value().length() > 0 ? ann.value() : ann.name().length() > 0 ? ann.name() : alias;
+        return !ann.value().isEmpty() ? ann.value() : !ann.name().isEmpty() ? ann.name() : alias;
     }
 
     private static String name(Cookies ann, String alias) {
-        return ann.value().length() > 0 ? ann.value() : ann.name().length() > 0 ? ann.name() : alias;
+        return !ann.value().isEmpty() ? ann.value() : !ann.name().isEmpty() ? ann.name() : alias;
     }
 
     private static String name(Param ann, String alias) {
-        return ann.value().length() > 0 ? ann.value() : ann.name().length() > 0 ? ann.name() : alias;
+        return !ann.value().isEmpty() ? ann.value() : !ann.name().isEmpty() ? ann.name() : alias;
     }
 
     private static String name(Parts ann, String alias) {
-        return ann.value().length() > 0 ? ann.value() : ann.name().length() > 0 ? ann.name() : alias;
+        return !ann.value().isEmpty() ? ann.value() : !ann.name().isEmpty() ? ann.name() : alias;
     }
 
     private static String name(SourceFactory<?> factory, String alias) {
-        return factory.name().length() > 0 ? factory.name() : alias;
+        return !factory.name().isEmpty() ? factory.name() : alias;
     }
 }

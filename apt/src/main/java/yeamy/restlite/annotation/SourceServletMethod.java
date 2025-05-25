@@ -39,7 +39,7 @@ class SourceServletMethod {
                 .append("(RESTfulRequest _req, HttpServletResponse _resp) throws ServletException, IOException {");
         HashSet<String> throwTypes = new HashSet<>();
         dispatchers.forEach(e -> throwTypes.addAll(e.throwTypes()));
-        if (hasOnError || throwTypes.size() > 0) servlet.append("try{");
+        if (hasOnError || !throwTypes.isEmpty()) servlet.append("try{");
         if (dispatchers.size() == 1 && dispatchers.get(0).isNoParam()) {
             dispatchers.get(0).create(httpMethod);
         } else {
@@ -62,12 +62,12 @@ class SourceServletMethod {
         servlet.append('}');
         if (hasOnError) {
             servlet.append("catch(Exception _ex){onError(_req,_resp,_ex);}}");
-        } else if (throwTypes.size() > 0) {
+        } else if (!throwTypes.isEmpty()) {
             if (throwTypes.remove(T_ProcessException)) {
                 servlet.append("catch(").append(servlet.imports(T_ProcessException))
                         .append(" _ex){_ex.getResponse().write(_resp);}");
             }
-            if (throwTypes.size() > 0) {
+            if (!throwTypes.isEmpty()) {
                 servlet.append("catch(Exception _ex){");
                 env.getResponse().writeError(env, servlet, 500, "Server Error!");
                 servlet.append('}');

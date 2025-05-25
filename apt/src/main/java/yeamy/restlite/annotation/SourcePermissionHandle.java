@@ -1,7 +1,5 @@
 package yeamy.restlite.annotation;
 
-import yeamy.restlite.utils.TextUtils;
-
 import javax.lang.model.element.*;
 import javax.lang.model.type.TypeMirror;
 import java.util.List;
@@ -63,7 +61,7 @@ class SourcePermissionHandle {
     }
 
     void write(SourceServlet servlet, String permission) {
-        if (TextUtils.isEmpty(permission)) return;
+        if (permission.isEmpty()) return;
         if (returnType != null) {
             servlet.append(servlet.imports(returnType)).append(" __resp = ");
         }

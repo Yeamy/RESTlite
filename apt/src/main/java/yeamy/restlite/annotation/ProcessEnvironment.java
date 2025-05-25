@@ -314,7 +314,7 @@ class ProcessEnvironment {
 
     public static List<String> getThrowType(ExecutableElement method) {
         List<? extends TypeMirror> ls = method.getThrownTypes();
-        if (ls.size() > 0) {
+        if (!ls.isEmpty()) {
             ArrayList<String> throwable = new ArrayList<>();
             ls.forEach(e -> throwable.add(e.toString()));
             return throwable;

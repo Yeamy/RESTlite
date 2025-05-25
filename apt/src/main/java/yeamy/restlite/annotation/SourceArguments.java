@@ -1,9 +1,6 @@
 package yeamy.restlite.annotation;
 
-import yeamy.restlite.utils.TextUtils;
-
 import javax.lang.model.element.VariableElement;
-import javax.lang.model.type.TypeKind;
 import java.util.ArrayList;
 
 class SourceArguments {
@@ -51,7 +48,7 @@ class SourceArguments {
         }
 
         public String name() {
-            return jName.length() > 0 ? jName : hName;
+            return jName.isEmpty() ? hName : jName;
         }
     }
 
@@ -125,14 +122,14 @@ class SourceArguments {
         Impl cell = get(SourceArgType.attribute, hName);
         return cell == null
                 ? null
-                : TextUtils.equals(type, cell.type) ? cell.jName : null;
+                : type.equals(cell.type) ? cell.jName : null;
     }
 
     public String getHeaderAlias(String type, String hName) {
         Impl cell = get(SourceArgType.header, hName);
         return cell == null
                 ? null
-                : TextUtils.equals(type, cell.type) ? cell.jName : null;
+                : type.equals(cell.type) ? cell.jName : null;
     }
 
     public String getCookieAlias(String type, String name) {

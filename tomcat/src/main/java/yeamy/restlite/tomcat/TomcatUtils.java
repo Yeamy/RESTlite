@@ -8,7 +8,6 @@ import org.apache.coyote.AbstractProtocol;
 import org.apache.coyote.ProtocolHandler;
 import org.apache.tomcat.util.net.SSLHostConfig;
 import org.apache.tomcat.util.net.SSLHostConfigCertificate;
-import yeamy.restlite.utils.TextUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -81,7 +80,7 @@ public class TomcatUtils {
         }
         Host host = tomcat.getHost();
         String baseDir = properties.getProperty("baseDir", "");
-        if (TextUtils.isNotEmpty(baseDir)) {
+        if (!baseDir.isEmpty()) {
             tomcat.setBaseDir(baseDir);
         }
         return tomcat.addContext(host, "", System.getProperty("user.dir"));

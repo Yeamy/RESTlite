@@ -5,7 +5,6 @@ import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.annotation.WebInitParam;
 import jakarta.servlet.annotation.WebServlet;
-import yeamy.restlite.utils.TextUtils;
 
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -67,7 +66,7 @@ class SourceMain extends SourceClass {
         sb.append("private static final Tomcat tomcat=new Tomcat();");
         // load listener, filter, servlet
         sb.append("private static void load(Context context) {");
-        if (listeners.size() > 0) {
+        if (!listeners.isEmpty()) {
             sb.append("context.setApplicationEventListeners(new Object[]{");
             for (PriorityBean bean : listeners) {
                 TypeElement element = bean.element;
@@ -75,7 +74,7 @@ class SourceMain extends SourceClass {
             }
             sb.deleteCharAt(sb.length() - 1).append("});");
         }
-        if (filters.size() > 0) {
+        if (!filters.isEmpty()) {
             sb.append("FilterDef fd;FilterMap fm;");
             for (PriorityBean bean : filters) {
                 TypeElement element = bean.element;
@@ -83,10 +82,10 @@ class SourceMain extends SourceClass {
                 Set<String> urlPatterns = new HashSet<>();
                 Collections.addAll(urlPatterns, ann.value());
                 Collections.addAll(urlPatterns, ann.urlPatterns());
-                if (urlPatterns.size() == 0) continue;
+                if (urlPatterns.isEmpty()) continue;
                 String clz = imports(element);
                 String name = ann.filterName();
-                if (name.length() == 0) name = clz.contains(".") ? clz.replace(".", "_") : clz;
+                if (name.isEmpty()) name = clz.contains(".") ? clz.replace(".", "_") : clz;
                 sb.append("/* ").append(clz).append(" */");
                 // fd
                 sb.append("fd = new FilterDef();fd.setFilterName(\"").append(name).append("\");");
@@ -105,7 +104,7 @@ class SourceMain extends SourceClass {
             }
         }
         Messager msg = env.getMessager();
-        if (servlets.size() > 0) {
+        if (!servlets.isEmpty()) {
             sb.append("Wrapper wrapper;");
             for (Element element : servlets) {
                 WebServlet ann = element.getAnnotation(WebServlet.class);
@@ -117,10 +116,10 @@ class SourceMain extends SourceClass {
                         msg.printMessage(Diagnostic.Kind.WARNING, "Custom url may cause error: " + url);
                     }
                 }
-                if (urlPatterns.size() == 0) continue;
+                if (urlPatterns.isEmpty()) continue;
                 String clz = imports((TypeElement) element);
                 String name = ann.name();
-                if (name.length() == 0) name = clz.replace(".", "_");
+                if (name.isEmpty()) name = clz.replace(".", "_");
                 sb.append("wrapper = tomcat.addServlet(\"\", \"").append(name).append("\", new ").append(clz).append("());");
                 for (String uri : urlPatterns) {
                     sb.append("wrapper.addMapping(\"").append(uri).append("\");");
@@ -138,7 +137,7 @@ class SourceMain extends SourceClass {
         sb.append('}');
         // createProperties
         sb.append("private static Properties createProperties(){Properties properties=new Properties();");
-        if (TextUtils.isNotEmpty(conf.baseDir())) {
+        if (!conf.baseDir().isEmpty()) {
             setProperty(sb, "baseDir", conf.baseDir());
         }
         if (conf.maxThreads() > 0) {

@@ -27,7 +27,7 @@ class SourceWebListener extends SourceClass {
         env.implMethodNames().forEach((key, map) -> {// key = resource + ':' + httpMethod
             sb.append("case \"").append(key).append("\":");
             map.forEach((name, ifHas) -> {// name = resource + ':' + httpMethod + ':' + params
-                if (ifHas.length() > 0) {
+                if (!ifHas.isEmpty()) {
                     sb.append(ifHas).append("){return \"").append(name).append("\";} else ");
                 } else {
                     sb.append("{return \"").append(name).append("\";}");

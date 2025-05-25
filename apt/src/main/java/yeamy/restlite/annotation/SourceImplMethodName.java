@@ -23,7 +23,7 @@ class SourceImplMethodName {
         int l = sb.length();
         this.params = (l == 0) ? "" : sb.substring(0, l - 1);
         sb.delete(0, sb.length());
-        if (params.size() > 0) {
+        if (!params.isEmpty()) {
             sb.append("if (");
             boolean first = true;
             for (String param : params) {

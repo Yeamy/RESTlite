@@ -27,7 +27,7 @@ public class HttpRequestFactory {
         int end = reqUri.length();
         if (reqUri.charAt(end - 1) == '/') --end;
         String uri = reqUri.substring(begin, end);
-        if (uri.isEmpty()) {
+        if (TextUtils.isEmpty(uri)) {
             return;
         }
         String[] kv = uri.split("/");

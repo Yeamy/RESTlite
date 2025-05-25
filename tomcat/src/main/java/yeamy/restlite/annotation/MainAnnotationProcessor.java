@@ -74,7 +74,7 @@ public class MainAnnotationProcessor extends AbstractProcessor {
 
     public static String[] getMainClassName(TomcatConfig config, Element element) {
         String main = config.main();
-        if (main.length() == 0) {
+        if (main.isEmpty()) {
             return new String[]{
                     ((PackageElement) element.getEnclosingElement()).getQualifiedName().toString(),
                     "Main"};
