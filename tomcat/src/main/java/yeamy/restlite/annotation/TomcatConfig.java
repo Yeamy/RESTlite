@@ -26,6 +26,11 @@ public @interface TomcatConfig {
     String baseDir() default "";
 
     /**
+     * Base directory for the context, for static files. keep empty if not use static files.
+     */
+    String contextDir() default "";
+
+    /**
      * Maximum amount of worker threads.
      */
     int maxThreads() default 0;

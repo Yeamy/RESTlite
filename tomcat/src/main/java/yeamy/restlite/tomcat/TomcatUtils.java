@@ -81,7 +81,11 @@ public class TomcatUtils {
         if (!baseDir.isEmpty()) {
             tomcat.setBaseDir(baseDir);
         }
-        return tomcat.addContext(host, "", System.getProperty("user.dir"));
+        String contextDir = properties.getProperty("contextDir", "");
+        if (contextDir.isEmpty()) {
+            contextDir = null;
+        }
+        return tomcat.addContext(host, "", contextDir);
     }
 
     public static void addConnectors(Properties properties, Tomcat tomcat) {

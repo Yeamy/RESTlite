@@ -140,6 +140,9 @@ class SourceMain extends SourceClass {
         if (!conf.baseDir().isEmpty()) {
             setProperty(sb, "baseDir", conf.baseDir());
         }
+        if (!conf.contextDir().isEmpty()) {
+            setProperty(sb, "contextDir", conf.contextDir());
+        }
         if (conf.maxThreads() > 0) {
             setProperty(sb, "maxThreads", conf.maxThreads());
         }
