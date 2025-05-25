@@ -18,6 +18,12 @@ import java.lang.annotation.Target;
 public @interface Configuration {
 
     /**
+     *
+     * @return package name of application, if empty same with class annotated with @Configuration.
+     */
+    String packageName() default "";
+
+    /**
      * Subclass of {@linkplain RESTfulRequest HttpResponse}, the class must have a one-parameter-constructor,
      * and the only one parameter will accept data.<br>
      * <br>

@@ -40,8 +40,8 @@ class ProcessEnvironment {
         typeUtils = env.getTypeUtils();
         elementUtils = env.getElementUtils();
         PackageElement element = (PackageElement) init.getEnclosingElement();
-        pkg = element.getQualifiedName().toString();
         Configuration ann = init.getAnnotation(Configuration.class);
+        this.pkg = ann.packageName().isEmpty() ? element.getQualifiedName().toString() : ann.packageName();
         responseAllType = ann.responseAllType();
         this.response = new SourceResponse(this, getClassInAnnotation(ann::response));
         //
