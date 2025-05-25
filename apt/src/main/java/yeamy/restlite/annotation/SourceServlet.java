@@ -94,18 +94,20 @@ class SourceServlet extends SourceClass {
 
     private void createBody() {
         {// WebServlet
-            b.append("@WebServlet(");
-            if (asyncSupported) {
-                b.append("asyncSupported = true, value = \"");
-            } else {
-                b.append('"');
-            }
-            b.append('/').append(getRESTfulResource()).append('"');
             WebInitParam[] initParams = resource.initParams();
+            b.append("@WebServlet(");
+            if (asyncSupported || initParams.length > 0) {
+                b.append("value = ");
+            }
+            b.append("\"/").append(getRESTfulResource()).append('"');
+            if (asyncSupported) {
+                b.append(", asyncSupported = true");
+            }
             if (initParams.length > 0) {
+                String T_WebInitParam = imports("jakarta.servlet.annotation.WebInitParam");
                 b.append(", initParams = {");
                 for (WebInitParam p : initParams) {
-                    b.append("@WebInitParam(name=\"").append(convStr(p.name()))
+                    b.append('@').append(T_WebInitParam).append("(name=\"").append(convStr(p.name()))
                             .append("\",value=\"").append(convStr(p.value())).append("\"),");
                 }
                 b.append('}');

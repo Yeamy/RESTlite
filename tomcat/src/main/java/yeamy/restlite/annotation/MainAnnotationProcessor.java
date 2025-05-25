@@ -63,7 +63,7 @@ public class MainAnnotationProcessor extends AbstractProcessor {
         }
         if (source == null) {
             processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR,
-                    "Cannot class Main because no annotation Configuration found!");
+                    "Cannot create class Main because no annotation Configuration found!");
             return false;
         }
         source.add(roundEnv.getElementsAnnotatedWith(WebListener.class),

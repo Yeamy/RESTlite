@@ -13,12 +13,15 @@ repositories {
 }
 
 dependencies {
-    api('org.apache.tomcat.embed:tomcat-embed-core:11.0.3') {
+    api project(':core')
+    compileOnlyApi project(':apt')
+    api 'org.apache.tomcat:tomcat-catalina:11+'
+    api 'org.apache.tomcat.embed:tomcat-embed-core:11+'
+
+//    api('org.apache.tomcat.embed:tomcat-embed-core:11.0.3') {
 //        exclude group: 'org.apache.tomcat', module: 'tomcat-catalina'
 //        exclude group: 'org.apache.tomcat', module: 'tomcat-servlet-api'
-    }
-    api project(":core")
-    compileOnlyApi project(":apt")
+//    }
 //    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
 //    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
 }

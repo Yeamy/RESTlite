@@ -16,8 +16,12 @@ repositories {
 }
 
 dependencies {
-    compileOnly 'org.apache.tomcat:tomcat-catalina:11.0.3'
-    compileOnlyApi 'org.apache.tomcat:tomcat-servlet-api:11.0.3'
+    compileOnlyApi 'jakarta.servlet:jakarta.servlet-api:6+'
+    compileOnlyApi 'jakarta.annotation:jakarta.annotation-api:2+'
+
+//    compileOnlyApi 'org.apache.tomcat:tomcat-servlet-api:11+'
+//    compileOnlyApi 'org.apache.tomcat:tomcat-catalina:11+'
+
 //    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
 //    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
 }

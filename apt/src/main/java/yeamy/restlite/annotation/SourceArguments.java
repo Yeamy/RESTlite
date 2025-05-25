@@ -10,7 +10,7 @@ class SourceArguments {
     public static class Impl {
         private final SourceArgType kind;
         private final String type, hName, jName;
-        private CharSequence vs;// out string e.g. String a = _req.getParam("a");
+        private CharSequence vs = "";// out string e.g. String a = _req.getParam("a");
         private final boolean throwable, closeable, closeThrow;// db
 
         private Impl(SourceArgType kind, String type, String hName, String jName, boolean throwable, boolean closeable, boolean closeThrow) {
