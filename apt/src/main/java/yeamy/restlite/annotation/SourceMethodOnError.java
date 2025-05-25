@@ -27,47 +27,13 @@ class SourceMethodOnError {
         for (VariableElement e : method.getParameters()) {
             TypeMirror t = e.asType();
             String clz = t.toString();
-            a:
-            switch (t.getKind()) {
-                case BOOLEAN:
-                    servlet.append("false");
-                    break;
-                case INT:
-                case LONG:
-                case FLOAT:
-                case DOUBLE:
-                    servlet.append("0");
-                    break;
-                case CHAR:
-                    servlet.append("(char)0");
-                    break;
-                case BYTE:
-                    servlet.append("(byte)0");
-                    break;
-                case DECLARED:
-                    switch (clz) {
-                        case T_String:
-                            servlet.append("null");
-                            break a;
-                        case T_Exception:
-                            servlet.append(e.getSimpleName());
-                            break a;
-                        case T_RESTfulRequest:
-                            servlet.append("_req");
-                            break a;
-                        case T_HttpServletRequest:
-                            servlet.append("_req.getRequest()");
-                        case T_HttpServletResponse:
-                            servlet.append("_resp");
-                            break a;
-                        case T_HttpServlet:
-                            servlet.append("this");
-                            break a;
-                    }
-                case ARRAY:
-                default:
-                    servlet.append("null/* not support type ").append(clz).append(" */");
-                    break;
+            switch (clz) {
+                case T_Exception -> servlet.append(e.getSimpleName());
+                case T_RESTfulRequest -> servlet.append("_req");
+                case T_HttpServletRequest -> servlet.append("_req.getRequest()");
+                case T_HttpServletResponse -> servlet.append("_resp");
+                case T_HttpServlet -> servlet.append("this");
+                default -> servlet.append(ProcessEnvironment.inValidTypeValue(t));
             }
             servlet.append(',');
         }

@@ -365,4 +365,15 @@ class ProcessEnvironment {
         }
         return null;
     }
+
+    public static String inValidTypeValue(TypeMirror tm) {
+        return switch (tm.getKind()) {
+            case INT, LONG, FLOAT, DOUBLE -> "0";
+            case SHORT -> "(short)0";
+            case BYTE -> "(byte)0";
+            case BOOLEAN -> "false";
+//            case ARRAY, DECLARED -> "null";
+            default -> "null";
+        };
+    }
 }

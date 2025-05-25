@@ -95,8 +95,7 @@ class SourceArguments {
     }
 
     public void addFallback(VariableElement p) {
-        TypeKind kind = p.asType().getKind();
-        String name = kind.isPrimitive() ? kind.equals(TypeKind.BOOLEAN) ? "false" : "0" : "null";
+        String name = ProcessEnvironment.inValidTypeValue(p.asType());
         Impl impl = new Impl(SourceArgType.fallback, "", name, name);
         list.add(impl);
     }

@@ -69,18 +69,10 @@ class SourcePermissionHandle {
         for (VariableElement p : params) {
             TypeMirror tm = p.asType();
             String tn = tm.toString();
-            if (tn.equals(T_RESTfulRequest)) {
-                servlet.append("_req, ");
-            } else if (tn.equals(T_String)) {
-                servlet.append('"').append(permission).append("\", ");
-            } else {
-                switch (tm.getKind()) {
-                    case ARRAY, DECLARED -> servlet.append("null, ");
-                    case INT, LONG, FLOAT, DOUBLE -> servlet.append("0, ");
-                    case SHORT -> servlet.append("(short)0, ");
-                    case BYTE -> servlet.append("(byte)0, ");
-                    case BOOLEAN -> servlet.append("false, ");
-                }
+            switch (tn) {
+                case T_RESTfulRequest->servlet.append("_req, ");
+                case T_String-> servlet.append('"').append(permission).append("\", ");
+                default -> servlet.append(ProcessEnvironment.inValidTypeValue(tm)).append(", ");
             }
         }
         servlet.deleteLast(2).append(");");

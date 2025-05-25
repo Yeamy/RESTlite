@@ -55,15 +55,10 @@ abstract class SourceInject extends SourceVariable {
         b.append('(');
         ps.forEach(param -> {
             TypeMirror tm = param.asType();
-            TypeKind kind = tm.getKind();
-            if (kind.isPrimitive()) {
-                b.append(kind.equals(TypeKind.BOOLEAN) ? "false, " : "0,");
-                return;
-            }
             switch (tm.toString()) {
                 case T_ServletConfig -> b.append("getServletConfig(),");
                 case T_ServletContext -> b.append("getServletContext(),");
-                default -> b.append("null,");
+                default -> b.append(ProcessEnvironment.inValidTypeValue(tm)).append(',');
             }
         });
         b.replace(b.length() - 1, b.length(), ")");
