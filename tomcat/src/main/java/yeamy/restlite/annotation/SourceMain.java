@@ -10,7 +10,10 @@ import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.*;
 import javax.tools.Diagnostic;
+import javax.tools.FileObject;
+import javax.tools.StandardLocation;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.*;
 
 class SourceMain extends SourceClass {
@@ -58,7 +61,20 @@ class SourceMain extends SourceClass {
         content.append("public class ").append(name).append('{');
         createContent(content);
         content.append('}');
-        createSourceFile(env, pkg + '.' + name, content);
+        String qualifiedName = pkg + '.' + name;
+        createSourceFile(env, qualifiedName, content);
+        createManifest(env, qualifiedName);
+    }
+
+    public static void createManifest(ProcessingEnvironment env, String mainClass) throws IOException {
+        FileObject f = env.getFiler().createResource(StandardLocation.SOURCE_OUTPUT, "", "META-INF/MANIFEST.MF");
+        try (OutputStream os = f.openOutputStream()) {
+            os.write("Manifest-Version: 1.0\nMain-Class: ".getBytes());
+            os.write(mainClass.getBytes());
+            os.write("\n".getBytes());
+//            Implementation-Version: 1.0.0
+            os.flush();
+        }
     }
 
     private void createContent(StringBuilder sb) {
@@ -67,7 +83,6 @@ class SourceMain extends SourceClass {
                 
                 private static void load(Context context) {
                     context.setSessionTimeout(0);
-                    context.getServletContext().setSessionTrackingModes(Collections.emptySet());
                 """);
         // load listener, filter, servlet
         if (!listeners.isEmpty()) {
