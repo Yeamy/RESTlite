@@ -60,7 +60,7 @@ public class RESTfulRequest implements Serializable {
         return req;
     }
 
-    public String getRemoteAddr() {
+    public String getRemoteAddress() {
         return req.getRemoteAddr();
     }
 
@@ -267,7 +267,7 @@ public class RESTfulRequest implements Serializable {
         }
     }
 
-    public Integer[] getIntegerParams(String name) {
+    public Integer[] getIntParams(String name) {
         return ValueUtils.toInt(getParams(name));
     }
 
