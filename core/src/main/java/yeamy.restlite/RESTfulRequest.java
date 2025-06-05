@@ -6,11 +6,13 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.Part;
-import yeamy.restlite.utils.StreamUtils;
 import yeamy.restlite.utils.TextUtils;
 import yeamy.restlite.utils.ValueUtils;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serial;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -193,10 +195,8 @@ public class RESTfulRequest implements Serializable {
     }
 
     public byte[] getBodyAsByte() {
-        try (InputStream is = req.getInputStream();
-             ByteArrayOutputStream os = new ByteArrayOutputStream(is.available())) {
-            StreamUtils.writeWithoutClose(os, is);
-            return os.toByteArray();
+        try (InputStream is = req.getInputStream()) {
+            return is.readAllBytes();
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -222,10 +222,8 @@ public class RESTfulRequest implements Serializable {
     }
 
     public String getBodyAsText(Charset charset) throws IOException {
-        try (InputStream is = req.getInputStream();
-             ByteArrayOutputStream os = new ByteArrayOutputStream(is.available())) {
-            StreamUtils.writeWithoutClose(os, is);
-            return os.toString(charset);
+        try (InputStream is = req.getInputStream()) {
+            return new String(is.readAllBytes(), charset);
         }
     }
 

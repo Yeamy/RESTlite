@@ -68,14 +68,14 @@ public record HttpRequestFile(Part part, String bodyCharset) implements Serializ
      * read the part as string with given charset
      */
     public String getAsText(String charset) throws IOException {
-        return StreamUtils.readString(part.getInputStream(), charset);
+        return new String(part.getInputStream().readAllBytes(), charset);
     }
 
     /**
      * read the part as byte array
      */
     public byte[] getAsByte() throws IOException {
-        return StreamUtils.readByte(part.getInputStream());
+        return part.getInputStream().readAllBytes();
     }
 
     /**

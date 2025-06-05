@@ -65,7 +65,7 @@ public class HttpRequestFactory {
             String name = part.getName();
             String contentType = part.getContentType();
             if (contentType == null) {
-                String value = StreamUtils.readString(part.getInputStream(), out.getCharset());
+                String value = new String(part.getInputStream().readAllBytes(), out.getCharset());
                 out.addParameter(name, value);
             } else {
                 out.addFile(name, new HttpRequestFile(part, out.getCharset()));

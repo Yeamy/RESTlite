@@ -1,15 +1,14 @@
 package yeamy.restlite.utils;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.Charset;
 
 public class StreamUtils {
 
-    public static void close(Closeable obj) {
-        try {
-            if (obj != null) {
-                obj.close();
-            }
+    public static void close(AutoCloseable obj) {
+        try (obj) {
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -70,22 +69,9 @@ public class StreamUtils {
         }
     }
 
-    private static ByteArrayOutputStream readWithoutClose(InputStream is) throws IOException {
-        ByteArrayOutputStream os = new ByteArrayOutputStream(is.available());
-        byte[] buf = new byte[8192];
-        while (true) {
-            int l = is.read(buf);
-            if (l == -1) {
-                break;
-            }
-            os.write(buf, 0, l);
-        }
-        return os;
-    }
-
     public static byte[] readByte(InputStream is) {
         try (is) {
-            return readWithoutClose(is).toByteArray();
+            return is.readAllBytes();
         } catch (Exception e) {
             return null;
         }
@@ -97,7 +83,7 @@ public class StreamUtils {
 
     public static String readString(InputStream is, Charset charset) {
         try (is) {
-            return readWithoutClose(is).toString(charset);
+            return new String(is.readAllBytes(), charset);
         } catch (Exception e) {
             return null;
         }
