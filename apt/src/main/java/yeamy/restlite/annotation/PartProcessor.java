@@ -9,7 +9,10 @@ import java.lang.annotation.Target;
 
 /**
  * Declare the method to create http body part.<br>
- * For public static-method/constructor with one param (one of).<br>
+ * For public static-method/constructor with one param (one of
+ * {@linkplain jakarta.servlet.http.Part Part},
+ * {@linkplain yeamy.restlite.HttpRequestFile HttpRequestFile},
+ * {@linkplain java.io.InputStream InputStream}, byte[], String).<br>
  * Can throw a {@link ProcessException} to terminate an HTTP request
  *
  * @see Parts

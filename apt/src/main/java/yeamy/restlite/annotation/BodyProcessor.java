@@ -9,7 +9,11 @@ import java.lang.annotation.Target;
 
 /**
  * Declare the method to create http body.<br>
- * For public static-method/constructor with one param (one of).<br>
+ * For public static-method/constructor with one param (one of
+ * {@linkplain jakarta.servlet.ServletInputStream ServletInputStream},
+ * {@linkplain java.io.InputStream InputStream}, byte[], String,
+ * {@linkplain jakarta.servlet.http.Part Part[]},
+ * {@linkplain yeamy.restlite.HttpRequestFile HttpRequestFile[]}).<br>
  * Can throw a {@link ProcessException} to terminate an HTTP request
  *
  * @see Body
