@@ -3,7 +3,7 @@ plugins {
 }
 var $groupId = 'io.github.yeamy'
 var $artifactId = 'restlite-tomcat'
-var $version = '1.0-RC3'
+var $version = '1.0-RC4'
 
 group $groupId
 version $version
