@@ -20,7 +20,7 @@ class SupportType {
     public static final String T_DecimalArray = T_Decimal + "[]";
     public static final String T_String = "java.lang.String";
     public static final String T_Date = "java.util.Date";
-    public static final String T_Part = "jakarta.servlet.http.Parts";
+    public static final String T_Part = "jakarta.servlet.http.Part";
     public static final String T_PartArray = T_Part + "[]";
     public static final String T_InputStream = "java.io.InputStream";
     public static final String T_Integer = "java.lang.Integer";
