@@ -9,6 +9,16 @@ version '1.0-SNAPSHOT'
 compileJava {
 }
 
+//application {
+//    mainClass = 'example.Main'// not work
+//}
+
+jar {
+    manifest {
+        from('build/generated/sources/annotationProcessor/java/main/META-INF/MANIFEST.MF')
+    }
+}
+
 repositories {
     maven {
         url = uri("https://mirrors.tencent.com/nexus/repository/maven-public/")
@@ -17,16 +27,23 @@ repositories {
 }
 
 dependencies {
-//    implementation project(':permission')
-    implementation project(':sentinel')
-//    implementation project(':jacksonxml')
-//    implementation project(':jackson')
+//    implementation 'org.apache.tomcat:tomcat-servlet-api:11+'
+//    implementation 'org.apache.tomcat:tomcat-catalina:11+'
+//
+//    implementation 'com.google.code.gson:gson:2+'
+//    compileOnly 'io.github.yeamy:restlite-apt:1.0-RC3'
+//    implementation 'io.github.yeamy:restlite-core:1.0-RC3'
+//    implementation 'io.github.yeamy:restlite-tomcat:1.0-RC3'
+//    implementation 'io.github.yeamy:restlite-gson:1.0-RC3'
+//
+//    annotationProcessor 'io.github.yeamy:restlite-apt:1.0-RC3'
+//    annotationProcessor 'io.github.yeamy:restlite-tomcat:1.0-RC3'
+
+
     implementation project(':gson')
     implementation project(':tomcat')
-//    implementation 'com.alibaba.nacos:nacos-client:2.5.1'
 
     annotationProcessor project(':apt')
-    annotationProcessor project(':nacos')
     annotationProcessor project(':tomcat')
 
 //    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
