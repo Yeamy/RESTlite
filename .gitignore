@@ -5,6 +5,7 @@ permission/build/
 gson/build/
 jackson/build/
 jacksonxml/build/
+fastjson/build/
 apt/build/
 sentinel/build/
 example/build/
