@@ -5,6 +5,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+/**
+ * response with an exception
+ */
 public class ExceptionResponse extends AbstractHttpResponse<Exception> {
 
 	public ExceptionResponse(Exception e) {

@@ -11,6 +11,7 @@ public class ETag {
 	 * Strong validation
 	 * @param eTagReq eTag from http request
 	 * @param eTagData eTag from local data
+	 * @return strong validation equals
 	 */
 	public static boolean compareStrong(String eTagReq, String eTagData) {
 		return eTagReq != null && eTagReq.equals(eTagData);
@@ -20,6 +21,7 @@ public class ETag {
 	 * Weak validation
 	 * @param eTagReq eTag from http request
 	 * @param eTagData eTag from local data
+	 * @return part validation equals
 	 */
 	public static boolean compareWeak(String eTagReq, String eTagData) {
 		return eTagReq != null && comparePart(eTagReq).equals(comparePart(eTagData));
