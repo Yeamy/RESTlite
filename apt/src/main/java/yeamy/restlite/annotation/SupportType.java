@@ -41,4 +41,6 @@ class SupportType {
     public static final String T_float = "float";
     public static final String T_double = "double";
     public static final String T_Charset = "java.nio.Charset";
+    public static final String T_CLASS = "java.lang.Class<?>";
+    public static final String T_Type = "java.lang.reflect.Type";
 }

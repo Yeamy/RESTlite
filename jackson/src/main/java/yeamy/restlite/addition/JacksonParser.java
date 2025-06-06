@@ -6,12 +6,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.apache.commons.lang3.time.FastDateFormat;
-import yeamy.restlite.HttpRequestFile;
-import yeamy.restlite.RESTfulRequest;
 import yeamy.restlite.annotation.BodyProcessor;
 import yeamy.restlite.annotation.PartProcessor;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.text.ParseException;
@@ -108,21 +107,11 @@ public class JacksonParser {
         JacksonParser.mapper = mapper;
     }
 
-    /**
-     * deserializes request body as JSON into an object of the specified class.
-     */
-    public static <T> T parse(RESTfulRequest request, Class<T> clz) throws IOException {
-        return fromJson(request.getBodyAsText(), clz);
-    }
-
-    public static <T> T parse(HttpRequestFile file, Class<T> clz) throws IOException {
-        return fromJson(file.getAsText(), clz);
-    }
-
     @BodyProcessor("jacksonBody")
     @PartProcessor("jacksonPart")
-    public static <T> T fromJson(String json, Class<T> clz) throws IOException {
-        return json == null ? null : mapper.readValue(json, clz);
+    public static <T> T fromJson(byte[] json, Type clz) throws IOException {
+        JavaType type = mapper.getTypeFactory().constructType(clz);
+        return json == null ? null : mapper.readValue(json, type);
     }
 
     /**

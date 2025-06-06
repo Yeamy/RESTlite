@@ -53,12 +53,12 @@ class SourceBodyProcessor {
 
     public static boolean checkParam(TypeMirror returnType, List<? extends VariableElement> parameters) {
         final String CLASS = "java.lang.Class<" + returnType + ">";
-        boolean checkType = returnType.getKind().equals(TypeKind.TYPEVAR);
-        int pType = checkType ? 0 : 1, pInput = 0, pOthers = 0;
+        boolean returnVar = returnType.getKind().equals(TypeKind.TYPEVAR);
+        int pType = returnVar ? 0 : 1, pInput = 0, pOthers = 0;
         for (VariableElement p : parameters) {
             TypeMirror pt = p.asType();
             String pts = pt.toString();
-            if (checkType && pts.equals(CLASS)) {
+            if (returnVar && (pts.equals(CLASS) || pts.equals(T_CLASS) || pts.equals(T_Type))) {
                 pType++;
             } else if (TextUtils.in(pts, SUPPORT_BODY_TYPE)) {
                 pInput++;

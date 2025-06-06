@@ -55,9 +55,23 @@ class SourcePartByExecutable extends SourcePart {
             }
             TypeMirror tm = p.asType();
             String type = tm.toString();
-            if (isTypeVar && CLASS.equals(type)) {
-                b.append(typeName).append(".class");
-                continue;
+            if (isTypeVar) {
+                if (CLASS.equals(type) || T_CLASS.equals(type)) {
+                    if (typeName.contains("<")) {
+                        env.error("Unable to generate code with generics of method:" + method.getSimpleName() + " arg:" + p.asType() + " " + p.getSimpleName());
+                        b.append("/*Unable to generate code with generics.*/null");
+                    } else {
+                        b.append(typeName).append(".class");
+                    }
+                    continue;
+                } else if (T_Type.equals(type)) {
+                    if (typeName.contains("<")) {
+                        b.append("new ").append(servlet.imports("yeamy.restlite.utils.TypeUtils")).append('<').append(returnType).append(">(){}.getType()");
+                    } else {
+                        b.append(typeName).append(".class");
+                    }
+                    continue;
+                }
             }
             switch (type) {
                 case T_Part -> b.append("_req.getPart(\"").append(name).append("\")");
@@ -68,6 +82,7 @@ class SourcePartByExecutable extends SourcePart {
                         .append(".invoke(_req.getFile(\"").append(name).append("\"),a->a.getAsByte())");
                 case T_String -> b.append(servlet.imports(T_IfNotNull))
                         .append(".invoke(_req.getFile(\"").append(name).append("\"),a->a.getAsText())");
+                default -> b.append(ProcessEnvironment.inValidTypeValue(tm));
             }
         }
         b.append(");");

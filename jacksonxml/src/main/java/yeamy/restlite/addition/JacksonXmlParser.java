@@ -3,19 +3,15 @@ package yeamy.restlite.addition;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import org.apache.commons.lang3.time.FastDateFormat;
-import yeamy.restlite.HttpRequestFile;
-import yeamy.restlite.RESTfulRequest;
 import yeamy.restlite.annotation.BodyProcessor;
 import yeamy.restlite.annotation.PartProcessor;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.text.ParseException;
@@ -112,24 +108,11 @@ public class JacksonXmlParser {
         JacksonXmlParser.mapper = mapper;
     }
 
-    /**
-     * deserializes request body as XML into an object of the specified class.
-     */
-    public static <T> T parse(RESTfulRequest request, Class<T> clz) throws IOException {
-        return fromXml(request.getBodyAsText(), clz);
-    }
-
-    /**
-     * deserializes request body-part as XML into an object of the specified class.
-     */
-    public static <T> T parse(HttpRequestFile file, Class<T> clz) throws IOException {
-        return fromXml(file.getAsText(), clz);
-    }
-
     @BodyProcessor("jacksonXmlBody")
     @PartProcessor("jacksonXmlPart")
-    public static <T> T fromXml(String xml, Class<T> clz) throws IOException {
-        return xml == null ? null : mapper.readValue(xml, clz);
+    public static <T> T fromXml(byte[] xml, Type clz) throws IOException {
+        JavaType type = mapper.getTypeFactory().constructType(clz);
+        return xml == null ? null : mapper.readValue(xml, type);
     }
 
     /**
