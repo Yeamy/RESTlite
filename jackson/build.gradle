@@ -1,5 +1,6 @@
 plugins {
     id 'java-library'
+    id 'maven-publish'
 }
 var $groupId = 'io.github.yeamy'
 var $artifactId = 'restlite-jackson'
@@ -14,7 +15,7 @@ repositories {
 
 dependencies {
     api project(':core')
-    compileOnly project(':apt')
+    compileOnlyApi project(':apt')
     api 'org.apache.commons:commons-lang3:3.12.0'
     api 'com.fasterxml.jackson.core:jackson-databind:2.15.1'
     api 'com.fasterxml.jackson.core:jackson-annotations:2.15.1'
@@ -26,16 +27,11 @@ dependencies {
 //    useJUnitPlatform()
 //}
 
-apply plugin: 'maven-publish'
-
-jar {// package code
-    archiveFileName = $artifactId + '.jar'
-}
 tasks.register('generateSourceJar', Jar) {
     archiveClassifier.set('sources')
-    from sourceSets.main.java.srcDirs
-    archiveFileName = $artifactId + '-sources.jar'
+    from sourceSets.main.allSource
 }
+
 javadoc {// create document
     source = sourceSets.main.java.srcDirs
     options {
@@ -46,9 +42,8 @@ javadoc {// create document
         links "https://docs.oracle.com/en/java/javase/17/docs/api"
     }
 }
+
 tasks.register('generateJavadoc', Jar) { // package document as jar
-    group = 'jar'
-    archiveFileName = $artifactId + '-javadoc.jar'
     archiveClassifier.set('javadoc')
     from "$rootDir/javadoc"
 }
@@ -56,6 +51,8 @@ tasks.register('generateJavadoc', Jar) { // package document as jar
 publishing {
     publications {
         maven(MavenPublication) {
+            from components.java
+
             groupId $groupId
             artifactId $artifactId
             version $version
@@ -91,7 +88,6 @@ publishing {
                 }
             }
             artifact generateSourceJar
-            artifact jar
             artifact generateJavadoc
         }
     }
