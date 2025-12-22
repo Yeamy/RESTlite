@@ -4,7 +4,7 @@ plugins {
 }
 var $groupId = 'io.github.yeamy'
 var $artifactId = 'restlite-jacksonxml'
-var $version = '1.0-RC4'
+var $version = '1.0-RC5'
 
 group $groupId
 version $version
@@ -16,7 +16,7 @@ repositories {
 dependencies {
     api project(':core')
     compileOnlyApi project(':apt')
-    api 'org.apache.commons:commons-lang3:3.12.0'
+    api 'org.apache.commons:commons-lang3:3.18.0'
     api 'com.fasterxml.jackson.core:jackson-databind:2.15.1'
     api 'com.fasterxml.jackson.core:jackson-annotations:2.15.1'
     api 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.15.1'

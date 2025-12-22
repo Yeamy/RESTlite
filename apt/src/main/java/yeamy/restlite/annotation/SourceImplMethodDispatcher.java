@@ -143,7 +143,7 @@ class SourceImplMethodDispatcher {
             env.warning("not support attribute type " + type + " without annotation Creator");
         } else {
             String iType = servlet.imports(tm);
-            args.addAttribute(name, alias).write(iType, " ", alias, " = (_req.getAttributeAs(\"", name, "\") instanceof ", iType, "_a) ? _a : null;");
+            args.addAttribute(name, alias).write(iType, " ", alias, " = (_req.getAttribute(\"", name, "\") instanceof ", iType, " _a) ? _a : null;");
         }
         return true;
     }

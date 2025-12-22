@@ -4,7 +4,7 @@ plugins {
 }
 var $groupId = 'io.github.yeamy'
 var $artifactId = 'restlite-tomcat'
-var $version = '1.0-RC4'
+var $version = '1.0-RC5'
 
 group $groupId
 version $version
@@ -16,8 +16,8 @@ repositories {
 dependencies {
     api project(':core')
     compileOnlyApi project(':apt')
-    api 'org.apache.tomcat:tomcat-catalina:11.0.7'
-    api 'org.apache.tomcat.embed:tomcat-embed-core:11.0.7'
+    api 'org.apache.tomcat:tomcat-catalina:11.0.12'
+    api 'org.apache.tomcat.embed:tomcat-embed-core:11.0.12'
 
 //    api('org.apache.tomcat.embed:tomcat-embed-core:11.0.3') {
 //        exclude group: 'org.apache.tomcat', module: 'tomcat-catalina'
