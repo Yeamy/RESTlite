@@ -357,7 +357,7 @@ class SourceImplMethodDispatcher {
         if (ann != null) {
             String alias = p.getSimpleName().toString();
             String name = name(ann, alias);
-            SourceParam param = SourceVariableHelper.getParam(env, servlet, p, ann);
+            SourceParam param = SourceVariableHelper.getParam(env, servlet, p);
             if (param != null) {
                 throwTypes.addAll(param.throwTypes());
                 args.addParam(type, name, alias).write(param.write(servlet, name, alias));
@@ -382,6 +382,14 @@ class SourceImplMethodDispatcher {
         }
         String name = p.getSimpleName().toString();
         if (TextUtils.notIn(type, SUPPORT_PARAM_TYPE)) {
+            SourceParam param = SourceVariableHelper.getParam(env, servlet, p);
+            if (param != null) {
+                throwTypes.addAll(param.throwTypes());
+                args.addParam(type, name, name).write(param.write(servlet, name, name));
+            } else {
+                args.addFallback(p);
+                env.warning("Not support param type " + type + " without annotation Creator");
+            }
             return;
         }
         SourceParam param = new SourceParamDefault(env, p, type);

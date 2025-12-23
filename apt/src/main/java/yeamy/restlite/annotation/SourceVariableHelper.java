@@ -160,7 +160,7 @@ abstract class SourceVariableHelper {
             findHeaderConstructor(list, elements, samePackage);
         }
         if (list.isEmpty()) {
-            env.error("Cannot find Constructor nor Factory-Method with no argument in type " + returnType);
+            env.error("Cannot find Constructor nor Factory-Method with one argument in type " + returnType);
             return null;
         } else if (list.size() > 1) {
             env.error("More than one Constructor in type:" + returnType + " " + param.getSimpleName());
@@ -231,7 +231,7 @@ abstract class SourceVariableHelper {
             findCookieConstructor(list, elements, samePackage);
         }
         if (list.isEmpty()) {
-            env.error("Cannot find Constructor nor Factory-Method with no argument in type " + returnType);
+            env.error("Cannot find Constructor nor Factory-Method with one argument in type " + returnType);
             return null;
         } else if (list.size() > 1) {
             env.error("More than one Constructor in type:" + returnType + " " + param.getSimpleName());
@@ -326,7 +326,7 @@ abstract class SourceVariableHelper {
             findBodyConstructor(list, elements, returnType, samePackage);
         }
         if (list.isEmpty()) {
-            env.error("Cannot find Constructor nor Factory-Method with no argument in type " + returnType);
+            env.error("Cannot find Constructor nor Factory-Method with one argument in type " + returnType);
             return null;
         } else if (list.size() > 1) {
             env.error("More than one Constructor in type:" + returnType + " " + param.getSimpleName());
@@ -421,7 +421,7 @@ abstract class SourceVariableHelper {
             findPartConstructor(list, elements, returnType, samePackage);
         }
         if (list.isEmpty()) {
-            env.error("Cannot find Constructor nor Factory-Method with no argument in type " + returnType);
+            env.error("Cannot find Constructor nor Factory-Method with one argument in type " + returnType);
             return null;
         } else if (list.size() > 1) {
             env.error("More than one Constructor in type:" + returnType + " " + param.getSimpleName());
@@ -492,9 +492,10 @@ abstract class SourceVariableHelper {
         }
     }
 
-    public static SourceParam getParam(ProcessEnvironment env, SourceServlet servlet, VariableElement param, Param ann) {
+    public static SourceParam getParam(ProcessEnvironment env, SourceServlet servlet, VariableElement param) {
         TypeMirror returnType = param.asType();
-        String processor = ann.processor();
+        Param ann = param.getAnnotation(Param.class);
+        String processor = (ann == null) ? "" : ann.processor();
         SourceParamProcessor p = env.getParamProcessor(returnType.toString(), processor);
         if (p != null) {
             if (p.method == null) return null;
@@ -520,7 +521,7 @@ abstract class SourceVariableHelper {
             findParamConstructor(list, elements, samePackage);
         }
         if (list.isEmpty()) {
-            env.error("Cannot find Constructor nor Factory-Method with no argument in type " + returnType);
+            env.error("Cannot find Constructor nor Factory-Method with one argument in type " + returnType);
             return null;
         } else if (list.size() > 1) {
             env.error("More than one Constructor in type:" + returnType + " " + param.getSimpleName());

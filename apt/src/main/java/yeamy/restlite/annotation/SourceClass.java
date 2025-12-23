@@ -37,12 +37,10 @@ abstract class SourceClass {
         }
         String ar = "";
         if (clz.charAt(clz.length() - 1) == ']') {
-            for (int i = clz.length() - 2; i > 0; i--) {
-                char c = clz.charAt(i);
-                if (c != '[' && c != ']') {
-                    ar = clz.substring(i);
-                    break;
-                }
+            int i = clz.indexOf('[');
+            if (i > 0) {
+                ar = clz.substring(i);
+                clz = clz.substring(0, i);
             }
         }
         String vp = "";

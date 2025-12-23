@@ -4,7 +4,7 @@ plugins {
 }
 var $groupId = 'io.github.yeamy'
 var $artifactId = 'restlite-apt'
-var $version = '1.0-RC5'
+var $version = '1.0-RC7'
 
 group $groupId
 version $version
@@ -42,6 +42,26 @@ javadoc {// create document
 tasks.register('generateJavadoc', Jar) { // package document as jar
     archiveClassifier.set('javadoc')
     from "$rootDir/javadoc"
+}
+
+tasks.register("closeUpload") {
+    doLast {
+        var uri = new URL("https://ossrh-staging-api.central.sonatype.com/manual/upload/defaultRepository/" + $groupId)
+        var key = ossrhUsername + ':' + ossrhPassword
+        var auth = "Basic " + Base64.encoder.encodeToString(key.bytes)
+        var conn
+        try {
+            conn = uri.openConnection() as HttpURLConnection
+            conn.requestMethod = "POST"
+            conn.setRequestProperty("Authorization", auth)
+            println("HTTP response code: " + conn.responseCode)
+        } catch (Exception e) {
+            println("HTTP request exception: ${e.message}")
+            e.printStackTrace()
+        } finally {
+            if (conn != null) conn.disconnect()
+        }
+    }
 }
 
 publishing {
@@ -90,7 +110,8 @@ publishing {
 
     repositories {
         maven {
-            url = 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
+            name = 'ossrh-staging-api'
+            url = "https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/"
             credentials {
                 username ossrhUsername
                 password ossrhPassword
