@@ -90,6 +90,8 @@ class SourceImplMethodDispatcher {
             doReturn(env, servlet, httpMethod);
             if (servlet.containsError() && args.hasThrow()) {
                 servlet.append("}catch(Exception e){onError(_req, _resp, e);}");
+            } else {
+                servlet.append('}');
             }
         } else {
             ArrayList<CharSequence> inTry = args.getInTry();
