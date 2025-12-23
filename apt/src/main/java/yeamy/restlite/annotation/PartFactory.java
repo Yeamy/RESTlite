@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Declare the annotation-type to replace @Part.<br>
+ * Declare the type's default factory to generate instance of part.<br>
  * <pre>{@code
  * @Retention(RetentionPolicy.CLASS)
  * @Target(ElementType.PARAMETER)
@@ -22,6 +22,7 @@ import java.lang.annotation.Target;
  *     }
  * }
  * }</pre>
+ * @see Parts
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.CLASS)

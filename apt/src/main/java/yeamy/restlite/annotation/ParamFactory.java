@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Declare the annotation-type to replace @Param.<br>
+ * Declare the type's default factory to generate instance of param.<br>
  * <pre>{@code
  * @Retention(RetentionPolicy.CLASS)
  * @Target(ElementType.PARAMETER)
@@ -24,6 +24,7 @@ import java.lang.annotation.Target;
  *     }
  * }
  * }</pre>
+ * @see Param
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.CLASS)
