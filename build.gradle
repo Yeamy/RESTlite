@@ -17,3 +17,23 @@ repositories {
 //test {
 //    useJUnitPlatform()
 //}
+
+tasks.register("closeUpload") {
+    doLast {
+        var uri = new URL("https://ossrh-staging-api.central.sonatype.com/manual/upload/defaultRepository/io.github.yeamy")
+        var key = ossrhUsername + ':' + ossrhPassword
+        var auth = "Basic " + Base64.encoder.encodeToString(key.bytes)
+        var conn
+        try {
+            conn = uri.openConnection() as HttpURLConnection
+            conn.requestMethod = "POST"
+            conn.setRequestProperty("Authorization", auth)
+            println("HTTP response code: " + conn.responseCode)
+        } catch (Exception e) {
+            println("HTTP request exception: ${e.message}")
+            e.printStackTrace()
+        } finally {
+            if (conn != null) conn.disconnect()
+        }
+    }
+}

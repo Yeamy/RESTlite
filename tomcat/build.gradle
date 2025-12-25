@@ -1,10 +1,11 @@
 plugins {
     id 'java-library'
     id 'maven-publish'
+    id 'signing'
 }
 var $groupId = 'io.github.yeamy'
 var $artifactId = 'restlite-tomcat'
-var $version = '1.0-RC5'
+var $version = '1.0-RC8'
 
 group $groupId
 version $version
@@ -98,7 +99,8 @@ publishing {
 
     repositories {
         maven {
-            url = 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
+            name = 'ossrh-staging-api'
+            url = 'https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/'
             credentials {
                 username ossrhUsername
                 password ossrhPassword
@@ -107,7 +109,6 @@ publishing {
     }
 }
 
-apply plugin: 'signing'
 signing {
     sign publishing.publications.maven
 }
