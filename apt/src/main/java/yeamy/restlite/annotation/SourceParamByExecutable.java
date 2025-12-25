@@ -45,7 +45,7 @@ class SourceParamByExecutable extends SourceParam {
         switch (method.getParameters().get(0).asType().toString()) {
             case T_int -> b.append("(_req.getIntParam(\"").append(name).append("\", 0));");
             case T_Integer -> b.append("(_req.getIntParam(\"").append(name).append("\"));");
-            case T_IntegerArray -> b.append("(_req.getIntegerParams(\"").append(name).append("\"));");
+            case T_IntegerArray -> b.append("(_req.getIntParams(\"").append(name).append("\"));");
             case T_long -> b.append("(_req.getLongParam(\"").append(name).append("\", 0L));");
             case T_Long -> b.append("(_req.getLongParam(\"").append(name).append("\"));");
             case T_LongArray -> b.append("(_req.getLongParams(\"").append(name).append("\"));");

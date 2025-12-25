@@ -108,6 +108,14 @@ public class ValueUtils {
         }
     }
 
+    public static BigDecimal toDecimal(String value, BigDecimal fallback) {
+        try {
+            return new BigDecimal(value);
+        } catch (NumberFormatException e) {
+            return fallback;
+        }
+    }
+
     public static BigDecimal[] toDecimal(String[] values) {
         if (values == null) {
             return null;

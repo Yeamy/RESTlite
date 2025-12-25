@@ -17,7 +17,7 @@ class SourceParamDefault extends SourceParam {
         return switch (returnType) {
             case T_int -> "int " + alias + " = _req.getIntParam(\"" + name + "\", 0);";
             case T_Integer -> "Integer " + alias + " = _req.getIntParam(\"" + name + "\");";
-            case T_IntegerArray -> "Integer[] " + alias + " = _req.getIntegerParams(\"" + name + "\");";
+            case T_IntegerArray -> "Integer[] " + alias + " = _req.getIntParams(\"" + name + "\");";
             case T_long -> "long " + alias + " = _req.getLongParam(\"" + name + "\", 0L);";
             case T_Long -> "Long " + alias + " = _req.getLongParam(\"" + name + "\");";
             case T_LongArray -> "Long[] " + alias + " = _req.getLongParams(\"" + name + "\");";

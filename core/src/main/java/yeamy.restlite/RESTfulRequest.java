@@ -317,10 +317,10 @@ public class RESTfulRequest implements Serializable {
     }
 
     public BigDecimal getDecimalParam(String name, BigDecimal fallback) {
-        return ValueUtils.toDecimal(getParam(name));
+        return ValueUtils.toDecimal(getParam(name), fallback);
     }
 
-    public boolean getBoolParam(String name, boolean fallback) {
+    public boolean getBooleanParam(String name, boolean fallback) {
         return ValueUtils.toBool(getParam(name), fallback);
     }
 
@@ -328,7 +328,7 @@ public class RESTfulRequest implements Serializable {
      * @param name name of param
      * @return Boolean type value, if fail return null
      */
-    public Boolean getBoolParam(String name) {
+    public Boolean getBooleanParam(String name) {
         return ValueUtils.toBool(getParam(name));
     }
 
