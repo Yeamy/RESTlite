@@ -30,8 +30,8 @@ class SourceParamDefault extends SourceParam {
             case T_boolean -> "boolean " + alias + " = _req.getBooleanParam(\"" + name + "\", false);";
             case T_Boolean -> "Boolean " + alias + " = _req.getBooleanParam(\"" + name + "\");";
             case T_BooleanArray -> "Boolean[] " + alias + " = _req.getBooleanParams(\"" + name + "\");";
-            case T_Decimal -> "BigDecimal " + alias + " = _req.getDecimalParam(\"" + name + "\");";
-            case T_DecimalArray -> "BigDecimal[] " + alias + " = _req.getDecimalParams(\"" + name + "\");";
+            case T_Decimal -> servlet.imports(T_Decimal) + " " + alias + " = _req.getDecimalParam(\"" + name + "\");";
+            case T_DecimalArray -> servlet.imports(T_DecimalArray) + " " + alias + " = _req.getDecimalParams(\"" + name + "\");";
             case T_String -> "String " + alias + " = _req.getParam(\"" + name + "\");";
             case T_StringArray -> "String[] " + alias + " = _req.getParams(\"" + name + "\");";
             default -> null;// never go here
